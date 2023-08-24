@@ -67,27 +67,28 @@ class Cir_line(Scene):
         circle = Circle(radius=radius_circle, color=BLUE, stroke_width=1.5)
         dot = Dot(color=RED).move_to(radius_circle * RIGHT)
         line = Line(radius_circle * 2 * LEFT, radius_circle * 2 * RIGHT, color=BLUE_B, stroke_width=1.5)
-
+        circle_list = VGroup()
+        circle_show = Circle()
         draw = VGroup()
 
         def circle_updater(mobject):
-            c = Circle(radius=dot.get_center()[1], color=PINK, stroke_width=1)
-            c.move_to(dot.get_center())
-            mobject.become(c)
+            new = Circle(radius=dot.get_center()[1], color=PINK, stroke_width=1)
+            new.move_to(dot.get_center())
+            mobject.become(new)
 
         def draw_updater(mobject):
-            c = circle_f.copy()
-            mobject.add(c)
+            new = circle_show.copy()
+            circle_list.add(new)
+            mobject.become(circle_list)
 
-        circle_f = Circle().add_updater(circle_updater)
+        circle_show.add_updater(circle_updater)
         draw.add_updater(draw_updater)
 
-        self.add(dot, circle_f)
+        self.add(circle_show)
         self.play(Create(circle), Create(line))
-        self.play(Rotating(dot, radians=TAU, about_point=ORIGIN, run_time=4, rate_func=there_and_back))
+        self.play(Rotating(dot, radians=PI, about_point=ORIGIN, run_time=4, rate_func=there_and_back))
         self.wait()
         self.add(draw)
-        print(len(draw))
         self.play(MoveAlongPath(dot, circle), rate_func=linear, run_time=12)
         self.wait(3)
 
