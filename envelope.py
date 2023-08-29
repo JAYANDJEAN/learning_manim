@@ -16,6 +16,7 @@ PLANE = NumberPlane(
     }
 )
 
+
 class CircleLine(Scene):
     def __init__(self):
         super().__init__()
