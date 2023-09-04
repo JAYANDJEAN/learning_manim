@@ -16,8 +16,7 @@ time_draw_line = 4  # 画极坐标图像的时间
 PLANE = NumberPlane(
     background_line_style={
         "stroke_color": TEAL,
-        "stroke_width": 3,
-        "stroke_opacity": 0.3
+        "stroke_width": 3
     }
 )
 
@@ -66,7 +65,9 @@ def get_lines_for_multiply(num_points):
 
 class Cardioid(Scene):
     def construct(self):
-        self.add(PLANE)
+        self.play(FadeIn(PLANE), run_time=3)
+        self.play(PLANE.animate.set_opacity(0.3))
+        self.wait()
         self.by_rotate()
         self.by_reflection()
         self.by_multiply_two()
@@ -74,12 +75,19 @@ class Cardioid(Scene):
     def by_rotate(self):
         radius_circle = 1
 
-        circle_fix = Circle(radius=radius_circle, color=GREY, stroke_width=WIDTH_BACK)
-        circle_mov = Circle(radius=radius_circle, color=GREY, stroke_width=WIDTH_BACK).rotate(PI)
+        circle_fix = Circle(radius=radius_circle,
+                            color=GREY,
+                            stroke_width=WIDTH_BACK)
+        circle_mov = Circle(radius=radius_circle,
+                            color=GREY,
+                            stroke_width=WIDTH_BACK).rotate(PI)
         circle_mov.next_to(circle_fix, RIGHT, buff=0)
         circle_mov.start_state = circle_mov.copy()
-        dot = Dot(circle_mov.point_from_proportion(0), color=ORANGE)
-        line = Line(circle_mov.get_center(), dot.get_center(), color=COLOR_BACK, stroke_width=WIDTH_ENVELOPE)
+        dot = Dot(circle_mov.get_start(), color=ORANGE)
+        line = Line(start=circle_mov.get_center(),
+                    end=dot.get_center(),
+                    color=COLOR_BACK,
+                    stroke_width=WIDTH_ENVELOPE)
         path = VMobject(color=WHITE, stroke_width=WIDTH_BACK)
         path.append_vectorized_mobject(Line(dot.get_center(), dot.get_center()))
         group_mov = VGroup(circle_mov, line, dot, path)
@@ -90,10 +98,10 @@ class Cardioid(Scene):
             c.become(c.start_state)
             c.rotate(TAU * alpha.get_value(), about_point=circle_fix.get_center())
             c.rotate(TAU * alpha.get_value(), about_point=c.get_center())
-            d.move_to(circle_mov.point_from_proportion(0))
-            p.add_line_to(dot.get_center())
+            d.move_to(c.get_start())
+            p.add_line_to(d.get_center())
             p.make_smooth()
-            l.put_start_and_end_on(circle_mov.get_center(), dot.get_center())
+            l.put_start_and_end_on(c.get_center(), d.get_center())
 
         group_mov.add_updater(update_group)
 
@@ -107,13 +115,9 @@ class Cardioid(Scene):
                   run_time=time_show_all)
         self.wait(time_gap)
 
-        animations = [
-            FadeOut(line),
-            FadeOut(dot),
-            FadeOut(circle_fix, shift=DOWN),
-            FadeOut(circle_mov, shift=DOWN)
-        ]
-        self.play(AnimationGroup(*animations, lag_ratio=0.5, run_time=time_fadeout))
+        self.play(FadeOut(line, dot),
+                  FadeOut(circle_fix, shift=DOWN))
+        self.play(FadeOut(circle_mov, shift=DOWN))
         self.wait(time_gap)
 
         self.play(FadeOut(path))
