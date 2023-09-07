@@ -1,8 +1,9 @@
 # my_template.py
 from manim import *
 
-class Opening(Scene):
-    def construct(self):
+
+class SameScene(Scene):
+    def opening(self, title_words):
         PLANE = NumberPlane(
             background_line_style={
                 "stroke_color": TEAL,
@@ -11,7 +12,7 @@ class Opening(Scene):
             }
         )
         self.add(PLANE)
-        title = Tex("Reflection in Ellipse").scale(3)
+        title = Tex(title_words).scale(3)
         self.play(Write(title), run_time=3)
         logo = MathTex(r"\mathbb{JAYANDJEAN}",
                        fill_color="#343434").next_to(title, DOWN, buff=0.5).scale(2)

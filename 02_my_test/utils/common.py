@@ -1,4 +1,3 @@
-from manim import *
 import numpy as np
 
 a = 5.0
@@ -31,22 +30,12 @@ def get_ellipse_another_point(x0, y0, k):
     return x_p, y_p
 
 
-def get_ellipse_reflections(x_ellipse, y_ellipse, num):
-    k_i = (y_ellipse - b) / x_ellipse
-    lines = VGroup()
-    lines.add(Line(np.array([0, b, 0]),
-                   np.array([x_ellipse, y_ellipse, 0]),
-                   stroke_width=1.5))
-    for i in range(num):
-        k_n = get_ellipse_slope_n(x_ellipse, y_ellipse)
-        k_o = get_slope_out(k_i, k_n)
-        x1, y1 = get_ellipse_another_point(x_ellipse, y_ellipse, k_o)
+def get_ellipse_reflection_line(x0, y0, x1, y1):
+    k_i = (y1 - y0) / (x1 - x0)
+    k_n = get_ellipse_slope_n(x1, y1)
+    k_o = get_slope_out(k_i, k_n)
+    x2, y2 = get_ellipse_another_point(x1, y1, k_o)
+    return x2, y2
 
-        lines.add(Line(np.array([x_ellipse, y_ellipse, 0]),
-                       np.array([x1, y1, 0]),
-                       stroke_width=1.5))
-        x_ellipse = x1
-        y_ellipse = y1
-        k_i = k_o
-    lines.set_color_by_gradient(BLUE, YELLOW, RED)
-    return lines
+
+
