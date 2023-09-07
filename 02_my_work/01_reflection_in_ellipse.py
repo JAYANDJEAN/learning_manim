@@ -31,8 +31,7 @@ class Reflection(SameScene):
         self.play(Create(ellipse), Create(dot_focus1), Create(dot_focus2))
         self.wait(time_gap)
 
-        # x_list = [2.0, 3.0, 4.0, 4.5, 4.95]
-        x_list = [2.0]
+        x_list = [2.0, 3.0, 4.0, 4.5, 4.95]
         for x in x_list:
             lines = get_ellipse_reflections(x, -get_ellipse_y(x), 100)
             self.play(Create(lines), run_time=7)
