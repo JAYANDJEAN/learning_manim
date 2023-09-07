@@ -223,3 +223,102 @@ class Cardioid(Scene):
 
         self.play(FadeOut(path))
         self.wait(time_gap)
+
+
+
+class CircleLine(Scene):
+    def __init__(self):
+        super().__init__()
+        self.index = 0
+
+    def construct(self):
+        self.add(PLANE)
+        radius_circle = 1.5
+        time_show = 4
+        time_create = 12
+        circle = Circle(radius=radius_circle, color=COLOR_BACK, stroke_width=WIDTH_BACK)
+        dot = Dot(color=ORANGE).move_to(radius_circle * RIGHT)
+        line = Line(radius_circle * 2 * LEFT, radius_circle * 2 * RIGHT,
+                    color=COLOR_BACK, stroke_width=WIDTH_BACK)
+        circle_list = VGroup()
+        circle_show = Circle()
+        circle_draw = VGroup()
+
+        def circle_updater(mobject):
+            new = Circle(radius=dot.get_center()[1], color=GREY, stroke_width=WIDTH_ENVELOPE)
+            new.move_to(dot.get_center())
+            mobject.become(new)
+
+        def draw_updater(mobject):
+            new = circle_show.copy()
+            if self.index % 5 == 0:
+                circle_list.add(new)
+                mobject.become(circle_list)
+            self.index += 1
+
+        circle_show.add_updater(circle_updater)
+        circle_draw.add_updater(draw_updater, index=10)
+
+        self.add(circle_show)
+        self.play(Create(circle), Create(line))
+        self.play(Rotating(dot, radians=PI,
+                           about_point=ORIGIN,
+                           run_time=time_show,
+                           rate_func=there_and_back))
+        self.wait(time_gap)
+
+        self.add(circle_draw)
+        self.play(MoveAlongPath(dot, circle), rate_func=linear, run_time=time_create)
+        self.play(FadeOut(circle), FadeOut(line))
+        self.wait(time_gap)
+
+
+
+class TracedPathExample(Scene):
+    def construct(self):
+        # circ = Circle(color=RED).shift(4 * LEFT)
+        # dot = Dot(color=RED).move_to(circ.get_start())
+        # rolling_circle = VGroup(circ, dot)
+        # trace = TracedPath(circ.get_start)
+        # rolling_circle.add_updater(lambda m: m.rotate(-PI / 2))
+        # self.add(trace, rolling_circle)
+        # self.play(rolling_circle.animate.shift(8 * RIGHT), run_time=4, rate_func=linear)
+
+        radius_circle = 1
+
+        circle_fix = Circle(radius=radius_circle,
+                            color=GREY,
+                            stroke_width=3)
+        circle_mov = Circle(radius=radius_circle,
+                            color=GREY,
+                            stroke_width=3).rotate(PI)
+        circle_mov.next_to(circle_fix, RIGHT, buff=0)
+        dot = Dot(color=ORANGE).move_to(circle_mov.get_start())
+        line = Line(start=circle_mov.get_center(),
+                    end=dot.get_center(),
+                    color=WHITE,
+                    stroke_width=2)
+
+        group_mov = VGroup(circle_mov, line, dot)
+        trace = TracedPath(circle_mov.get_start)
+
+        def update_group(group):
+            theta = -0.1
+            c, l, d = group
+            c.rotate(theta, about_point=circle_fix.get_center())
+            c.rotate(theta, about_point=c.get_center())
+            d.move_to(c.get_start())
+            l.put_start_and_end_on(c.get_center(), d.get_center())
+
+        group_mov.add_updater(update_group)
+
+        self.play(Create(circle_fix), Create(circle_mov))
+        self.play(Create(line), Create(dot))
+        self.wait()
+
+        self.add(trace, group_mov)
+        self.play(group_mov.animate.rotate(TAU),
+                  rate_func=linear,
+                  run_time=4)
+        self.wait()
+
