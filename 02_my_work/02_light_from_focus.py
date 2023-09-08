@@ -16,8 +16,8 @@ class Focus(SameScene):
         self.wait(time_gap)
         lines = VGroup()
         for x1 in np.linspace(-c + 0.1, c - 0.1, 40):
-            y1 = get_ellipse_y(x1)
-            x2, y2 = get_ellipse_reflection_line(c, 0, x1, y1)
+            y1 = get_y(x1, 'ellipse')
+            x2, y2 = get_reflection_line(c, 0, x1, y1, a, b)
             lines.add(Line(np.array([c, 0, 0]),
                            np.array([x1, y1, 0]),
                            stroke_width=1.5))
@@ -32,4 +32,3 @@ class Focus(SameScene):
         self.wait(time_gap)
         self.play(FadeOut(ellipse, shift=DOWN))
         self.wait(time_gap)
-

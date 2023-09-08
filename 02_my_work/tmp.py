@@ -1,10 +1,10 @@
 from manim import *
-from utils.template import Opening
+from utils.template import SameScene
 
 
-class PlayAnimationsInGroup(Opening):
+class PlayAnimationsInGroup(SameScene):
     def construct(self):
-        super().construct()
+        super().opening("Point Light in Ellipse")
         # 创建一个圆和一个正方形
         circle = Circle()
         square = Square()

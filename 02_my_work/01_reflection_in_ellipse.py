@@ -10,7 +10,7 @@ def get_ellipse_reflections(x_start, y_start, num):
                    np.array([x1, y1, 0]),
                    stroke_width=1.5))
     for i in range(num):
-        x2, y2 = get_ellipse_reflection_line(x0, y0, x1, y1)
+        x2, y2 = get_reflection_line(x0, y0, x1, y1, a, b)
         lines.add(Line(np.array([x1, y1, 0]),
                        np.array([x2, y2, 0]),
                        stroke_width=1.5))
@@ -33,13 +33,13 @@ class Reflection(SameScene):
 
         x_list = [2.0, 3.0, 4.0, 4.5, 4.95]
         for x in x_list:
-            lines = get_ellipse_reflections(x, -get_ellipse_y(x), 100)
+            lines = get_ellipse_reflections(x, -get_y(x, 'ellipse'), 100)
             self.play(Create(lines), run_time=7)
             self.wait(time_gap)
             self.play(FadeOut(lines))
             self.wait(time_gap)
             if x == 4.95:
-                lines = get_ellipse_reflections(x, get_ellipse_y(x), 100)
+                lines = get_ellipse_reflections(x, get_y(x, 'ellipse'), 100)
                 self.play(Create(lines), run_time=7)
                 self.wait(time_gap)
                 self.play(FadeOut(lines))
