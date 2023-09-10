@@ -72,7 +72,7 @@ class Reflection(SameScene):
             return graph
 
         # 片头
-        super().opening("Reflection in Ellipse I")
+        super().opening("Reflection I")
 
         ellipse = Ellipse(width=a * 2, height=b * 2, color=BLUE_B)
         dot_focus1 = Dot(color=ORANGE).move_to(RIGHT * c)

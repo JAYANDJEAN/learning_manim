@@ -35,7 +35,7 @@ class Point(SameScene):
 
     def construct(self):
         # 片头
-        super().opening('Reflection in Ellipse II')
+        super().opening('Reflection II')
 
         num_demo = 8
         num_all = 128
