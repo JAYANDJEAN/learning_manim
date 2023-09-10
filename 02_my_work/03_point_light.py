@@ -35,7 +35,7 @@ class Point(SameScene):
 
     def construct(self):
         # 片头
-        super().opening('Reflection in Ellipse')
+        super().opening('Reflection in Ellipse II')
 
         num_demo = 8
         num_all = 128
@@ -53,23 +53,33 @@ class Point(SameScene):
         dot = Dot(color=ORANGE).move_to(r * RIGHT)
 
         # 画圆和点
+        text = super().caption("我们先从简单的例子出发，可视化光线在圆里的反射。")
         self.play(Create(circle), Create(dot))
         self.wait(time_gap)
+
         # 画示例光线
+        self.play(FadeOut(text))
+        text = super().caption("光线经圆的内壁反射，比如像这样。")
         actions1, lines1 = get_lines_for_reflection(num_demo, r, r)
         self.play(*actions1)
         self.wait(time_gap)
+
         # 示例光线消失
-        self.play(FadeOut(lines1))
+        self.play(FadeOut(lines1), FadeOut(text))
         self.wait(time_gap)
         # 画全部光线
+        text = super().caption("增加光线数量，以模拟真实场景。")
         actions2, lines2 = get_lines_for_reflection(num_all, r, r)
         self.play(*actions2)
         self.wait(time_gap)
+
         # 画极坐标图像
+        self.play(FadeOut(text))
+        text = super().caption("光线形成的包络是心脏线。")
         self.play(Create(cardioid), run_time=4)
+
         # 消失
-        self.play(FadeOut(circle, dot, lines2))
+        self.play(FadeOut(circle, dot, lines2), FadeOut(text))
         self.wait(time_gap)
         self.play(FadeOut(cardioid))
         self.wait(time_gap)
@@ -77,22 +87,20 @@ class Point(SameScene):
         ellipse = Ellipse(width=a * 2, height=b * 2, color=BLUE_B)
         dot = Dot(color=ORANGE).move_to(a * RIGHT)
         # 画椭圆
+        text = super().caption("现在可视化光线在椭圆内的反射。")
         self.play(Create(ellipse), Create(dot))
-        self.wait(time_gap)
-        # 画示例光线
-        actions1, lines1 = get_lines_for_reflection(num_demo, a, b)
-        self.play(*actions1)
-        self.wait(time_gap)
-        # 示例光线消失
-        self.play(FadeOut(lines1))
         self.wait(time_gap)
         # 画全部光线
         actions2, lines2 = get_lines_for_reflection(num_all, a, b)
         self.play(*actions2)
         self.wait(time_gap)
         # 消失
-        self.play(FadeOut(lines2))
-        self.wait(time_gap)
-        self.play(FadeOut(ellipse, shift=DOWN), FadeOut(dot, shift=DOWN))
+        self.play(FadeOut(lines2), FadeOut(text))
         self.wait(time_gap)
 
+        text = super().caption("这个形成的包络是什么曲线呢？")
+        self.wait(time_gap)
+
+        self.play(FadeOut(text))
+        self.play(FadeOut(ellipse, shift=DOWN), FadeOut(dot, shift=DOWN))
+        self.wait(time_gap)

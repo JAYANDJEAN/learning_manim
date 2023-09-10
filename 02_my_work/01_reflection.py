@@ -72,7 +72,7 @@ class Reflection(SameScene):
             return graph
 
         # 片头
-        super().opening("Reflection in Ellipse")
+        super().opening("Reflection in Ellipse I")
 
         ellipse = Ellipse(width=a * 2, height=b * 2, color=BLUE_B)
         dot_focus1 = Dot(color=ORANGE).move_to(RIGHT * c)
@@ -102,20 +102,17 @@ class Reflection(SameScene):
         self.wait(time_gap)
 
         # 画经过焦点的线
-        text = "我们都知道从焦点发出的光线经椭圆反射，都会经过另一个焦点。"
-        text = super().caption(text)
+        text = super().caption("我们都知道从焦点发出的光线经椭圆反射，都会经过另一个焦点。")
         self.play(Create(lines_from_focus), run_time=time_play)
         self.wait(time_gap)
         self.play(FadeOut(text), FadeOut(lines_from_focus))
 
         # index:0，画椭圆内反射
-        text = "如果光线并不经过焦点，那么光线会在椭圆内不断反射。比如像这样。"
-        text = super().caption(text)
+        text = super().caption("如果光线并不经过焦点，那么光线会在椭圆内不断反射。比如像这样。")
         self.wait()
         self.play(Create(lines_reflection[0]), run_time=time_play)
         self.play(FadeOut(text))
-        text = "这些光线形成的包络是双曲线，且双曲线的焦点与椭圆的焦点重合。"
-        text = super().caption(text)
+        text = super().caption("这些光线形成的包络是双曲线，且双曲线的焦点与椭圆的焦点重合。")
         self.play(Create(envelopes[0]), run_time=time_draw)
         self.wait(time_gap)
         self.play(FadeOut(text), FadeOut(lines_reflection[0]))
@@ -124,8 +121,7 @@ class Reflection(SameScene):
         self.wait(time_gap)
 
         # index:1，
-        text = "我们可以再举个例子。"
-        text = super().caption(text)
+        text = super().caption("我们可以再举个例子。")
         self.play(Create(lines_reflection[1]), run_time=time_play)
         self.play(Create(envelopes[1]), run_time=time_draw)
         self.play(FadeOut(text), FadeOut(lines_reflection[1]))
@@ -134,8 +130,7 @@ class Reflection(SameScene):
         self.wait(time_gap)
 
         # index:2，
-        text = "光线在椭圆内的反射也可以形成另一个椭圆。比如像这样。"
-        text = super().caption(text)
+        text = super().caption("光线在椭圆内的反射也可以形成另一个椭圆。比如像这样。")
         self.wait()
         self.play(Create(lines_reflection[2]), run_time=time_play)
         self.wait(time_gap)
@@ -147,14 +142,18 @@ class Reflection(SameScene):
         self.wait(time_gap)
 
         # index:3，
-        text = "同样我们可以再举个例子。"
-        text = super().caption(text)
+        text = super().caption("同样我们可以再举个例子。")
         self.play(Create(lines_reflection[3]), run_time=time_play)
         self.play(Create(envelopes[3]), run_time=time_draw)
         self.play(FadeOut(text), FadeOut(lines_reflection[3]))
         self.wait(time_gap)
         self.play(FadeOut(envelopes[3]))
         self.wait(time_gap)
+
+        #
+        text = super().caption("那怎么证明呢？我还在写。")
+        self.wait(time_gap)
+        self.play(FadeOut(text))
 
         # 清理最后的
 
