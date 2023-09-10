@@ -1,9 +1,10 @@
 import numpy as np
 
-a = 5
-b = 3
-c = 4
+a = 5.0
+b = 3.0
+c = 4.0
 r = 3
+e = c / a
 time_gap = 2
 
 

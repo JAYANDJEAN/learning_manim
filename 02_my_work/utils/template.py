@@ -27,3 +27,8 @@ class SameScene(Scene):
         self.play(FadeOut(title))
         self.play(logo.animate.scale(0.4).move_to(RIGHT * 5.4 + UP * 3.2))
         self.wait(2)
+
+    def caption(self, words):
+        text = Text(words, font="Menlo", font_size=24).move_to(DOWN * 3.5)
+        self.play(Write(text), run_time=2)
+        return text

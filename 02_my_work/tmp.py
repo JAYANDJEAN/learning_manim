@@ -1,14 +1,16 @@
+import numpy as np
 from manim import *
+from utils.common import *
 from utils.template import SameScene
 
 
-class PlayAnimationsInGroup(SameScene):
+class HyperbolaScene(Scene):
     def construct(self):
-        super().opening("Point Light in Ellipse")
-        # 创建一个圆和一个正方形
-        circle = Circle()
-        square = Square()
+        plane = PolarPlane()
 
-        # 播放动画组
-        self.play(Create(circle))
-        self.wait(2)
+        graph = plane.plot_polar_graph(
+            lambda theta: 1 / (1 + e * np.cos(theta)),
+            theta_range=[0, 2 * PI],
+            color=ORANGE)
+        self.add(plane, graph)
+        self.wait(3)

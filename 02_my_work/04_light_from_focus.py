@@ -14,15 +14,16 @@ class Focus(SameScene):
         dot_focus2 = Dot(color=ORANGE).move_to(LEFT * c)
 
         lines = VGroup()
-        for x1 in np.linspace(-c + 0.1, c - 0.1, 40):
-            y1 = get_y(x1, a, b)
-            x2, y2 = get_reflection_line(c, 0, x1, y1, a, b)
-            lines.add(Line(np.array([c, 0, 0]),
-                           np.array([x1, y1, 0]),
-                           stroke_width=1.5))
+        x0, y0, x1, y1 = c, 0, 2, get_y(2, a, b)
+        lines.add(Line(np.array([x0, y0, 0]),
+                       np.array([x1, y1, 0]),
+                       stroke_width=1.5))
+        for i in range(100):
+            x2, y2 = get_reflection_line(x0, y0, x1, y1, a, b)
             lines.add(Line(np.array([x1, y1, 0]),
                            np.array([x2, y2, 0]),
                            stroke_width=1.5))
+            x0, y0, x1, y1 = x1, y1, x2, y2
         lines.set_color_by_gradient(BLUE, YELLOW, RED)
 
         # 画椭圆和焦点

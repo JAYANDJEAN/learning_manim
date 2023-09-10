@@ -4,18 +4,18 @@ from utils.template import SameScene
 import numpy as np
 
 
-def get_lines_for_reflection(num_points):
+def get_lines_for_reflection(num_points, long, short):
     lines = VGroup()
     actions = []
     width = 1.5 if num_points > 100 else 3
-    run = 7 if num_points > 100 else 4
+    run = 7 if num_points > 100 else 3
 
     for i in range(1, num_points):
         theta = i * 2 * PI / num_points
-        x1 = Circle(radius=r).point_at_angle(theta)[0]
-        for y1 in [get_y(x1, r, r), -get_y(x1, r, r)]:
-            x2, y2 = get_reflection_line(r, 0, x1, y1, r, r)
-            line1 = Line(np.array([r, 0, 0]),
+        x1 = Circle(radius=long).point_at_angle(theta)[0]
+        for y1 in [get_y(x1, long, short), -get_y(x1, long, short)]:
+            x2, y2 = get_reflection_line(long, 0, x1, y1, long, short)
+            line1 = Line(np.array([long, 0, 0]),
                          np.array([x1, y1, 0]),
                          stroke_width=width,
                          color=GREY)
@@ -35,7 +35,7 @@ class Point(SameScene):
 
     def construct(self):
         # 片头
-        super().opening('Point Light in Circle')
+        super().opening('Reflection in Ellipse')
 
         num_demo = 8
         num_all = 128
@@ -49,33 +49,50 @@ class Point(SameScene):
             color=WHITE,
         )
 
-        circle = Circle(radius=r, color=WHITE, stroke_width=3)
+        circle = Circle(radius=r, color=BLUE_B, stroke_width=3)
         dot = Dot(color=ORANGE).move_to(r * RIGHT)
 
         # 画圆和点
         self.play(Create(circle), Create(dot))
         self.wait(time_gap)
-
         # 画示例光线
-        actions1, lines1 = get_lines_for_reflection(num_demo)
+        actions1, lines1 = get_lines_for_reflection(num_demo, r, r)
         self.play(*actions1)
         self.wait(time_gap)
-
         # 示例光线消失
         self.play(FadeOut(lines1))
         self.wait(time_gap)
-
         # 画全部光线
-        actions2, lines2 = get_lines_for_reflection(num_all)
+        actions2, lines2 = get_lines_for_reflection(num_all, r, r)
         self.play(*actions2)
         self.wait(time_gap)
-
         # 画极坐标图像
         self.play(Create(cardioid), run_time=4)
-
-        #
+        # 消失
         self.play(FadeOut(circle, dot, lines2))
         self.wait(time_gap)
-
         self.play(FadeOut(cardioid))
         self.wait(time_gap)
+
+        ellipse = Ellipse(width=a * 2, height=b * 2, color=BLUE_B)
+        dot = Dot(color=ORANGE).move_to(a * RIGHT)
+        # 画椭圆
+        self.play(Create(ellipse), Create(dot))
+        self.wait(time_gap)
+        # 画示例光线
+        actions1, lines1 = get_lines_for_reflection(num_demo, a, b)
+        self.play(*actions1)
+        self.wait(time_gap)
+        # 示例光线消失
+        self.play(FadeOut(lines1))
+        self.wait(time_gap)
+        # 画全部光线
+        actions2, lines2 = get_lines_for_reflection(num_all, a, b)
+        self.play(*actions2)
+        self.wait(time_gap)
+        # 消失
+        self.play(FadeOut(lines2))
+        self.wait(time_gap)
+        self.play(FadeOut(ellipse, shift=DOWN), FadeOut(dot, shift=DOWN))
+        self.wait(time_gap)
+
