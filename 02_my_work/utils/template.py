@@ -29,6 +29,6 @@ class SameScene(Scene):
         self.wait(2)
 
     def caption(self, words):
-        text = Text(words, font="Menlo", font_size=24).move_to(DOWN * 3.5)
+        text = Text(words, font="Sans", font_size=24).move_to(DOWN * 3.5)
         self.play(Write(text), run_time=2)
         return text
