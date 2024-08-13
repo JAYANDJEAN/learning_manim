@@ -225,7 +225,6 @@ class Cardioid(Scene):
         self.wait(time_gap)
 
 
-
 class CircleLine(Scene):
     def __init__(self):
         super().__init__()
@@ -271,7 +270,6 @@ class CircleLine(Scene):
         self.play(MoveAlongPath(dot, circle), rate_func=linear, run_time=time_create)
         self.play(FadeOut(circle), FadeOut(line))
         self.wait(time_gap)
-
 
 
 class TracedPathExample(Scene):
@@ -321,4 +319,3 @@ class TracedPathExample(Scene):
                   rate_func=linear,
                   run_time=4)
         self.wait()
-

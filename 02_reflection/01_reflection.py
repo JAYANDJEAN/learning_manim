@@ -1,7 +1,6 @@
 import numpy as np
 from manim import *
-from utils.common import *
-from utils.template import SameScene
+from utils import *
 
 X_S = 0
 Y_S = b

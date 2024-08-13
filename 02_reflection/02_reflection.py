@@ -1,6 +1,5 @@
 from manim import *
-from utils.common import *
-from utils.template import SameScene
+from utils import *
 import numpy as np
 
 
