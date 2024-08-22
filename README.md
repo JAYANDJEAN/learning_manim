@@ -4,3 +4,7 @@
 2. 01_tutorials:
    1. https://github.com/brianamedee/Manim-Tutorials-2021
    2. https://www.youtube.com/watch?v=jFqYq9quBds&list=PLWOlLjdyZm2NQD1YZmEPB0dwbd0yKINAT&index=2
+
+
+1. `pip install git+https://github.com/3b1b/manim.git`
+2. 
