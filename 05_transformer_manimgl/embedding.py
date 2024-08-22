@@ -1,7 +1,8 @@
+import os
+import sys
+
 import gensim.downloader
 import tiktoken
-import sys
-import os
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(current_dir)
@@ -93,7 +94,7 @@ def get_piece_rectangles(
 
 
 def get_word_to_vec_model(model_name="glove-wiki-gigaword-50"):
-    filename = str(Path(DATA_DIR, model_name))
+    filename = f"images/{model_name}"
     if os.path.exists(filename):
         return gensim.models.keyedvectors.KeyedVectors.load(filename)
     model = gensim.downloader.load(model_name)
@@ -103,7 +104,7 @@ def get_word_to_vec_model(model_name="glove-wiki-gigaword-50"):
 
 # For chapter 1
 
-
+# done
 class LyingAboutTokens2(InteractiveScene):
     def construct(self):
         # Mention next word prediction task
@@ -245,17 +246,13 @@ class LyingAboutTokens2(InteractiveScene):
             self.wait()
 
 
-class DiscussTokenization(InteractiveScene):
-    def construct(self):
-        pass
-
-
+# done
 class ImageTokens(InteractiveScene):
     n_divisions = 52
 
     def construct(self):
         # Add image
-        image = ImageMobject("SmallFluffCreature")  # Change
+        image = ImageMobject("images/image.png")  # Change
         image.set_height(5)
         self.add(image)
 
@@ -284,6 +281,7 @@ class ImageTokens(InteractiveScene):
         self.wait()
 
 
+# done
 class SoundTokens(InteractiveScene):
     def construct(self):
         # Add wave form
@@ -326,6 +324,7 @@ class SoundTokens(InteractiveScene):
         self.wait()
 
 
+# done
 class IntroduceEmbeddingMatrix(InteractiveScene):
     def construct(self):
         # Load words
@@ -674,11 +673,11 @@ class Word2VecScene(InteractiveScene):
             label_text=word if func_name is None else f"{func_name}({word})",
             buff=0,
             direction=direction,
-            label_rotation=self.label_rotation,
             **label_config,
         )
 
 
+# done
 class AmbientWordEmbedding(Word2VecScene):
     def construct(self):
         # Setup
@@ -761,6 +760,7 @@ class AmbientWordEmbedding(Word2VecScene):
         self.wait(15)
 
 
+# done
 class ThreeDSpaceExample(InteractiveScene):
     def construct(self):
         # Set up axes
@@ -889,6 +889,7 @@ class ThreeDSpaceExample(InteractiveScene):
         self.wait(15)
 
 
+# done
 class HighDimensionalSpaceCompanion(InteractiveScene):
     def construct(self):
         # Vector example
@@ -907,7 +908,7 @@ class HighDimensionalSpaceCompanion(InteractiveScene):
         base_bubble: VMobject = ThoughtBubble()[-1]
         base_bubble.set_shape(8, 7)
         base_bubble.rotate(PI)
-        base_bubble.set_fill(GREY_D, opacity=[0.5, 1, 0.5])
+        base_bubble.set_fill(GREY_D, opacity=0.5)
         base_bubble.move_to(bubble_center)
 
         def get_bubble():
@@ -1000,6 +1001,7 @@ class HighDimensionalSpaceCompanion(InteractiveScene):
         self.play(Rotate(axes, -200 * DEGREES, axis=z_direction, run_time=10))
 
 
+# done
 class LearningEmbeddings(Word2VecScene):
     def construct(self):
         # Setup
@@ -1087,6 +1089,7 @@ class LearningEmbeddings(Word2VecScene):
             self.wait(0.5)
 
 
+# done
 class KingQueenExample(Word2VecScene):
     default_frame_orientation = (20, 70)
 
@@ -1355,6 +1358,7 @@ class KingQueenExample(Word2VecScene):
         return pieces
 
 
+# done
 class HitlerMussoliniExample(KingQueenExample):
     words = ["Hitler", "Italy", "Germany", "Mussolini"]
     colors = [GREY_C, "#008C45", "#FFCC00", GREY_B]
@@ -1465,6 +1469,7 @@ class HitlerMussoliniExample(KingQueenExample):
             )
 
 
+# done
 class SushiBratwurstExample(HitlerMussoliniExample):
     words = ["Sushi", "Germany", "Japan", "Bratwurst"]
     colors = [WHITE, "#FFCC00", "#BC002D", interpolate_color(GREY_BROWN, WHITE, 0.25)]
@@ -1481,6 +1486,7 @@ class SushiBratwurstExample(HitlerMussoliniExample):
         return basis
 
 
+# done
 class SizeDirection(Word2VecScene):
     def construct(self):
         # To illustrate "You could imagine many other directions in this space corresponding to semantic meaning"
@@ -1539,6 +1545,7 @@ class SizeDirection(Word2VecScene):
             self.wait()
 
 
+# done
 class PluralityDirection(Word2VecScene):
     def construct(self):
         self.add_plane()
@@ -1571,6 +1578,7 @@ class PluralityDirection(Word2VecScene):
         self.wait(10)
 
 
+# done
 class ShowNearestNeighbors(Word2VecScene):
     seed_word = "tower"
     color = YELLOW
@@ -1647,39 +1655,27 @@ class ShowNearestNeighbors(Word2VecScene):
     def get_nearest_words(self, word):
         return find_nearest_words(self.model, self.model[word], self.n_shown + 1)[1:]
 
-    def animate_in_neighbors(self, neighbors):
-        # Old
-        to_fade = VGroup()
-        for neighbor in neighbors:
-            neighbor.label.set_fill(border_width=0)
-            self.add(to_fade, neighbor.label, seed_vect, seed_vect.label)
-            self.play(
-                FadeIn(neighbor),
-                FadeIn(neighbor.label),
-                to_fade.animate.set_opacity(0.25),
-            )
-            to_fade = VGroup(neighbor, neighbor.label)
-        self.add(to_fade, neighbor.label, seed_vect, seed_vect.label)
-        self.play(to_fade.animate.set_opacity(0.2))
-        self.wait(5)
 
-
+# done
 class ShowNearestNeighborsToWikipedia(ShowNearestNeighbors):
     seed_word = "wikipedia"
     color = BLUE
     default_frame_orientation = (10, 70)
 
 
+# done
 class ShowNearestNeighborsToCat(ShowNearestNeighbors):
     seed_word = "cat"
     color = YELLOW
 
 
+# done
 class ShowNearestNeighborsToNavy(ShowNearestNeighbors):
     seed_word = "navy"
     color = RED
 
 
+# done
 class ShowNearestNeighborsToJump(ShowNearestNeighbors):
     seed_word = "jump"
     color = BLUE
@@ -1694,6 +1690,7 @@ class ShowNearestNeighborsToJump(ShowNearestNeighbors):
         return ["hop", "skip", "leap", "bound", "bounce", "drop", "vault"]
 
 
+# done
 class DotProducts(InteractiveScene):
     def construct(self):
         # Add vectors
@@ -1855,6 +1852,7 @@ class DotProducts(InteractiveScene):
         dual_rotate(75, -95, run_time=8)
 
 
+# done
 class DotProductWithPluralDirection(InteractiveScene):
     vec_tex = R"\vec{\text{plur}}"
     ref_words = ["cat", "cats"]
@@ -2038,6 +2036,7 @@ class DotProductWithPluralDirection(InteractiveScene):
         )
 
 
+# done
 class DotProductWithGenderDirection(DotProductWithPluralDirection):
     vec_tex = R"\vec{\text{gen}}"
     ref_words = ["man", "woman"]
@@ -2052,6 +2051,7 @@ class DotProductWithGenderDirection(DotProductWithPluralDirection):
     threshold = 1.0
 
 
+# done
 class RicherEmbedding(InteractiveScene):
     def construct(self):
         # Add phrase
@@ -2201,7 +2201,7 @@ class RicherEmbedding(InteractiveScene):
 
 
 # For chapter 2
-
+# done
 class MultipleMoleEmbeddings(Word2VecScene):
     default_frame_orientation = (0, 0)
     label_rotation = 0
@@ -2243,9 +2243,9 @@ class MultipleMoleEmbeddings(Word2VecScene):
 
         # Show three refined meanings
         images = Group(
-            ImageMobject("ShrewMole"),
+            ImageMobject("images/image.png"),
             Tex(R"6.02 \times 10^{23}", font_size=24).set_color(BLUE),
-            ImageMobject("LipMole"),
+            ImageMobject("images/image.png"),
         )
         for image in images[::2]:
             image.set_height(0.5)
@@ -2335,6 +2335,7 @@ class MultipleMoleEmbeddings(Word2VecScene):
         return basis
 
 
+# done
 class RefineTowerMeaning(MultipleMoleEmbeddings):
     def construct(self):
         # Set up vectors and images
@@ -2348,15 +2349,15 @@ class RefineTowerMeaning(MultipleMoleEmbeddings):
         words.fix_in_frame()
 
         tower_images = Group(
-            ImageMobject(f"Tower{n}")
+            ImageMobject(f"images/image.png")
             for n in range(1, 5)
         )
         eiffel_tower_images = Group(
-            ImageMobject(f"EiffelTower{n}")
+            ImageMobject(f"images/image.png")
             for n in range(1, 4)
         )
         mini_eiffel_tower_images = Group(
-            ImageMobject("MiniEiffelTower1")
+            ImageMobject("images/image.png")
         )
         image_groups = Group(
             tower_images,
@@ -2440,6 +2441,7 @@ class RefineTowerMeaning(MultipleMoleEmbeddings):
         self.wait(10)
 
 
+# done
 class UpdatingPoetryEmbedding(RicherEmbedding):
     def construct(self):
         # (Largely copied from RicherEmbedding, could factor better later)

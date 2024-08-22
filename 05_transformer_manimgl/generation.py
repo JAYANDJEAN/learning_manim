@@ -1,12 +1,13 @@
-from transformers.models.videomae import image_processing_videomae
-from manim_imports_ext import *
-from helpers import *
+import os
+import sys
 
-from transformers import GPT2Tokenizer, GPT2LMHeadModel, PreTrainedModel
-import torch
 import openai
-import tiktoken
+import torch
+from transformers import GPT2Tokenizer, GPT2LMHeadModel
 
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(current_dir)
+from helpers import *
 
 @lru_cache(maxsize=1)
 def get_gpt2_tokenizer(model_name='gpt2'):
@@ -423,12 +424,7 @@ class AnnotateNextWord(SimpleAutogregression):
         )
 
 
-class QuickerRegression(SimpleAutogregression):
-    skip_through = True
 
-
-class AutoregressionGPT3(SimpleAutogregression):
-    model = "gpt3"
 
 
 class QuickRegressionGPT3(SimpleAutogregression):
@@ -501,52 +497,7 @@ class GPT3OnLearningSimpler(QuickRegressionGPT3):
             self.wait(self.time_per_prediction)
 
 
-class GPT3OnLongPassages(GPT3OnLearningSimpler):
-    seed_text = "Writing long passages seems to involve more foresight and planning than what single-word prediction"
-    n_predictions = 100
-    color_seed = False
 
-
-class GPT3CreaturePrediction(GPT3CleverestAutocomplete):
-    seed_text = "the fluffy blue creature"
-    n_predictions = 1
-
-
-class GPT3CreaturePrediction2(GPT3CleverestAutocomplete):
-    seed_text = "the fluffy blue creature roamed the"
-    n_predictions = 1
-
-
-class LowTempExample(GPT3OnLearningSimpler):
-    seed_text = "Once upon a time, there was a"
-    model = "gpt3"
-    min_y = 1
-    up_shift = 2 * UP
-    show_dist = True
-    temp = 0
-    n_predictions = 200
-    time_per_prediction = 0.25
-
-    def predict_next_token(self, text, n_shown=None):
-        words, probs = super().predict_next_token(text, n_shown)
-        if self.temp == 0:
-            probs = np.zeros_like(probs)
-            probs[0] = 1
-        else:
-            probs = probs ** (1 / self.temp)
-            probs /= probs.sum()
-        return words, probs
-
-
-class HighTempExample(LowTempExample):
-    temp = 5
-    model = "gpt3"
-
-
-class MidTempExample(LowTempExample):
-    seed_text = "If you could see the underlying probability distributions a large language model uses when generating text, then"
-    temp = 1
-    model = "gpt3"
 
 
 class ChatBotPrompt(SimpleAutogregression):
@@ -636,9 +587,6 @@ class ChatBotPrompt(SimpleAutogregression):
             text = text[text.index(seed):]
         return super().string_to_mob(text)
 
-
-class ChatBotPrompt2(ChatBotPrompt):
-    user_prompt = "User: Can you explain what temperature is, in the context of softmax?"
 
 
 class VoiceToTextExample(SimpleAutogregression):
@@ -785,55 +733,6 @@ class TranslationExample(VoiceToTextExample):
         return Group(Point(), *Text("注意力就是你所需要的一切"))
 
 
-class PredictionVsGeneration(SimpleAutogregression):
-    model = "gpt2"
-
-    def construct(self):
-        # Setup
-        self.add(FullScreenRectangle())
-        morty = Mortimer()
-        morty.to_edge(DOWN)
-        morty.body.insert_n_curves(100)
-        self.add(morty)
-
-        # Words
-        words = VGroup(Text("Prediction"), Text("Generation"))
-        words.scale(1.5)
-        for vect, word in zip([UL, UR], words):
-            word.next_to(morty, vect)
-            word.shift(0.5 * UP)
-
-        # Create prediction object
-        seed_text = "The goal of predicting the next"
-        self.n_shown_predictions = 8
-        tokens, probs = self.predict_next_token(seed_text)
-        dist = self.get_distribution(tokens, probs)
-        brace = Brace(dist, LEFT, SMALL_BUFF)
-        words = Text(seed_text, font_size=36).next_to(brace, LEFT)
-        prediction = VGroup(words, brace, dist)
-        prediction.set_width(FRAME_WIDTH / 2 - 1)
-        prediction.next_to(morty, UL)
-        prediction.shift(0.5 * UP).shift_onto_screen()
-        self.add(prediction)
-
-        # Animations
-        self.play(
-            morty.change("raise_right_hand", prediction),
-            FadeIn(prediction[0], UP),
-            GrowFromCenter(prediction[1]),
-            LaggedStart(
-                (FadeInFromPoint(bar, prediction[1].get_center())
-                 for bar in prediction[2]),
-                lag_ratio=0.05,
-            )
-        )
-        self.play(Blink(morty))
-        self.play(
-            morty.change("raise_left_hand", 3 * UR),
-        )
-        self.wait()
-        self.play(Blink(morty))
-        self.wait()
 
 
 class ManyParallelPredictions(SimpleAutogregression):

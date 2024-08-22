@@ -1,5 +1,9 @@
-from manim_imports_ext import *
-from helpers import *
+from manimlib import *
+import sys
+import os
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(current_dir)
 from embedding import *
 
 

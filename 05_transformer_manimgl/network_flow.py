@@ -1,6 +1,8 @@
-import torch
-from manim_imports_ext import *
-from helpers import *
+import os
+import sys
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(current_dir)
 from embedding import *
 
 
@@ -1141,7 +1143,7 @@ class TextPassageIntro(InteractiveScene):
 
     def construct(self):
         # Read in passage
-        passage_str = Path(DATA_DIR, "harry_potter_3.txt").read_text()
+        passage_str = ("harry_potter_3.txt").read_text()
         passage_str = passage_str.replace("\n", "\n\\\\")
         passage = TexText(passage_str, alignment="", additional_preamble=R"\tiny")
         passage.set_height(FRAME_HEIGHT - 1)
