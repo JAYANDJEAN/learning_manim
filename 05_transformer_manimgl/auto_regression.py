@@ -1,10 +1,14 @@
-from manim_imports_ext import *
-
-from helpers import *
-from transformers import GPT2Tokenizer, GPT2LMHeadModel, PreTrainedModel
+from manimlib import *
+from transformers import GPT2Tokenizer, GPT2LMHeadModel
 import torch
 import openai
-import tiktoken
+import sys
+import os
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(current_dir)
+
+from helpers import *
 
 
 @lru_cache(maxsize=1)
@@ -59,6 +63,7 @@ def gpt3_predict_next_token(text, n_shown=10, random_seed=0):
     return tokens[:n_shown], probs[:n_shown]
 
 
+# done
 class SimpleAutogregression(InteractiveScene):
     text_corner = 3.5 * UP + 0.75 * RIGHT
     line_len = 31
@@ -149,13 +154,8 @@ class SimpleAutogregression(InteractiveScene):
         result = Group(Group(*blocks), word, out_arrow)
         return result
 
-    def get_distribution(
-            self, words, probs, machine,
-            font_size=24,
-            width_100p=1.8,
-            bar_height=0.25,
-            show_ellipses=True
-    ):
+    def get_distribution(self, words, probs, machine, font_size=24, width_100p=1.8, bar_height=0.25,
+                         show_ellipses=True):
         labels = VGroup(Text(word, font_size=font_size) for word in words)
         bars = VGroup(
             Rectangle(prob * width_100p, bar_height)
@@ -315,8 +315,6 @@ class SimpleAutogregression(InteractiveScene):
         )
         return new_text_mob
 
-    #
-
     def predict_next_token(self, text):
         result = None
         n_shown = self.n_shown_predictions
@@ -332,6 +330,7 @@ class SimpleAutogregression(InteractiveScene):
         return result
 
 
+# done
 class AnnotateNextWord(SimpleAutogregression):
     def construct(self):
         text_mob, next_word_line, machine = self.init_text_and_machine()

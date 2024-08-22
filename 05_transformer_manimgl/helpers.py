@@ -6,9 +6,6 @@ from typing import TYPE_CHECKING
 import warnings
 import datasets
 
-# DATA_DIR = Path(get_output_dir(), "2024/transformers/data/")
-# WORD_FILE = Path(DATA_DIR, "OWL3_Dictionary.txt")
-
 if TYPE_CHECKING:
     from typing import Optional
     from manimlib.typing import Vect3, ManimColor
@@ -57,32 +54,32 @@ def value_to_color(value, low_positive_color=BLUE_E, high_positive_color=BLUE_B,
     return interpolate_color_by_hsl(*colors, alpha)
 
 
-def read_in_book(name="tale_of_two_cities"):
-    return Path(DATA_DIR, name).with_suffix(".txt").read_text()
-
-
-def load_image_net_data(dataset_name="image_net_1k"):
-    data_path = Path(Path.home(), "Documents", dataset_name)
-    image_dir = Path(data_path, "images")
-    label_category_path = Path(DATA_DIR, "image_categories.txt")
-    image_label_path = Path(data_path, "image_labels.txt")
-
-    if not os.path.exists(image_dir):
-        os.makedirs(image_dir)
-        image_data = datasets.load_from_disk(str(data_path))
-        indices = range(len(image_data))
-        categories = label_category_path.read_text().split("\n")
-        labels = [categories[image_data[index]['label']] for index in indices]
-        image_label_path.write_text("\n".join(labels))
-        for index in ProgressDisplay(indices):
-            image = image_data[index]['image']
-            image.save(str(Path(image_dir, f"{index}.jpeg")))
-
-    labels = image_label_path.read_text().split("\n")
-    return [
-        (Path(image_dir, f"{index}.jpeg"), label)
-        for index, label in enumerate(labels)
-    ]
+# def read_in_book(name="tale_of_two_cities"):
+#     return Path(DATA_DIR, name).with_suffix(".txt").read_text()
+#
+#
+# def load_image_net_data(dataset_name="image_net_1k"):
+#     data_path = Path(Path.home(), "Documents", dataset_name)
+#     image_dir = Path(data_path, "images")
+#     label_category_path = Path(DATA_DIR, "image_categories.txt")
+#     image_label_path = Path(data_path, "image_labels.txt")
+#
+#     if not os.path.exists(image_dir):
+#         os.makedirs(image_dir)
+#         image_data = datasets.load_from_disk(str(data_path))
+#         indices = range(len(image_data))
+#         categories = label_category_path.read_text().split("\n")
+#         labels = [categories[image_data[index]['label']] for index in indices]
+#         image_label_path.write_text("\n".join(labels))
+#         for index in ProgressDisplay(indices):
+#             image = image_data[index]['image']
+#             image.save(str(Path(image_dir, f"{index}.jpeg")))
+#
+#     labels = image_label_path.read_text().split("\n")
+#     return [
+#         (Path(image_dir, f"{index}.jpeg"), label)
+#         for index, label in enumerate(labels)
+#     ]
 
 
 def show_matrix_vector_product(scene, matrix, vector, buff=0.25, x_max=999):
@@ -274,15 +271,14 @@ def create_pixels(image_mob, pixel_width=0.1):
 
 
 class NeuralNetwork(VGroup):
-    def __init__(
-            self,
-            layer_sizes=[6, 12, 6],
-            neuron_radius=0.1,
-            v_buff_ratio=1.0,
-            h_buff_ratio=7.0,
-            max_stroke_width=2.0,
-            stroke_decay=2.0,
-    ):
+    def __init__(self,
+                 layer_sizes=(6, 12, 6),
+                 neuron_radius=0.1,
+                 v_buff_ratio=1.0,
+                 h_buff_ratio=7.0,
+                 max_stroke_width=2.0,
+                 stroke_decay=2.0,
+                 ):
         self.max_stroke_width = max_stroke_width
         self.stroke_decay = stroke_decay
         layers = VGroup(*(
@@ -328,22 +324,21 @@ class NeuralNetwork(VGroup):
 
 
 class ContextAnimation(LaggedStart):
-    def __init__(
-            self,
-            target,
-            sources,
-            direction=UP,
-            hue_range=(0.1, 0.3),
-            time_width=2,
-            min_stroke_width=0,
-            max_stroke_width=5,
-            lag_ratio=None,
-            strengths=None,
-            run_time=3,
-            fix_in_frame=False,
-            path_arc=PI / 2,
-            **kwargs,
-    ):
+    def __init__(self,
+                 target,
+                 sources,
+                 direction=UP,
+                 hue_range=(0.1, 0.3),
+                 time_width=2,
+                 min_stroke_width=0,
+                 max_stroke_width=5,
+                 lag_ratio=None,
+                 strengths=None,
+                 run_time=3,
+                 fix_in_frame=False,
+                 path_arc=PI / 2,
+                 **kwargs,
+                 ):
         arcs = VGroup()
         if strengths is None:
             strengths = np.random.random(len(sources)) ** 2
@@ -403,21 +398,22 @@ class LabeledArrow(Arrow):
 
 
 class WeightMatrix(DecimalMatrix):
-    def __init__(
-            self,
-            values: Optional[np.ndarray] = None,
-            shape: tuple[int, int] = (6, 8),
-            value_range: tuple[float, float] = (-9.9, 9.9),
-            ellipses_row: Optional[int] = -2,
-            ellipses_col: Optional[int] = -2,
-            num_decimal_places: int = 1,
-            bracket_h_buff: float = 0.1,
-            decimal_config=dict(include_sign=True),
-            low_positive_color: ManimColor = BLUE_E,
-            high_positive_color: ManimColor = BLUE_B,
-            low_negative_color: ManimColor = RED_E,
-            high_negative_color: ManimColor = RED_B,
-    ):
+    def __init__(self,
+                 values: Optional[np.ndarray] = None,
+                 shape: tuple[int, int] = (6, 8),
+                 value_range: tuple[float, float] = (-9.9, 9.9),
+                 ellipses_row: Optional[int] = -2,
+                 ellipses_col: Optional[int] = -2,
+                 num_decimal_places: int = 1,
+                 bracket_h_buff: float = 0.1,
+                 decimal_config=None,
+                 low_positive_color: ManimColor = BLUE_E,
+                 high_positive_color: ManimColor = BLUE_B,
+                 low_negative_color: ManimColor = RED_E,
+                 high_negative_color: ManimColor = RED_B,
+                 ):
+        if decimal_config is None:
+            decimal_config = dict(include_sign=True)
         if values is not None:
             shape = values.shape
         self.shape = shape
@@ -456,21 +452,22 @@ class WeightMatrix(DecimalMatrix):
 
 
 class NumericEmbedding(WeightMatrix):
-    def __init__(
-            self,
-            values: Optional[np.ndarray] = None,
-            shape: Optional[Tuple[int, int]] = None,
-            length: int = 7,
-            num_decimal_places: int = 1,
-            ellipses_row: int = -2,
-            ellipses_col: int = -2,
-            value_range: tuple[float, float] = (-9.9, 9.9),
-            bracket_h_buff: float = 0.1,
-            decimal_config=dict(include_sign=True),
-            dark_color: ManimColor = GREY_C,
-            light_color: ManimColor = WHITE,
-            **kwargs,
-    ):
+    def __init__(self,
+                 values: Optional[np.ndarray] = None,
+                 shape: Optional[Tuple[int, int]] = None,
+                 length: int = 7,
+                 num_decimal_places: int = 1,
+                 ellipses_row: int = -2,
+                 ellipses_col: int = -2,
+                 value_range: tuple[float, float] = (-9.9, 9.9),
+                 bracket_h_buff: float = 0.1,
+                 decimal_config=None,
+                 dark_color: ManimColor = GREY_C,
+                 light_color: ManimColor = WHITE,
+                 **kwargs,
+                 ):
+        if decimal_config is None:
+            decimal_config = dict(include_sign=True)
         if values is not None:
             if len(values.shape) == 1:
                 values = values.reshape((values.shape[0], 1))
@@ -490,7 +487,6 @@ class NumericEmbedding(WeightMatrix):
             high_negative_color=light_color,
             ellipses_row=ellipses_row,
             ellipses_col=ellipses_col,
-            **kwargs,
         )
 
 
@@ -524,24 +520,25 @@ class AbstractEmbeddingSequence(MobjectMatrix):
 
 
 class Dial(VGroup):
-    def __init__(
-            self,
-            radius=0.5,
-            relative_tick_size=0.2,
-            value_range=(0, 1, 0.1),
-            initial_value=0,
-            arc_angle=270 * DEGREES,
-            stroke_width=2,
-            stroke_color=WHITE,
-            needle_color=BLUE,
-            needle_stroke_width=5.0,
-            value_to_color_config=dict(),
-            set_anim_streak_color=TEAL,
-            set_anim_streak_width=4,
-            set_value_anim_streak_density=6,
-            **kwargs
-    ):
+    def __init__(self,
+                 radius=0.5,
+                 relative_tick_size=0.2,
+                 value_range=(0, 1, 0.1),
+                 initial_value=0,
+                 arc_angle=270 * DEGREES,
+                 stroke_width=2,
+                 stroke_color=WHITE,
+                 needle_color=BLUE,
+                 needle_stroke_width=5.0,
+                 value_to_color_config=None,
+                 set_anim_streak_color=TEAL,
+                 set_anim_streak_width=4,
+                 set_value_anim_streak_density=6,
+                 **kwargs
+                 ):
         super().__init__(**kwargs)
+        if value_to_color_config is None:
+            value_to_color_config = dict()
         self.value_range = value_range
         self.value_to_color_config = value_to_color_config
         self.set_anim_streak_color = set_anim_streak_color
@@ -648,9 +645,11 @@ class MachineWithDials(VGroup):
             stroke_width=1,
             fill_color=GREY_D,
             fill_opacity=1.0,
-            dial_config=dict(),
+            dial_config=None,
     ):
         super().__init__()
+        if dial_config is None:
+            dial_config = dict()
         box = Rectangle(width, height)
         box.set_stroke(stroke_color, stroke_width)
         box.set_fill(fill_color, fill_opacity)

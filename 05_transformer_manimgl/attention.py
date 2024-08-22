@@ -1,6 +1,4 @@
-# from sqlalchemy.sql.base import _DialectArgDict
 from manimlib import *
-from manimlib.mobject.svg.old_tex_mobject import *
 import sys
 import os
 
@@ -8,9 +6,10 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(current_dir)
 
 from helpers import *
-from embedding import break_into_words, break_into_tokens, get_piece_rectangles
+from embedding import break_into_words, get_piece_rectangles
 
 
+# done
 class AttentionPatterns(InteractiveScene):
     def construct(self):
         # Add sentence
@@ -111,15 +110,12 @@ class AttentionPatterns(InteractiveScene):
         self.wait()
 
         # Ingest meaning and and position
-        images = Group(
-            ImageMobject(f"Dalle3_{word}").set_height(1.1).next_to(word2rect[word], UP)
-            for word in ["fluffy", "blue", "creature", "verdant", "forest"]
-        )
+        images = Group(ImageMobject(f"images/image.png").set_height(1.1).next_to(word2rect[word], UP)
+                       for word in ["fluffy", "blue", "creature", "verdant", "forest"]
+                       )
         image_vects = VGroup(embeddings[i] for i in [1, 2, 3, 6, 7])
 
-        self.play(
-            LaggedStartMap(FadeIn, images, scale=2, lag_ratio=0.05)
-        )
+        self.play(LaggedStartMap(FadeIn, images, scale=2, lag_ratio=0.05))
         self.play(
             LaggedStart(
                 (self.bake_mobject_into_vector_entries(image, vect, group_type=Group)
@@ -238,8 +234,8 @@ class AttentionPatterns(InteractiveScene):
                     line.set_stroke(WHITE, width=2 + random.random(), opacity=1)
                 full_connections.add(line)
 
-        blue_fluff = ImageMobject("BlueFluff")
-        verdant_forest = ImageMobject("VerdantForest")
+        blue_fluff = ImageMobject("images/image.png")
+        verdant_forest = ImageMobject("images/image.png")
         for n, image in [(3, blue_fluff), (7, verdant_forest)]:
             image.match_height(images)
             image.scale(1.2)
@@ -1355,7 +1351,7 @@ class AttentionPatterns(InteractiveScene):
             ),
         )
 
-    # def scrap():
+    # def scrap(self):
     #     # To be inserted after Show grid of dots sections
     #     self.remove(dot_prods)
     #     np.random.seed(time.gmtime().tm_sec)
@@ -1378,7 +1374,7 @@ class AttentionPatterns(InteractiveScene):
     #     softmax_arrays = softmax_arrays.T
     #     ###
     #
-    # def thumbnail():
+    # def thumbnail(self):
     #     ### Thumbnail design, insert in the middle of softmax show columns ###
     #     self.remove(q_groups)
     #     self.add(q_syms)
@@ -1443,13 +1439,13 @@ class AttentionPatterns(InteractiveScene):
     #
     #     self.remove(word_groups, q_arrows, emb_arrows, emb_syms, wq_syms)
     #     VGroup(key_word_groups, key_emb_syms, key_emb_arrows, wk_arrows, wk_syms).shift(0.25 * LEFT)
-    ###
 
 
+# done
 class MyseteryNovel(InteractiveScene):
     def construct(self):
         # Create paragraphs
-        text = Path(DATA_DIR, "murder_story.txt").read_text()
+        text = "Using the default configuration file,\n\n which you can modif\n\ny in `/Users/yuan.feng/min\n\niforge3/envs/manim/lib\n\n/python3.10/site-p\n\nackages/manimlib\n\n/default_config.yml`"
         paragraphs = VGroup(
             get_paragraph(para.split(" "), line_len=40)
             for para in text.split("\n\n")
@@ -1461,7 +1457,7 @@ class MyseteryNovel(InteractiveScene):
         self.add(paragraphs)
 
         # Mark last word
-        last_word = paragraphs[-1]["Derek!\""][0]
+        last_word = paragraphs[-1][0]
         rect = SurroundingRectangle(last_word)
         rect.set_stroke(YELLOW, 2)
         rect.set_fill(YELLOW, 0.25)
@@ -1477,12 +1473,12 @@ class MyseteryNovel(InteractiveScene):
         frame = self.frame
         frame.set_y(15)
         paragraphs.set_fill(opacity=0.25)
-        opening = paragraphs[0]["It was a dark and stormy night."][0]
+        opening = paragraphs[0][0]
         self.play(opening.animate.set_fill(opacity=1).set_anim_args(lag_ratio=0.1))
         self.wait()
 
         # Scroll down
-        penultimate_words = paragraphs[-1]["therefore, the murderer was"][0]
+        penultimate_words = paragraphs[-1][0]
         self.play(
             frame.animate.set_y(-15.4),
             paragraphs.animate.set_fill(opacity=1).set_anim_args(lag_ratio=0.01),
@@ -1541,6 +1537,7 @@ class MyseteryNovel(InteractiveScene):
         )
 
 
+# done
 class RoadNotTaken(InteractiveScene):
     def construct(self):
         # Add poem
@@ -1708,6 +1705,7 @@ class RoadNotTaken(InteractiveScene):
         self.wait()
 
 
+# done
 class QueryMap(InteractiveScene):
     map_tex = "W_Q"
     map_color = YELLOW
@@ -1832,6 +1830,7 @@ class QueryMap(InteractiveScene):
         self.wait(5)
 
 
+# done
 class KeyMap(QueryMap):
     map_tex = "W_K"
     map_color = TEAL
@@ -1843,10 +1842,11 @@ class KeyMap(QueryMap):
     out_vect_coords = (-1.75, -1)
 
 
+# done
 class DescribeAttentionEquation(InteractiveScene):
     def construct(self):
         # Stage image
-        image = ImageMobject("AttentionPaperStill")
+        image = ImageMobject("images/image.png")
         image.set_height(FRAME_HEIGHT)
         self.add(image)
 
@@ -2077,6 +2077,7 @@ class DescribeAttentionEquation(InteractiveScene):
         return result
 
 
+# done
 class ShowAllPossibleNextTokenPredictions(InteractiveScene):
     def construct(self):
         # Add phrase
@@ -2163,6 +2164,7 @@ class ShowAllPossibleNextTokenPredictions(InteractiveScene):
         pass
 
 
+# done
 class ShowMasking(InteractiveScene):
     def construct(self):
         # Set up two patterns
@@ -2254,6 +2256,7 @@ class ShowMasking(InteractiveScene):
         self.wait()
 
 
+# done
 class ScalingAPattern(InteractiveScene):
     def construct(self):
         # Position grid
@@ -2308,6 +2311,7 @@ class ScalingAPattern(InteractiveScene):
         self.wait()
 
 
+# done
 class IntroduceValueMatrix(InteractiveScene):
     def setup(self):
         self.fix_new_entries_in_frame = False
@@ -2360,9 +2364,9 @@ class IntroduceValueMatrix(InteractiveScene):
         self.add(embs)
 
         # Add word vectors
-        creature_vect = self.get_labeled_vector(axes, (-2, 3, 1), ORANGE, "Dalle3_creature")
-        with_fluffy_vect = self.get_labeled_vector(axes, (2, 3, 1), GREY_BROWN, "Dalle3_creature_2")
-        with_blue_vect = self.get_labeled_vector(axes, (1, 2, 4), BLUE, "BlueFluff")
+        creature_vect = self.get_labeled_vector(axes, (-2, 3, 1), ORANGE, "images/image.png")
+        with_fluffy_vect = self.get_labeled_vector(axes, (2, 3, 1), GREY_BROWN, "images/image.png")
+        with_blue_vect = self.get_labeled_vector(axes, (1, 2, 4), BLUE, "images/image.png")
 
         self.wait()
         self.fix_new_entries_in_frame = False
@@ -2556,6 +2560,7 @@ class IntroduceValueMatrix(InteractiveScene):
         super().add(*mobjects)
 
 
+# done
 class CountMatrixParameters(InteractiveScene):
     count_font_size = 36
 
@@ -3009,6 +3014,7 @@ class CountMatrixParameters(InteractiveScene):
         return equation
 
 
+# done
 class LowRankTransformation(InteractiveScene):
     def construct(self):
         # Add three sets of axes
@@ -3098,6 +3104,7 @@ class LowRankTransformation(InteractiveScene):
         return plane
 
 
+# done
 class ThinkAboutOverallMap(InteractiveScene):
     def construct(self):
         # Test
@@ -3114,6 +3121,7 @@ class ThinkAboutOverallMap(InteractiveScene):
         self.wait()
 
 
+# done
 class CrossAttention(InteractiveScene):
     def construct(self):
         # Show both
@@ -3294,6 +3302,7 @@ class CrossAttention(InteractiveScene):
         return get_sym
 
 
+# done
 class CarCrashedExample(InteractiveScene):
     def construct(self):
         # Add sentence
@@ -3319,6 +3328,7 @@ class CarCrashedExample(InteractiveScene):
         self.wait()
 
 
+# done
 class TwoHarrysExample(InteractiveScene):
     def construct(self):
         # Test
@@ -3351,6 +3361,7 @@ class TwoHarrysExample(InteractiveScene):
         context_anim(s2)
 
 
+# done
 class ManyTypesOfUpdates(InteractiveScene):
     def construct(self):
         # Add matrices
@@ -3493,6 +3504,7 @@ class ManyTypesOfUpdates(InteractiveScene):
         )
 
 
+# done
 class MultiHeadedAttention(InteractiveScene):
     def construct(self):
         # Mention head
@@ -3534,10 +3546,10 @@ class MultiHeadedAttention(InteractiveScene):
 
         # Set up images
         n_heads = 15
-        directory = "/Users/grant/3Blue1Brown Dropbox/3Blue1Brown/videos/2024/transformers/attention/images/"
+        # directory = "/Users/grant/3Blue1Brown Dropbox/3Blue1Brown/videos/2024/transformers/attention/images/"
         heads = Group()
         for n in range(n_heads):
-            im = ImageMobject(os.path.join(directory, f"AttentionPattern{n % 4 + 1}"))
+            im = ImageMobject("images/image.png")
             im.set_opacity(1)
             im.shift(0.01 * OUT)
             rect = SurroundingRectangle(im, buff=0)
@@ -3554,7 +3566,7 @@ class MultiHeadedAttention(InteractiveScene):
         heads.set_height(4)
         heads.arrange(OUT, buff=1.0)
         heads.move_to(DOWN)
-        pre_head = ImageMobject(os.path.join(directory, f"AttentionPattern0"))
+        pre_head = ImageMobject("images/image.png")
 
         pre_head.replace(screen_rect)
         pre_head = Group(screen_rect, pre_head)
@@ -3815,7 +3827,7 @@ class MultiHeadedAttention(InteractiveScene):
             diagram.target = diagram.generate_target()
             stacks = diagram.target[1]
             stacks.set_opacity(0.5)
-            stacks[index].set_opacity(1, border_width=1)
+            stacks[index].set_opacity(1)
             rect = SurroundingRectangle(stacks[index], buff=0.05)
 
             arrow = Vector(0.5 * DOWN)
@@ -3888,6 +3900,7 @@ class MultiHeadedAttention(InteractiveScene):
         self.wait()
 
 
+# done
 class OutputMatrix(InteractiveScene):
     def construct(self):
         # Set up all heads
@@ -4027,6 +4040,7 @@ class OutputMatrix(InteractiveScene):
         return matrices
 
 
+# wrong
 class Parallelizability(InteractiveScene):
     def construct(self):
         # Set up curves

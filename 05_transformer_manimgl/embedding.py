@@ -1,8 +1,10 @@
 import gensim.downloader
 import tiktoken
-from pathlib import Path
+import sys
+import os
 
-from manim_imports_ext import *
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(current_dir)
 from helpers import *
 
 
@@ -21,7 +23,7 @@ def get_principle_components(data, n_components=3):
 
 def find_nearest_words(model, vector, n=20):
     data = model.vectors
-    indices = np.argsort(((data - vector)**2).sum(1))
+    indices = np.argsort(((data - vector) ** 2).sum(1))
     return [model.index_to_key[i] for i in indices[:n]]
 
 
@@ -51,15 +53,15 @@ def break_into_tokens(phrase_mob):
 
 
 def get_piece_rectangles(
-    phrase_pieces,
-    h_buff=0.05,
-    v_buff=0.1,
-    fill_opacity=0.15,
-    fill_color=None,
-    stroke_width=1,
-    stroke_color=None,
-    hue_range=(0.5, 0.6),
-    leading_spaces=False,
+        phrase_pieces,
+        h_buff=0.05,
+        v_buff=0.1,
+        fill_opacity=0.15,
+        fill_color=None,
+        stroke_width=1,
+        stroke_color=None,
+        hue_range=(0.5, 0.6),
+        leading_spaces=False,
 ):
     rects = VGroup()
     height = phrase_pieces.get_height() + 2 * v_buff
@@ -276,7 +278,7 @@ class ImageTokens(InteractiveScene):
         self.wait()
         self.play(LaggedStart(
             (patch.animate.set_stroke(TEAL, 3).set_anim_args(rate_func=there_and_back)
-            for patch in patches),
+             for patch in patches),
             lag_ratio=5.0 / len(patches),
         ))
         self.wait()
@@ -317,7 +319,7 @@ class SoundTokens(InteractiveScene):
         self.play(chunks.animate.space_out_submobjects(2.0).scale(0.75))
         self.play(LaggedStart(
             (chunk.animate.set_stroke(TEAL, 3).scale(1.5).set_anim_args(rate_func=there_and_back)
-            for chunk in chunks),
+             for chunk in chunks),
             lag_ratio=2.0 / len(chunks),
             run_time=2
         ))
@@ -520,7 +522,7 @@ class IntroduceEmbeddingMatrix(InteractiveScene):
             token.rotate(45 * DEGREES)
             token.move_to(word, DL)
         shown_tokens[dots_index].move_to(
-            shown_tokens[dots_index-1:dots_index + 2:2]
+            shown_tokens[dots_index - 1:dots_index + 2:2]
         )
 
         # Show dimensions
@@ -647,15 +649,15 @@ class Word2VecScene(InteractiveScene):
         return plane
 
     def get_labeled_vector(
-        self,
-        word,
-        coords=None,
-        stroke_width=5,
-        color=YELLOW,
-        func_name: str | None = "E",
-        buff=0.05,
-        direction=None,
-        label_config: dict = dict()
+            self,
+            word,
+            coords=None,
+            stroke_width=5,
+            color=YELLOW,
+            func_name: str | None = "E",
+            buff=0.05,
+            direction=None,
+            label_config: dict = dict()
     ):
         # Return an arrow with word label next to it
         axes = self.axes
@@ -1535,7 +1537,7 @@ class SizeDirection(Word2VecScene):
                 ReplacementTransform(vect_groups[i].labels, vect_groups[i + 1].labels),
             )
             self.wait()
-        
+
 
 class PluralityDirection(Word2VecScene):
     def construct(self):
@@ -1993,7 +1995,7 @@ class DotProductWithPluralDirection(InteractiveScene):
             FadeInFromPoint(dot, word.get_center()),
             LaggedStart(
                 (FadeTransform(char.copy(), dot.copy().set_opacity(0))
-                for char in word),
+                 for char in word),
                 lag_ratio=2e-2,
                 group_type=Group
             ),
@@ -2161,7 +2163,6 @@ class RicherEmbedding(InteractiveScene):
             last_vect = new_labeled_vects[-1][0]
             last_vect.apply_depth_test()
 
-
         (vect1, label1), (vect2, label2), (vect3, label3) = new_labeled_vects
         self.play(
             GrowArrow(vect1),
@@ -2269,13 +2270,13 @@ class MultipleMoleEmbeddings(Word2VecScene):
             frame.animate.reorient(-30, -5, 0, (-1.11, 1.35, -0.72), 5.27),
             LaggedStart(
                 (TransformFromCopy(gen_vector, ref_vect)
-                for ref_vect in ref_vects),
+                 for ref_vect in ref_vects),
                 lag_ratio=0.25,
                 run_time=2,
             ),
             LaggedStart(
                 (FadeInFromPoint(image, gen_vector.label.get_center())
-                for image in images),
+                 for image in images),
                 lag_ratio=0.25,
                 run_time=2,
                 group_type=Group,
@@ -2516,7 +2517,6 @@ class UpdatingPoetryEmbedding(RicherEmbedding):
             (34, -14, 0, (-0.59, 0.49, -0.62), 9.20),
             (20, -29, 0, (0.61, 0.01, 0.0), 6.10),
         ]
-
 
         for (vect, label), orientation in zip(new_labeled_vects, orientation_args):
             self.play(
