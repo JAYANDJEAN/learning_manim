@@ -16,10 +16,10 @@ class Models(Scene):
         surrounding_model.set_stroke(width=0.5)
         model = VGroup(gears, text_model, surrounding_model)
 
-        text_prompt = Text("panel grid, various drawings, "
-                           "\nby jean giraud moebius, "
-                           "\nblack white, fine line, "
-                           "\nsimple line, hatches. ").scale(0.34)
+        text_prompt = Paragraph("panel grid, various drawings,",
+                                "by jean giraud moebius,",
+                                "black white, fine line,",
+                                "simple line, hatches.", line_spacing=1.0, font="menlo").scale(0.3)
         surrounding_prompt = SurroundingRectangle(text_prompt, buff=0.2, color=WHITE, corner_radius=0.3).set_stroke(
             width=0.5)
         prompt = VGroup(surrounding_prompt, text_prompt)
@@ -34,7 +34,8 @@ class Models(Scene):
 
         self.add(model)
         self.wait()
-        self.play(Create(prompt))
+        self.play(Write(text_prompt, run_time=4))
+        self.play(Create(surrounding_prompt))
         self.play(Create(arrow1))
         self.play(LaggedStart(gears_rotate, run_time=3, lag_ratio=0.0))
         self.play(Create(arrow2))
