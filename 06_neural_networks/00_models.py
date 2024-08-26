@@ -33,8 +33,7 @@ class Models(Scene):
         arrow2 = Arrow(model.get_right(), image_out.get_left())
 
         self.add(model)
-        self.wait()
-        self.play(Write(text_prompt, run_time=4))
+        self.play(Write(text_prompt, run_time=3))
         self.play(Create(surrounding_prompt))
         self.play(Create(arrow1))
         self.play(LaggedStart(gears_rotate, run_time=3, lag_ratio=0.0))
