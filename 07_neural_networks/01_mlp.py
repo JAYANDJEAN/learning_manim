@@ -74,24 +74,6 @@ class MultiLayerPerceptron(MovingCameraScene):
         self.play(Create(brace_mlp), Create(brace_mlp_text))
 
 
-class Test(Scene):
-    def __init__(self):
-        super().__init__()
-        self.start_rotation = None
-
-    def construct(self):
-        gear = SVGMobject("assets/wheel.svg")
-
-        composite = AnimationGroup(
-            Rotate(gear.copy().scale(0.5).shift(0.78 * UP).set_color(YELLOW), axis=IN),
-            Rotate(gear.copy().scale(0.5).shift(0.57 * LEFT).set_color(ORANGE)),
-            Rotate(gear.copy().scale(0.5).shift(0.57 * RIGHT))
-        )
-
-        self.play(LaggedStart(composite, run_time=4, lag_ratio=0.0))
-        self.wait()
-
-
 if __name__ == "__main__":
-    scene = Test()
+    scene = MultiLayerPerceptron()
     scene.render()
