@@ -1,6 +1,5 @@
-import numpy as np
-from manim import *
 from utils import *
+from manim import *
 
 X_S = 0
 Y_S = b

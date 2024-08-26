@@ -36,10 +36,10 @@ class Scene2(Scene):
         axes.to_edge(LEFT, buff=0.5)
 
         circle = Circle(stroke_width=6, stroke_color=YELLOW, fill_color=RED_C, fill_opacity=0.8)
-        circle.set_width(2).to_edge(DR, buff=0)
+        circle.set(width=2).to_edge(DR, buff=0)
 
         triangle = Triangle(stroke_color=ORANGE, stroke_width=10,
-                            fill_color=GREY).set_height(2).shift(DOWN * 3 + RIGHT * 3)
+                            fill_color=GREY).set(height=2).shift(DOWN * 3 + RIGHT * 3)
 
         # 了解一般动画效果
         self.play(FadeIn(plane), run_time=6)
@@ -61,7 +61,7 @@ class Scene3(Scene):
         rectangle = RoundedRectangle(stroke_width=8, stroke_color=WHITE,
                                      fill_color=BLUE_B, width=4.5, height=2).shift(UP * 3 + LEFT * 4)
 
-        mathtext = MathTex("\\frac{3}{4} = 0.75").set_color_by_gradient(GREEN, PINK).set_height(1.5)
+        mathtext = MathTex("\\frac{3}{4} = 0.75").set_color_by_gradient(GREEN, PINK).set(height=1.5)
         mathtext.move_to(rectangle.get_center())
 
         # add_updater 的用法
@@ -124,7 +124,7 @@ class Scene5(Scene):
         plane = PolarPlane().add_coordinates()
         graph = always_redraw(lambda: ParametricFunction(
             lambda t: plane.polar_to_point(2 * (1 + np.sin(t)), t),
-            t_range=[0, e.get_value()], color=WHITE, stroke_width=3))
+            t_range=(0.0, e.get_value()), color=WHITE, stroke_width=3))
         self.add(graph)
         self.play(Create(plane), run_time=5)
         self.play(e.animate.set_value(TAU), run_time=5, rate_func=linear)
@@ -139,7 +139,7 @@ class Scene6(ThreeDScene):
         graph = always_redraw(
             lambda: ParametricFunction(
                 lambda t: np.array([4 * np.cos(t), 4 * np.sin(t), 0.5 * t]),
-                color=BLUE, t_range=[-5, end.get_value()])
+                color=BLUE, t_range=(-5.0, end.get_value()))
         )
 
         line = always_redraw(
@@ -150,3 +150,8 @@ class Scene6(ThreeDScene):
         self.add(axes, graph, line)
         self.play(end.animate.set_value(5), run_time=3)
         self.wait()
+
+
+if __name__ == "__main__":
+    scene = Scene6()
+    scene.render()

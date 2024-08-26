@@ -63,7 +63,7 @@ class Tute3(ThreeDScene):
         self.set_camera_orientation(phi=45 * DEGREES, theta=-45 * DEGREES)
         axes = ThreeDAxes(y_range=[-3, 10, 3], y_length=7).add_coordinates()
         graph = axes.plot(lambda x: x, x_range=[0, 3], color=RED_B)
-        area = axes.get_area(graph=graph, x_range=[0, 3])
+        area = axes.get_area(graph=graph, x_range=(0, 3))
         e = ValueTracker(0)
         surface = always_redraw(
             lambda: Surface(

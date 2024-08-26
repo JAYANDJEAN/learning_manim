@@ -59,7 +59,7 @@ class GraphExample(Scene):
         graph1 = always_redraw(
             lambda: ParametricFunction(
                 lambda t: plane.polar_to_point(2 * np.sin(3 * t), t),
-                t_range=[0, e.get_value()],
+                t_range=(0, e.get_value()),
                 color=GREEN
             )
         )

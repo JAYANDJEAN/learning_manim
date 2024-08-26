@@ -1,6 +1,4 @@
-from re import L
 from manim import *
-import random
 
 
 class Matrix(LinearTransformationScene):
@@ -60,7 +58,7 @@ class Vectors(VectorScene):
         self.write_vector_coordinates(vector=vector2)
 
 
-class Tute1(Scene):
+class Scene1(Scene):
     def construct(self):
         plane = NumberPlane(x_range=[-5, 5, 1],
                             y_range=[-4, 4, 1],
@@ -127,3 +125,8 @@ class Tute1(Scene):
         self.wait()
         self.play(stuff.animate.move_to(box.get_center()).set(width=1.2), run_time=3)
         self.wait()
+
+
+if __name__ == "__main__":
+    scene = Scene1()
+    scene.render()
