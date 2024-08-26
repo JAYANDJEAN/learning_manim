@@ -94,7 +94,7 @@ def get_piece_rectangles(
 
 
 def get_word_to_vec_model(model_name="glove-wiki-gigaword-50"):
-    filename = f"images/{model_name}"
+    filename = f"../06_transformer/images/{model_name}"
     if os.path.exists(filename):
         return gensim.models.keyedvectors.KeyedVectors.load(filename)
     model = gensim.downloader.load(model_name)
