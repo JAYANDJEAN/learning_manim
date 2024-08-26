@@ -7,7 +7,7 @@ import random
 '''
 
 
-class Tute1(Scene):
+class Scene1(Scene):
     def construct(self):
         plane = NumberPlane(x_range=[-7, 7, 1], y_range=[-4, 4, 1]).add_coordinates()
         box = Rectangle(stroke_color=GREEN_C,
@@ -28,7 +28,7 @@ class Tute1(Scene):
         self.wait()
 
 
-class Tute2(Scene):
+class Scene2(Scene):
     def construct(self):
         plane = NumberPlane(x_range=[-7, 7, 1], y_range=[-4, 4, 1]).add_coordinates()
 
@@ -56,7 +56,7 @@ class Tute2(Scene):
         self.wait()
 
 
-class Tute3(Scene):
+class Scene3(Scene):
     def construct(self):
         rectangle = RoundedRectangle(stroke_width=8, stroke_color=WHITE,
                                      fill_color=BLUE_B, width=4.5, height=2).shift(UP * 3 + LEFT * 4)
@@ -79,7 +79,7 @@ class Tute3(Scene):
         self.wait()
 
 
-class Tute4(Scene):
+class Scene4(Scene):
     def construct(self):
         r = ValueTracker(0.5)  # Tracks the value of the radius
 
@@ -117,7 +117,7 @@ class Tute4(Scene):
         self.play(r.animate.set_value(2), run_time=5)
 
 
-class Tute5(Scene):
+class Scene5(Scene):
     def construct(self):
         # 画极坐标方程
         e = ValueTracker(0)
@@ -131,7 +131,7 @@ class Tute5(Scene):
         self.wait()
 
 
-class Tute6(ThreeDScene):
+class Scene6(ThreeDScene):
     def construct(self):
         axes = ThreeDAxes().add_coordinates()
         end = ValueTracker(-4.9)
