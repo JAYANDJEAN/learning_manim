@@ -220,10 +220,10 @@ class DashedMObject(VDict):
         dash_ends = [((i - 1) * period + dash_len + offset) for i in range(n)]
 
         ref_mob = self.path.path
-        a_list = self.path.alpha_from_length(dash_starts)
-        b_list = self.path.alpha_from_length(dash_ends)
+        start_list = self.path.alpha_from_length(dash_starts)
+        end_list = self.path.alpha_from_length(dash_ends)
         ret = []
         for i in range(len(dash_starts)):
             mob_copy = VMobject().match_points(ref_mob)
-            ret.append(mob_copy.pointwise_become_partial(mob_copy, a_list[i], b_list[i]))
+            ret.append(mob_copy.pointwise_become_partial(mob_copy, start_list[i], end_list[i]))
         return VGroup(*ret)
