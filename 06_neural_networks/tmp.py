@@ -1,34 +1,25 @@
-from manim import *
+from utils import *
 
 
-class TextBoxInputAnimation(Scene):
+class test_dash(Scene):
     def construct(self):
-        # 创建一个文本框矩形
-        text_box = Rectangle(width=6, height=1, color=WHITE, fill_opacity=0.1)
-        text_box.to_edge(UP)
+        mob1 = Circle(radius=3)
+        vt = ValueTracker(0)
+        dash1 = Dashed_line_mobject(mob1, num_dashes=12, dashed_ratio=0.5, dash_offset=0)
 
-        # 创建一个初始为空的文本对象
-        input_text = Text("", font_size=36)
-        input_text.next_to(text_box, DOWN)
+        def dash_updater(mob):
+            offset = vt.get_value() * 10
+            dshgrp = mob.generate_dash_mobjects(
+                **mob.generate_dash_pattern_dash_distributed(36, dash_ratio=0.5, offset=offset)
+            )
+            mob['dashes'].become(dshgrp)
 
-        # 将文本框和初始文本添加到场景中
-        self.add(text_box, input_text)
+        dash1.add_updater(dash_updater)
 
-        # 模拟输入的内容
-        input_string = "Hello, Manim!"
-
-        # 创建一个动画效果逐字显示文本
-        for char in input_string:
-            # 更新文本内容
-            new_text = Text(input_text.text + char, font_size=36)
-            new_text.next_to(text_box, DOWN)
-            # 使用 Transform 替换旧文本
-            self.play(Transform(input_text, new_text), run_time=0.3)
-
-        # 保持最终场景
-        self.wait()
-
+        self.add(dash1)
+        self.play(vt.animate.set_value(2), run_time=6)
+        self.wait(0.5)
 
 if __name__ == "__main__":
-    scene = TextBoxInputAnimation()
+    scene = test_dash()
     scene.render()
