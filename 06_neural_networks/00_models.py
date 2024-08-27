@@ -8,7 +8,7 @@ class Models(Scene):
         image_out = ImageMobject("assets/prompt_0.png").set(height=5)
 
         # 1. title
-        title = Text("How does diffusion model works")
+        title = Text("How does diffusion model work")
         self.play(Write(title), run_time=2)
         logo = MathTex(r"\mathbb{JAYANDJEAN}",
                        fill_color="#ece6e2").next_to(title, DOWN, buff=0.5).scale(1.2)
@@ -26,11 +26,12 @@ class Models(Scene):
         surrounding_model.set_stroke(width=0.5)
         model = VGroup(gears, text_model, surrounding_model)
 
-        text_prompt = Paragraph("a cyberpunk with natural ",
-                                "greys and whites and browns",
-                                line_spacing=1.0, font="menlo").scale(0.3)
-        surrounding_prompt = SurroundingRectangle(text_prompt, buff=0.2, color=WHITE, corner_radius=0.3).set_stroke(
-            width=0.5)
+        text_prompt = Paragraph("a cyberpunk with ",
+                                "natural greys and ",
+                                "whites and browns.",
+                                line_spacing=1.0, font="menlo").scale(0.5)
+        surrounding_prompt = SurroundingRectangle(text_prompt,
+                                                  buff=0.2, color=WHITE, corner_radius=0.3).set_stroke(width=0.5)
 
         prompt = VGroup(surrounding_prompt, text_prompt)
         Group(prompt, model, image_out).arrange(RIGHT, buff=1.2)
