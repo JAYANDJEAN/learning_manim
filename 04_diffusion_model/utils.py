@@ -1,4 +1,20 @@
 from manim import *
+from typing import Optional, Tuple
+
+
+def value_to_color(value,
+                   low_positive_color=BLUE_A,
+                   high_positive_color=BLUE_E,
+                   low_negative_color=RED_A,
+                   high_negative_color=RED_E,
+                   min_value=0.0,
+                   max_value=10.0):
+    alpha = clip(float(inverse_interpolate(min_value, max_value, abs(value))), 0, 1)
+    if value >= 0:
+        colors = (low_positive_color, high_positive_color)
+    else:
+        colors = (low_negative_color, high_negative_color)
+    return interpolate_color(*colors, alpha)
 
 
 class PathMapper(VMobject):
@@ -183,14 +199,13 @@ class PathMapper(VMobject):
         return rotate_vector(tv, PI / 2)
 
     def get_curvature_vector(self, s):
-        indx, bz_a = self.get_bezier_index_from_length(s)
-        points = self.path.get_nth_curve_points(indx)
+        ind, bz_a = self.get_bezier_index_from_length(s)
+        points = self.path.get_nth_curve_points(ind)
         dpoints = (points[1:, :] - points[:-1, :]) * 3
         ddpoints = (dpoints[1:, :] - dpoints[:-1, :]) * 2
         deriv = bezier(dpoints)(bz_a)
         dderiv = bezier(ddpoints)(bz_a)
-        curv = np.cross(deriv, dderiv) / (np.linalg.norm(deriv) ** 3)
-        return curv
+        return np.cross(deriv, dderiv) / (np.linalg.norm(deriv) ** 3)
 
     def get_curvature(self, s):
         return np.linalg.norm(self.get_curvature_vector(s))
@@ -225,5 +240,30 @@ class DashedMObject(VDict):
         ret = []
         for i in range(len(dash_starts)):
             mob_copy = VMobject().match_points(ref_mob)
-            ret.append(mob_copy.pointwise_become_partial(mob_copy, start_list[i], end_list[i]))
+            ret.append(mob_copy.pointwise_become_partial(mob_copy,
+                                                         float(start_list[i]),
+                                                         float(end_list[i])
+                                                         )
+                       )
         return VGroup(*ret)
+
+
+class WeightMatrix(DecimalMatrix):
+    def __init__(self,
+                 length: int = 7,
+                 shape: Optional[Tuple[int, int]] = None,
+                 value_range: tuple[float, float] = (-9.9, 9.9)):
+
+        if shape is None:
+            shape = (length, 1)
+        self.value_range = value_range
+        values = np.random.uniform(*self.value_range, size=shape)
+        super().__init__(values)
+        self.reset_entry_colors()
+
+    def reset_entry_colors(self):
+        for entry in self.get_entries():
+            entry.set_color(color=value_to_color(
+                entry.get_value(), min_value=0, max_value=max(self.value_range))
+            )
+        return self

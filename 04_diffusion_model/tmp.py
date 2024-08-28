@@ -1,7 +1,7 @@
 from utils import *
 
 
-class test_dash(Scene):
+class DashTest(Scene):
     def construct(self):
         def dash_updater(mob):
             offset = vt.get_value()
@@ -27,6 +27,14 @@ class test_dash(Scene):
         self.wait()
 
 
+class ImageShow(Scene):
+    def construct(self):
+        matrix1 = WeightMatrix(shape=(12, 7)).set(width=4)
+        matrix2 = WeightMatrix(shape=(12, 7)).set(width=4).set_opacity(0.4).shift(0.1 * RIGHT + 0.1 * UP)
+        matrix3 = WeightMatrix(shape=(12, 7)).set(width=4).set_opacity(0.2).shift(0.2 * RIGHT + 0.2 * UP)
+        self.add(matrix3, matrix2, matrix1)
+
+
 if __name__ == "__main__":
-    scene = test_dash()
+    scene = ImageShow()
     scene.render()
