@@ -1,4 +1,3 @@
-from manim import *
 from utils import *
 
 
@@ -17,7 +16,15 @@ class Models(Scene):
         self.play(FadeOut(title),
                   logo.animate.scale(0.4).move_to(RIGHT * 5.5 + UP * 3.5))
 
-        # 2. show generating images
+        # 2. show diffusion products
+        mid = ImageMobject("assets/mid.jpg").set(height=2)
+        sd3 = ImageMobject("assets/sd3.png").set(height=2)
+        flux = ImageMobject("assets/flux.png").set(height=2)
+        models = Group(mid, sd3, flux).arrange(RIGHT, buff=0.2).align_to(LEFT)
+        self.play(LaggedStartMap(FadeIn, models, lag_ratio=1.0, run_time=3))
+        self.wait()
+
+        # 3. show generating images
         gears = VGroup(gear.copy().scale(0.5).shift(0.78 * UP).set_color(YELLOW),
                        gear.copy().scale(0.5).shift(0.57 * LEFT).set_color(ORANGE),
                        gear.copy().scale(0.5).shift(0.57 * RIGHT))
@@ -52,30 +59,20 @@ class Models(Scene):
         arrow3 = Arrow(model.get_right(), matrix.get_left())
         image_out.move_to(matrix.get_center())
 
-        self.add(model)
+        self.play(FadeOut(models), FadeIn(model))
         self.play(Write(text_prompt, run_time=3))
         self.play(Create(surrounding_prompt))
         self.play(Create(arrow1), Create(embedding))
-        self.play(Create(arrow2), LaggedStart(gears_rotate, run_time=3, lag_ratio=0.0))
+        self.play(Create(arrow2), LaggedStart(gears_rotate, run_time=4, lag_ratio=0.0))
         self.play(Create(arrow3), Create(matrix))
         self.wait()
         self.play(FadeOut(matrix), FadeIn(image_out))
         self.wait()
 
-        # 3.
-        model_copy = model.copy()
-        mid = ImageMobject("assets/mid.jpg").set(height=2)
-        sd3 = ImageMobject("assets/sd3.png").set(height=2)
-        flux = ImageMobject("assets/flux.png").set(height=2)
-
-        models = Group(mid, sd3, flux).arrange(DOWN, buff=0.2).align_to(LEFT)
-        brace_models = Brace(models, direction=LEFT)
-        Group(model_copy, brace_models, models).arrange(RIGHT, buff=0.7)
-
-        self.play(FadeOut(arrow1, arrow2, arrow3, prompt, embedding, image_out),
-                  Transform(model, model_copy))
-        self.play(Create(brace_models))
-        self.play(LaggedStartMap(FadeIn, models, lag_ratio=1.0, run_time=3))
+        # 4.
+        self.play(FadeOut(matrix, image_out, arrow1, arrow2, arrow3, prompt))
+        self.play(Wiggle(embedding))
+        self.play(FadeOut(embedding), model.animate.move_to(4 * LEFT))
         self.wait()
 
 

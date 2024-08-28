@@ -1,14 +1,13 @@
-from manim import *
 from typing import Optional, Tuple
 
+from manim import *
 
-def value_to_color(value,
-                   low_positive_color=BLUE_A,
-                   high_positive_color=BLUE_E,
-                   low_negative_color=RED_A,
-                   high_negative_color=RED_E,
-                   min_value=0.0,
-                   max_value=10.0):
+
+def value_to_color(value, min_value=0.0, max_value=10.0):
+    low_positive_color = BLUE_A
+    high_positive_color = BLUE_E
+    low_negative_color = RED_A
+    high_negative_color = RED_E
     alpha = clip(float(inverse_interpolate(min_value, max_value, abs(value))), 0, 1)
     if value >= 0:
         colors = (low_positive_color, high_positive_color)
@@ -256,6 +255,7 @@ class WeightMatrix(DecimalMatrix):
 
         if shape is None:
             shape = (length, 1)
+        self.shape = shape
         self.value_range = value_range
         values = np.random.uniform(*self.value_range, size=shape)
         super().__init__(values)
@@ -263,7 +263,8 @@ class WeightMatrix(DecimalMatrix):
 
     def reset_entry_colors(self):
         for entry in self.get_entries():
-            entry.set_color(color=value_to_color(
-                entry.get_value(), min_value=0, max_value=max(self.value_range))
+            entry.set_color(
+                color=value_to_color(entry.get_value(), min_value=0, max_value=max(self.value_range))
             )
         return self
+

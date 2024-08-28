@@ -35,6 +35,17 @@ class ImageShow(Scene):
         self.add(matrix3, matrix2, matrix1)
 
 
+class MatrixMultiplication(Scene):
+    def construct(self):
+        matrix1 = WeightMatrix(shape=(7, 8)).set(width=4.8)
+        matrix2 = WeightMatrix(shape=(8, 5)).set(width=3.0)
+        eq = Tex('=')
+        matrix3 = WeightMatrix(shape=(7, 5)).set(width=3.0)
+        VGroup(matrix1, matrix2, eq, matrix3).arrange(RIGHT, buff=0.2)
+        self.add(matrix1, matrix2, eq, matrix3)
+
+
+
 if __name__ == "__main__":
-    scene = ImageShow()
+    scene = MatrixMultiplication()
     scene.render()
