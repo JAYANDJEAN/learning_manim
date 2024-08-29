@@ -5,7 +5,7 @@ class Models(Scene):
     def construct(self):
         self.camera.background_color = "#1C1C1C"
         gear = SVGMobject("assets/wheel.svg")
-        image_out = ImageMobject("assets/prompt_0.png").set(width=4.2)
+        image_out = ImageMobject("assets/prompt.png").set(width=4.2)
 
         # 1. title
         title = Text("How does diffusion model work")
@@ -69,11 +69,20 @@ class Models(Scene):
         self.play(FadeOut(matrix), FadeIn(image_out))
         self.wait()
 
-        # 4.
+        # 4. why we need embedding
+        model_copy = model.copy()
+        box = Rectangle(width=8.0, height=5.0).set_fill(GREY_E, 1).set_stroke(WHITE, 1)
+        VGroup(model_copy, box).arrange(RIGHT, buff=1.5)
+        line1 = Line(start=model_copy.get_corner(direction=UR), end=box.get_corner(direction=UL)).set_stroke(WHITE, 1)
+        line2 = Line(start=model_copy.get_corner(direction=DR), end=box.get_corner(direction=DL)).set_stroke(WHITE, 1)
+
         self.play(FadeOut(matrix, image_out, arrow1, arrow2, arrow3, prompt))
         self.play(Wiggle(embedding))
-        self.play(FadeOut(embedding), model.animate.move_to(4 * LEFT))
+        self.play(FadeOut(embedding), model.animate.move_to(model_copy.get_center()))
+        self.play(LaggedStartMap(Create, VGroup(box, line1, line2)))
         self.wait()
+
+        # 5.
 
 
 if __name__ == "__main__":

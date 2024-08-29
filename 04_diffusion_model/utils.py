@@ -257,7 +257,8 @@ class WeightMatrix(DecimalMatrix):
             shape = (length, 1)
         self.shape = shape
         self.value_range = value_range
-        values = np.random.uniform(*self.value_range, size=shape)
+        # values = np.random.uniform(*self.value_range, size=shape)
+        values = np.zeros(shape=shape)
         super().__init__(values)
         self.reset_entry_colors()
 
@@ -267,4 +268,3 @@ class WeightMatrix(DecimalMatrix):
                 color=value_to_color(entry.get_value(), min_value=0, max_value=max(self.value_range))
             )
         return self
-
