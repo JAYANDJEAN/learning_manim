@@ -5,7 +5,7 @@ class Models(Scene):
     def construct(self):
         self.camera.background_color = "#1C1C1C"
         gear = SVGMobject("assets/wheel.svg")
-        image_out = ImageMobject("assets/prompt.png").set(width=4.2)
+        image_prompt = ImageMobject("assets/prompt.png").set(width=4.2)
 
         # 1. title
         title = Text("How does diffusion model work")
@@ -57,7 +57,7 @@ class Models(Scene):
         arrow1 = Arrow(prompt.get_right(), embedding.get_left())
         arrow2 = Arrow(embedding.get_right(), model.get_left())
         arrow3 = Arrow(model.get_right(), matrix.get_left())
-        image_out.move_to(matrix.get_center())
+        image_prompt.move_to(matrix.get_center())
 
         self.play(FadeOut(models), FadeIn(model))
         self.play(Write(text_prompt, run_time=3))
@@ -66,7 +66,7 @@ class Models(Scene):
         self.play(Create(arrow2), LaggedStart(gears_rotate, run_time=4, lag_ratio=0.0))
         self.play(Create(arrow3), Create(matrix))
         self.wait()
-        self.play(FadeOut(matrix), FadeIn(image_out))
+        self.play(FadeOut(matrix), FadeIn(image_prompt))
         self.wait()
 
         # 4. why we need embedding
@@ -76,13 +76,22 @@ class Models(Scene):
         line1 = Line(start=model_copy.get_corner(direction=UR), end=box.get_corner(direction=UL)).set_stroke(WHITE, 1)
         line2 = Line(start=model_copy.get_corner(direction=DR), end=box.get_corner(direction=DL)).set_stroke(WHITE, 1)
 
-        self.play(FadeOut(matrix, image_out, arrow1, arrow2, arrow3, prompt))
+        self.play(FadeOut(matrix, image_prompt, arrow1, arrow2, arrow3, prompt))
         self.play(Wiggle(embedding))
         self.play(FadeOut(embedding), model.animate.move_to(model_copy.get_center()))
         self.play(LaggedStartMap(Create, VGroup(box, line1, line2)))
         self.wait()
 
-        # 5.
+        # 5. what is the image
+        model_copy = model.copy()
+        Group(model_copy, image_prompt).arrange(RIGHT, buff=2)
+        arrow_model_image = Arrow(model_copy.get_right(), image_prompt.get_left())
+        self.play(FadeOut(box, line1, line2))
+        self.play(model.animate.move_to(model_copy.get_center()), Create(arrow_model_image))
+        self.play(FadeIn(image_prompt))
+        self.wait()
+        self.play(FadeOut(model, arrow_model_image), image_prompt.animate.move_to(4 * LEFT))
+        self.wait()
 
 
 if __name__ == "__main__":

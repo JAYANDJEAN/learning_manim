@@ -27,12 +27,17 @@ class DashTest(Scene):
         self.wait()
 
 
-class ImageShow(Scene):
+class RGBImageShow(ThreeDScene):
     def construct(self):
-        matrix1 = WeightMatrix(shape=(12, 7)).set(width=4)
-        matrix2 = WeightMatrix(shape=(12, 7)).set(width=4).set_opacity(0.4).shift(0.1 * RIGHT + 0.1 * UP)
-        matrix3 = WeightMatrix(shape=(12, 7)).set(width=4).set_opacity(0.2).shift(0.2 * RIGHT + 0.2 * UP)
-        self.add(matrix3, matrix2, matrix1)
+        heads = Group(ImageMobject("assets/prompt_r.png"),
+                      ImageMobject("assets/prompt_g.png"),
+                      ImageMobject("assets/prompt_b.png"),
+                      ImageMobject("assets/prompt.png"))
+        heads.set(height=4).arrange(OUT, buff=1.0).move_to(DOWN)
+        self.add(heads)
+        self.wait()
+        self.set_phi(30 * DEGREES)
+        self.wait()
 
 
 class MatrixMultiplication(Scene):
@@ -63,5 +68,5 @@ class MatrixMultiplication(Scene):
 
 
 if __name__ == "__main__":
-    scene = MatrixMultiplication()
+    scene = RGBImageShow()
     scene.render()
