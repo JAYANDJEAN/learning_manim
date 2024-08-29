@@ -71,7 +71,7 @@ class Models(Scene):
 
         # 4. why we need embedding
         model_copy = model.copy()
-        box = Rectangle(width=8.0, height=5.0).set_fill(GREY_E, 1).set_stroke(WHITE, 1)
+        box = Rectangle(width=9.0, height=6.0).set_fill(GREY_E, 1).set_stroke(WHITE, 1)
         VGroup(model_copy, box).arrange(RIGHT, buff=1.5)
         line1 = Line(start=model_copy.get_corner(direction=UR), end=box.get_corner(direction=UL)).set_stroke(WHITE, 1)
         line2 = Line(start=model_copy.get_corner(direction=DR), end=box.get_corner(direction=DL)).set_stroke(WHITE, 1)
@@ -80,6 +80,24 @@ class Models(Scene):
         self.play(Wiggle(embedding))
         self.play(FadeOut(embedding), model.animate.move_to(model_copy.get_center()))
         self.play(LaggedStartMap(Create, VGroup(box, line1, line2)))
+
+        shape_list = [[(7, 8), (8, 5), (7, 5)], [(6, 5), (5, 7), (6, 7)], [(5, 8), (8, 6), (5, 6)]]
+        matrix_mul = []
+        for shapes in shape_list:
+            matrix1, matrix2, matrix3 = [WeightMatrix(shape=shape).set(width=0.4 * shape[1])
+                                         for shape in shapes]
+            eq = Tex('=')
+            all_matrix = (VGroup(matrix1, matrix2, eq, matrix3)
+                          .arrange(RIGHT, buff=0.2)
+                          .move_to(box.get_center()))
+            two_matrix = VGroup(matrix1.copy(), matrix2.copy())
+            for entry in matrix3.get_entries():
+                entry.set_opacity(0)
+            self.play(Create(all_matrix))
+            self.play(FadeOut(two_matrix, target_position=matrix3.get_center()))
+            self.play(LaggedStart(AnimationGroup(*[entry.animate.set_opacity(1) for entry in matrix3.get_entries()])))
+            self.play(FadeOut(all_matrix))
+
         self.wait()
 
         # 5. what is the image

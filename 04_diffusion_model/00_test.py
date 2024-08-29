@@ -44,7 +44,7 @@ class MatrixMultiplication(Scene):
     def construct(self):
         self.camera.background_color = "#1C1C1C"
         shapes = [(7, 8), (8, 5), (7, 5)]
-        matrix1, matrix2, matrix3 = [WeightMatrix(shape=shape).set(width=0.5 * shape[1]) for shape in shapes]
+        matrix1, matrix2, matrix3 = [WeightMatrix(shape=shape).set(width=0.4 * shape[1]) for shape in shapes]
         eq = Tex('=')
 
         for entry in matrix3.get_entries():
