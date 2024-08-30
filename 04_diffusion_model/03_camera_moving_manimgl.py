@@ -21,8 +21,7 @@ class MultiHeadedAttention(InteractiveScene):
         # Mention head
         background_rect = FullScreenRectangle()
         title = Text("Multi-headed attention").scale(1.25).to_edge(UP)
-        screen_rect = ScreenRectangle(height=6).set_fill(BLACK, 1).set_stroke(WHITE, 3).next_to(title, DOWN, buff=0.5)
-        self.add(background_rect, title, screen_rect)
+        self.add(background_rect, title)
         self.wait()
 
         # Set up images
