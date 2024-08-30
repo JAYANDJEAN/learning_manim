@@ -1,4 +1,56 @@
 from utils import *
+import numpy as np
+
+
+class RotateCameraExample(ThreeDScene):
+    def construct(self):
+        # 设置初始视角
+        images = Group(
+            ImageMobject("assets/prompt_b.png"),
+            ImageMobject("assets/prompt_g.png"),
+            ImageMobject("assets/prompt_r.png"),
+            ImageMobject("assets/prompt.png"), ).set(height=5).arrange(OUT, buff=1.5)
+        self.add(images)
+        self.set_camera_orientation(phi=-30 * DEGREES, theta=-80 * DEGREES, gamma=52 * DEGREES)
+
+
+class CameraAnglesAnimation(ThreeDScene):
+    def construct(self):
+        axes = ThreeDAxes(
+            x_range=(-6, 6, 1),
+            y_range=(-6, 6, 1),
+            z_range=(-6, 6, 1),
+            x_length=6,
+            y_length=6,
+            z_length=6,
+            axis_config={
+                "include_tip": True,
+                "numbers_to_include": np.arange(-5, 6, 2),
+                "font_size": 24,
+            },
+        )
+        x_label = Text("X", font_size=24).next_to(axes.x_axis.get_end(), RIGHT)
+        y_label = Text("Y", font_size=24).next_to(axes.y_axis.get_end(), UP)
+        z_label = Text("Z", font_size=24).next_to(axes.z_axis.get_end(), OUT)
+
+        angle_text = always_redraw(
+            lambda: Text(f"phi: {self.camera.get_phi() / PI * 180:.2f}, "
+                         f"theta: {self.camera.get_theta() / PI * 180:.2f}, "
+                         f"gamma: {self.camera.get_gamma() / PI * 180:.2f}").scale(0.3).to_edge(UP + LEFT)
+        )
+
+        gap = 10
+        self.add_fixed_in_frame_mobjects(angle_text)
+        self.set_camera_orientation(phi=75 * DEGREES, theta=-45 * DEGREES)
+        self.add(axes, x_label, y_label, z_label)
+        self.begin_ambient_camera_rotation(rate=-0.1, about='phi')
+        self.wait(gap)
+        self.begin_ambient_camera_rotation(rate=0.1, about='theta')
+        self.wait(gap)
+        self.begin_ambient_camera_rotation(rate=0.1, about='gamma')
+        self.wait(gap)
+        self.stop_ambient_camera_rotation()
+        self.wait()
 
 
 class DashTest(Scene):
@@ -24,19 +76,6 @@ class DashTest(Scene):
 
         self.add(plane, dash1)
         self.play(vt.animate.set_value(speed), run_time=6)
-        self.wait()
-
-
-class RGBImageShow(ThreeDScene):
-    def construct(self):
-        heads = Group(ImageMobject("assets/prompt_r.png"),
-                      ImageMobject("assets/prompt_g.png"),
-                      ImageMobject("assets/prompt_b.png"),
-                      ImageMobject("assets/prompt.png"))
-        heads.set(height=4).arrange(OUT, buff=1.0).move_to(DOWN)
-        self.add(heads)
-        self.wait()
-        self.set_phi(30 * DEGREES)
         self.wait()
 
 
@@ -68,5 +107,5 @@ class MatrixMultiplication(Scene):
 
 
 if __name__ == "__main__":
-    scene = RGBImageShow()
+    scene = CameraAnglesAnimation()
     scene.render()

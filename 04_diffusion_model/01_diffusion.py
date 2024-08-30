@@ -81,9 +81,13 @@ class Models(Scene):
         self.play(FadeOut(embedding), model.animate.move_to(model_copy.get_center()))
         self.play(LaggedStartMap(Create, VGroup(box, line1, line2)))
 
-        shape_list = [[(7, 8), (8, 5), (7, 5)], [(6, 5), (5, 7), (6, 7)], [(5, 8), (8, 6), (5, 6)]]
-        matrix_mul = []
-        for shapes in shape_list:
+        shape_list = [[(7, 8), (8, 5), (7, 5)],
+                      [(6, 5), (5, 7), (6, 7)],
+                      [(5, 8), (8, 6), (5, 6)],
+                      [(7, 8), (8, 5), (7, 5)],
+                      [(6, 5), (5, 7), (6, 7)],
+                      [(5, 8), (8, 6), (5, 6)]]
+        for i, shapes in enumerate(shape_list):
             matrix1, matrix2, matrix3 = [WeightMatrix(shape=shape).set(width=0.4 * shape[1])
                                          for shape in shapes]
             eq = Tex('=')
@@ -94,9 +98,12 @@ class Models(Scene):
             for entry in matrix3.get_entries():
                 entry.set_opacity(0)
             self.play(Create(all_matrix))
-            self.play(FadeOut(two_matrix, target_position=matrix3.get_center()))
-            self.play(LaggedStart(AnimationGroup(*[entry.animate.set_opacity(1) for entry in matrix3.get_entries()])))
-            self.play(FadeOut(all_matrix))
+            # todo：不满意
+            self.play(FadeOut(two_matrix, target_position=matrix3.get_center(), scale=0.5))
+            self.play(LaggedStart(AnimationGroup(*[entry.animate.set_opacity(1)
+                                                   for entry in matrix3.get_entries()])))
+            if i != len(shape_list) - 1:
+                self.play(FadeOut(all_matrix))
 
         self.wait()
 
