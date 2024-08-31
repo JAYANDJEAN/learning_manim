@@ -1,17 +1,28 @@
 from utils import *
-import numpy as np
 
 
 class RotateCameraExample(ThreeDScene):
     def construct(self):
+        image_prompt = ImageMobject("assets/prompt.png")
+
         # 设置初始视角
         images = Group(
             ImageMobject("assets/prompt_b.png"),
             ImageMobject("assets/prompt_g.png"),
             ImageMobject("assets/prompt_r.png"),
-            ImageMobject("assets/prompt.png"), ).set(height=5).arrange(OUT, buff=1.5)
+            ImageMobject("assets/prompt.png"), ).set(height=5).arrange(OUT, buff=1)
         self.add(images)
-        self.set_camera_orientation(phi=-30 * DEGREES, theta=-80 * DEGREES, gamma=52 * DEGREES)
+        self.move_camera(phi=-50 * DEGREES,
+                         theta=-140 * DEGREES,
+                         gamma=-37 * DEGREES,
+                         focal_distance=30,
+                         frame_center=LEFT + DOWN * 0.3)
+
+        self.set_camera_orientation(phi=-50 * DEGREES,
+                                    theta=-140 * DEGREES,
+                                    gamma=-37 * DEGREES,
+                                    focal_distance=30,
+                                    frame_center=LEFT + DOWN * 0.3)
 
 
 class CameraAnglesAnimation(ThreeDScene):
@@ -107,5 +118,5 @@ class MatrixMultiplication(Scene):
 
 
 if __name__ == "__main__":
-    scene = CameraAnglesAnimation()
+    scene = RotateCameraExample()
     scene.render()

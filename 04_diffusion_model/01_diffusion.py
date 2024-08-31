@@ -38,7 +38,7 @@ class Models(Scene):
         matrix1 = WeightMatrix(shape=(12, 7)).set(width=4)
         matrix2 = WeightMatrix(shape=(12, 7)).set(width=4).set_opacity(0.4).shift(0.1 * RIGHT + 0.1 * UP)
         matrix3 = WeightMatrix(shape=(12, 7)).set(width=4).set_opacity(0.2).shift(0.2 * RIGHT + 0.2 * UP)
-        matrix = VGroup(matrix3, matrix2, matrix1)
+        matrix_image = VGroup(matrix3, matrix2, matrix1)
 
         text_prompt = Paragraph("a cyberpunk with ",
                                 "natural greys and ",
@@ -48,7 +48,7 @@ class Models(Scene):
                                                   buff=0.2, color=WHITE, corner_radius=0.3).set_stroke(width=0.5)
         prompt = VGroup(surrounding_prompt, text_prompt)
 
-        Group(prompt, embedding, model, matrix).arrange(RIGHT, buff=1.0)
+        Group(prompt, embedding, model, matrix_image).arrange(RIGHT, buff=1.0)
         gears_rotate = AnimationGroup(
             Rotate(gears[0], axis=IN, about_point=gears[0].get_center()),
             Rotate(gears[1], about_point=gears[1].get_center()),
@@ -56,67 +56,142 @@ class Models(Scene):
         )
         arrow1 = Arrow(prompt.get_right(), embedding.get_left())
         arrow2 = Arrow(embedding.get_right(), model.get_left())
-        arrow3 = Arrow(model.get_right(), matrix.get_left())
-        image_prompt.move_to(matrix.get_center())
+        arrow3 = Arrow(model.get_right(), matrix_image.get_left())
+        image_prompt.move_to(matrix_image.get_center())
 
         self.play(FadeOut(models), FadeIn(model))
-        self.play(Write(text_prompt, run_time=3))
+        self.play(Write(text_prompt))
         self.play(Create(surrounding_prompt))
         self.play(Create(arrow1), Create(embedding))
-        self.play(Create(arrow2), LaggedStart(gears_rotate, run_time=4, lag_ratio=0.0))
-        self.play(Create(arrow3), Create(matrix))
+        self.play(Create(arrow2), LaggedStart(gears_rotate, run_time=3, lag_ratio=0.0))
+        self.play(Create(arrow3), Create(matrix_image))
         self.wait()
-        self.play(FadeOut(matrix), FadeIn(image_prompt))
+        self.play(FadeOut(matrix_image), FadeIn(image_prompt))
         self.wait()
 
-        # 4. why we need embedding
+        # 3.1. why we need embedding
         model_copy = model.copy()
-        box = Rectangle(width=9.0, height=6.0).set_fill(GREY_E, 1).set_stroke(WHITE, 1)
-        VGroup(model_copy, box).arrange(RIGHT, buff=1.5)
+        box = Rectangle(width=9.5, height=4.5).set_fill(GREY_E, 1).set_stroke(WHITE, 1)
+        VGroup(model_copy, box).arrange(RIGHT, buff=1)
         line1 = Line(start=model_copy.get_corner(direction=UR), end=box.get_corner(direction=UL)).set_stroke(WHITE, 1)
         line2 = Line(start=model_copy.get_corner(direction=DR), end=box.get_corner(direction=DL)).set_stroke(WHITE, 1)
 
-        self.play(FadeOut(matrix, image_prompt, arrow1, arrow2, arrow3, prompt))
+        self.play(FadeOut(matrix_image, image_prompt, arrow1, arrow2, arrow3, prompt))
         self.play(Wiggle(embedding))
         self.play(FadeOut(embedding), model.animate.move_to(model_copy.get_center()))
         self.play(LaggedStartMap(Create, VGroup(box, line1, line2)))
 
-        shape_list = [[(7, 8), (8, 5), (7, 5)],
-                      [(6, 5), (5, 7), (6, 7)],
-                      [(5, 8), (8, 6), (5, 6)],
-                      [(7, 8), (8, 5), (7, 5)],
-                      [(6, 5), (5, 7), (6, 7)],
-                      [(5, 8), (8, 6), (5, 6)]]
+        shape_list = [[(7, 7), (7, 6), (7, 6)],
+                      [(8, 6), (6, 6), (8, 6)],
+                      [(8, 5), (5, 6), (8, 6)],
+                      [(7, 7), (7, 6), (7, 6)],
+                      [(8, 6), (6, 6), (8, 6)],
+                      ]
+        all_matrix = None
         for i, shapes in enumerate(shape_list):
-            matrix1, matrix2, matrix3 = [WeightMatrix(shape=shape).set(width=0.4 * shape[1])
-                                         for shape in shapes]
+            matrix1, matrix2, matrix3 = [
+                VGroup(WeightMatrix(shape=shape).set(width=0.4 * shape[1]),
+                       WeightMatrix(shape=shape).set(width=0.4 * shape[1])
+                       .set_opacity(0.4).shift(0.1 * RIGHT + 0.1 * UP),
+                       WeightMatrix(shape=shape).set(width=0.4 * shape[1])
+                       .set_opacity(0.2).shift(0.2 * RIGHT + 0.2 * UP)
+                       ) for shape in shapes]
             eq = Tex('=')
             all_matrix = (VGroup(matrix1, matrix2, eq, matrix3)
                           .arrange(RIGHT, buff=0.2)
                           .move_to(box.get_center()))
             two_matrix = VGroup(matrix1.copy(), matrix2.copy())
-            for entry in matrix3.get_entries():
-                entry.set_opacity(0)
-            self.play(Create(all_matrix))
+            self.play(Create(matrix1), Create(matrix2), Create(eq))
             # todo：不满意
             self.play(FadeOut(two_matrix, target_position=matrix3.get_center(), scale=0.5))
-            self.play(LaggedStart(AnimationGroup(*[entry.animate.set_opacity(1)
-                                                   for entry in matrix3.get_entries()])))
+            self.add(matrix3)
             if i != len(shape_list) - 1:
                 self.play(FadeOut(all_matrix))
-
         self.wait()
 
-        # 5. what is the image
+        # 3.2. what is the image
         model_copy = model.copy()
         Group(model_copy, image_prompt).arrange(RIGHT, buff=2)
         arrow_model_image = Arrow(model_copy.get_right(), image_prompt.get_left())
-        self.play(FadeOut(box, line1, line2))
+        image_rgb = Group(
+            ImageMobject("assets/prompt_r.png").set(width=4.0).set_opacity(0.8),
+            ImageMobject("assets/prompt_g.png").set(width=4.0).set_opacity(0.4).shift(0.1 * RIGHT + 0.1 * UP),
+            ImageMobject("assets/prompt_b.png").set(width=4.0).set_opacity(0.2).shift(0.2 * RIGHT + 0.2 * UP)
+        ).move_to(2 * RIGHT)
+        self.play(FadeOut(box, line1, line2, all_matrix))
         self.play(model.animate.move_to(model_copy.get_center()), Create(arrow_model_image))
         self.play(FadeIn(image_prompt))
         self.wait()
         self.play(FadeOut(model, arrow_model_image), image_prompt.animate.move_to(4 * LEFT))
+        arrow_images = Arrow(image_prompt.get_right(), image_rgb.get_left())
+        self.play(Create(arrow_images))
+        self.play(FadeOut(image_prompt.copy(), target_position=image_rgb.get_center()),
+                  FadeIn(image_rgb))
         self.wait()
+
+        image_rgb_copy = image_rgb.copy()
+        image_rgb_copy.arrange(RIGHT, buff=0.4).set(opacity=1.0)
+        lattice = NumberPlane(
+            x_range=(-14, 14, 1),
+            y_range=(-17, 17, 1),
+            background_line_style={
+                "stroke_color": GRAY,
+                "stroke_width": 2,
+                "stroke_opacity": 1,
+            },
+            axis_config={
+                "stroke_color": GRAY,
+                "stroke_width": 2,
+                "include_numbers": False,
+            },
+            faded_line_ratio=0,  # Disable fading of grid lines
+        )
+        lattice.set(width=4.0)
+        lattices = Group(lattice.copy(), lattice.copy(), lattice.copy()).arrange(RIGHT, buff=0.4)
+        self.play(FadeOut(image_prompt, arrow_images), Transform(image_rgb, image_rgb_copy))
+        self.play(FadeIn(lattices))
+        self.wait()
+
+        eq = Text("=").scale(3)
+        image_eq = Group(image_prompt, eq, matrix_image).arrange(RIGHT, buff=0.5)
+        self.play(FadeOut(lattices, image_rgb))
+        self.play(FadeIn(image_eq))
+        self.wait()
+
+        # 4.
+        point_papers = [
+            Text("2020.06 \nDDPM", font="menlo"),
+            Text("2021.03 \nCLIP", font="menlo"),
+            Text("2021.12 \nLatent Diffusion", font="menlo"),
+            Text("2024.03 \nStable Diffusion 3", font="menlo"),
+        ]
+        papers_name = [
+            Text("Denoising Diffusion Probabilistic Models", font="menlo"),
+            Text("Learning Transferable Visual Models \nFrom Natural Language Supervision", font="menlo"),
+            Text("High-Resolution Image Synthesis \nwith Latent Diffusion Models", font="menlo"),
+            Text("Scaling Rectified Flow Transformers \nfor High-Resolution Image Synthesis", font="menlo"),
+        ]
+        arrow_history = Arrow(7 * LEFT, 7 * RIGHT)
+        dots = VGroup(*[Dot(radius=0.1) for _ in range(4)]).arrange(RIGHT, buff=3.1)
+        for dot, point_paper, paper in zip(dots, point_papers, papers_name):
+            point_paper.next_to(dot, direction=UP, buff=0.2).scale(0.4)
+            paper.next_to(dot, direction=DOWN, buff=0.2).scale(0.2)
+
+        self.play(FadeOut(image_eq))
+        self.play(Create(arrow_history))
+        self.play(Create(dots[0]), Write(point_papers[0]))
+        self.play(Write(papers_name[0]))
+        self.play(Create(dots[1]), Write(point_papers[1]))
+        self.play(Write(papers_name[1]))
+        self.play(Create(dots[2]), Write(point_papers[2]))
+        self.play(Write(papers_name[2]))
+        self.play(Create(dots[3]), Write(point_papers[3]))
+        self.play(Write(papers_name[3]))
+        self.wait()
+
+
+
+
 
 
 if __name__ == "__main__":
