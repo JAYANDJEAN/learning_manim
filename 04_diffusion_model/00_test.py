@@ -117,6 +117,34 @@ class MatrixMultiplication(Scene):
                           entry.animate.set_opacity(1))
 
 
+class Tmp(Scene):
+    def construct(self):
+        image_text_encode_only = Group(
+            *([ele for i in [f"assets/{f}" for f in ['cat_0.jpg', 'cat_0_0040.png', 'cat_0_0060.png', 'cat_0_0080.png']]
+               for ele in (ImageMobject(i).set(height=1.4), Text("···").scale(0.7))] +
+              [ImageMobject("assets/cat_0_0999.png").set(height=1.4)]
+              )
+        ).arrange(RIGHT, buff=0.3)
+
+        formula_xt = MathTex(r"\mathbf{x}_t=\sqrt{\bar{\alpha}_t} ",
+                             r"\mathbf{x}_0",
+                             r"+\sqrt{1-\bar{\alpha}_t} ",
+                             r"\boldsymbol{\epsilon}")
+
+        brace_encode_only = Brace(image_text_encode_only, direction=DOWN, buff=0.1)
+        text_encode_steps = Text("1000 Steps").next_to(brace_encode_only, DOWN)
+        formula_xt.next_to(text_encode_steps, DOWN)
+        frame_box_xt = SurroundingRectangle(formula_xt[1], corner_radius=0.01).set_stroke(width=1.0)
+        frame_box_noise = SurroundingRectangle(formula_xt[3], corner_radius=0.01).set_stroke(width=1.0)
+        arrow_xt_image = Arrow(frame_box_xt.get_bottom(), image_text_encode_only[0].get_bottom(),
+                               path_arc=-90 * DEGREES, stroke_width=2.0, tip_length=0.2, buff=0.0)
+        self.play(FadeIn(image_text_encode_only, brace_encode_only, text_encode_steps))
+
+        self.play(Write(formula_xt))
+        self.play(Create(frame_box_xt), GrowArrow(arrow_xt_image))
+        self.play(Create(frame_box_noise))
+
+
 if __name__ == "__main__":
-    scene = RotateCameraExample()
+    scene = Tmp()
     scene.render()
