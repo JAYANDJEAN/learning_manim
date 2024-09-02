@@ -216,6 +216,7 @@ class Models(Scene):
         self.play(FadeOut(image_noise), FadeIn(image_cat_35))
         self.play(FadeOut(hard), Indicate(easy))
 
+        # 5.1 Decode
         image_cat_line1 = Group(
             ImageMobject("assets/cat.jpg"),
             ImageMobject("assets/cat_0035.png"),
@@ -241,36 +242,43 @@ class Models(Scene):
                            arrange(DOWN, buff=0.3).shift(0.5 * DOWN))
         self.play(FadeOut(easy, arrow_model_cat, model_diffusion, arrow_noise_model,
                           image_noise, arrow_prompt_model, prompt_cat),
-                  FadeTransform(image_cat_35, image_cat_line1[1]),
-                  FadeTransform(image_cat, image_cat_line1[0]))
+                  Transform(image_cat_35, image_cat_line1[1]),
+                  Transform(image_cat, image_cat_line1[0]))
         arrow_between_images = []
         for i, image_group in enumerate(image_cat_lines):
             j = 0
+            time1 = 0.7
+            time2 = 0.3
             for j in range(len(image_group) - 1):
                 arr = Arrow(image_group[j + 1].get_right(), image_group[j].get_left(),
                             stroke_width=1.0, tip_length=0.1) \
                     if i != 1 else Arrow(image_group[j + 1].get_left(), image_group[j].get_right(),
                                          stroke_width=1.0, tip_length=0.1)
                 arrow_between_images.append(arr)
-                self.play(FadeIn(image_group[j]), GrowArrow(arr))
-            self.play(FadeIn(image_group[j + 1]))
+                self.play(FadeIn(image_group[j], run_time=time1 if i == 0 else time2),
+                          GrowArrow(arr, run_time=time1 if i == 0 else time2))
+            self.play(FadeIn(image_group[j + 1], run_time=time1 if i == 0 else time2))
             if i == 0:
                 arr = Arrow(image_cat_lines[i + 1][0].get_left(), image_group[j + 1].get_left(),
                             path_arc=-90 * DEGREES, stroke_width=1.0, tip_length=0.1, buff=0.0)
                 arrow_between_images.append(arr)
-                self.play(GrowArrow(arr))
+                self.play(GrowArrow(arr, run_time=time1))
             elif i == 1:
                 arr = Arrow(image_cat_lines[i + 1][0].get_right(), image_group[j + 1].get_right(),
                             path_arc=90 * DEGREES, stroke_width=1.0, tip_length=0.1, buff=0.0)
                 arrow_between_images.append(arr)
-                self.play(GrowArrow(arr))
+                self.play(GrowArrow(arr, run_time=time2))
         images_and_lines = Group(image_cat_lines, VGroup(*arrow_between_images))
         images_and_lines.generate_target()
         images_and_lines.target.scale(0.7).to_edge(RIGHT)
         brace_images_and_lines = Brace(images_and_lines.target, direction=LEFT, buff=0.1)
-        text_images_and_lines = Text("Decode").scale(1.5).next_to(brace_images_and_lines, LEFT)
+        text_images_and_lines = Text("Decode").next_to(brace_images_and_lines, LEFT)
+        self.play(FadeOut(image_cat_35, image_cat))
         self.play(MoveToTarget(images_and_lines))
         self.play(GrowFromCenter(brace_images_and_lines), Write(text_images_and_lines))
+
+        # 5.2 Encode
+
 
 
 
