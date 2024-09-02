@@ -216,6 +216,7 @@ class Models(Scene):
         self.play(Indicate(hard))
         self.play(FadeOut(image_noise), FadeIn(image_cat_35))
         self.play(FadeOut(hard), Indicate(easy))
+        self.wait()
 
         # 5.1 Decode
         path_cats = (["assets/cat_0.jpg"] + [f"assets/cat_0_00{i}.png" for i in range(35, 96, 5)] +
@@ -266,6 +267,7 @@ class Models(Scene):
         self.play(FadeOut(image_cat_35, image_cat))  # 因为用transform，所以还得去掉
         self.play(MoveToTarget(images_and_lines))
         self.play(GrowFromCenter(brace_images_and_lines), Write(text_images_and_lines))
+        self.wait()
 
         # 5.2 Encode
         image_text_encode_decode = Group(
@@ -314,6 +316,7 @@ class Models(Scene):
         self.play(Write(formula_xt))
         self.play(Create(frame_box_xt), GrowArrow(arrow_xt_image))
         self.play(Create(frame_box_noise))
+        self.wait()
 
         # 5.3 encode x_t
         T = 1000
@@ -372,20 +375,39 @@ class Models(Scene):
         self.play(Create(line_50), Create(dot_alpha_50), Create(dot_one_minus_alpha_50))
         self.play(Create(line_800), Create(dot_alpha_800), Create(dot_one_minus_alpha_800))
         self.play(FadeIn(image_cat_50), FadeIn(image_cat_800))
+        self.wait()
 
         # 5.4 train model
+        image_encode_set = Group(
+            *[Group(*([ele for j in [f"assets/cat_{i}{f}" for f in ('.jpg', '_0040.png', '_0060.png', '_0080.png')]
+                       for ele in [ImageMobject(j).set(width=2), Text("···").scale(0.5)]] +
+                      [ImageMobject(f"assets/cat_{i}_0999.png").set(width=2)]
+                      )
+                    ).arrange(RIGHT, buff=0.3)
+              for i in range(3)]
+        ).arrange(DOWN, buff=0.3).move_to(DOWN)
 
-        # image_encode_set = Group(
-        #     *[Group(*([ele for j in [f"assets/cat_{i}{f}" for f in ('.jpg', '_0040.png', '_0060.png', '_0080.png')]
-        #                for ele in [ImageMobject(j).set(width=2), Text("···").scale(0.5)]] +
-        #               [ImageMobject(f"assets/cat_{i}_0999.png").set(width=2)]
-        #               )
-        #             ).arrange(RIGHT, buff=0.3)
-        #       for i in range(1, 4)]
-        # ).arrange(DOWN, buff=0.3).to_edge(DOWN)
+        image_encode_set.generate_target()
+        image_encode_set.target.scale(0.6).move_to(UP)
+        brace_image_set = Brace(image_encode_set.target, direction=DOWN)
+        formula_encode = MathTex(r"\nabla_\theta\|\boldsymbol{\epsilon}-",
+                                 r"\boldsymbol{\epsilon}_\theta",
+                                 r"(\mathbf{x}_t, t)\|^2").next_to(brace_image_set, DOWN)
+        frame_box_model = SurroundingRectangle(formula_encode[1], corner_radius=0.01).set_stroke(width=2.0)
+        image_unet = ImageMobject("assets/unet.png").set(width=4).next_to(formula_encode, DOWN, buff=.1)
+        model_diffusion.next_to(brace_image_set, DOWN)
 
-        formula_encode = MathTex(r"\nabla_\theta\left\|\boldsymbol{\epsilon}-",
-                                 r"\boldsymbol{\epsilon}_\theta\left(\mathbf{x}_t, t\right)\right\|^2")
+        self.play(FadeOut(image_cat_50, image_cat_800,
+                          line_800, dot_alpha_800, dot_one_minus_alpha_800,
+                          line_50, dot_alpha_50, dot_one_minus_alpha_50,
+                          one_minus_alpha_curve, one_minus_alpha_label,
+                          alpha_curve, alpha_label, axes, formula_xt))
+        self.play(LaggedStartMap(FadeIn, image_encode_set, lag_ratio=1.0))
+        self.play(MoveToTarget(image_encode_set), GrowFromCenter(brace_image_set))
+        self.play(Write(formula_encode), Create(frame_box_model))
+        self.play(FadeIn(image_unet))
+        self.play(FadeOut(image_unet, frame_box_model))
+        self.play(Transform(formula_encode, model_diffusion))
 
 
 
