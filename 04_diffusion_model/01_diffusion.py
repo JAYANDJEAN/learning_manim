@@ -235,11 +235,13 @@ class Models(Scene):
             j = 0
             time1 = 0.7
             time2 = 0.3
+            line_width = 2
+            tip_length = 0.15
             for j in range(len(image_group) - 1):
                 arr = Arrow(image_group[j + 1].get_right(), image_group[j].get_left(),
-                            stroke_width=1.0, tip_length=0.1) \
+                            stroke_width=line_width, tip_length=tip_length) \
                     if i != 1 else Arrow(image_group[j + 1].get_left(), image_group[j].get_right(),
-                                         stroke_width=1.0, tip_length=0.1)
+                                         stroke_width=line_width, tip_length=tip_length)
                 arrow_between_images.append(arr)
                 self.play(FadeIn(image_group[j], run_time=time1 if i == 0 else time2),
                           GrowArrow(arr, run_time=time1 if i == 0 else time2))
@@ -247,12 +249,12 @@ class Models(Scene):
             if i == 0:
                 # todo: 形状不满意
                 arr = Arrow(image_cat_decode[i + 1][0].get_left(), image_group[j + 1].get_left(),
-                            path_arc=-90 * DEGREES, stroke_width=1.0, tip_length=0.1, buff=0.0)
+                            path_arc=-90 * DEGREES, stroke_width=line_width, tip_length=tip_length, buff=0.0)
                 arrow_between_images.append(arr)
                 self.play(GrowArrow(arr, run_time=time1))
             elif i == 1:
                 arr = Arrow(image_cat_decode[i + 1][0].get_right(), image_group[j + 1].get_right(),
-                            path_arc=90 * DEGREES, stroke_width=1.0, tip_length=0.1, buff=0.0)
+                            path_arc=90 * DEGREES, stroke_width=line_width, tip_length=tip_length, buff=0.0)
                 arrow_between_images.append(arr)
                 self.play(GrowArrow(arr, run_time=time2))
 
@@ -284,28 +286,14 @@ class Models(Scene):
               )
         ).arrange(RIGHT, buff=0.3)
 
-        # image_encode_set = Group(
-        #     *[Group(*([ele for j in [f"assets/cat_{i}{f}" for f in ('.jpg', '_0040.png', '_0060.png', '_0080.png')]
-        #                for ele in [ImageMobject(j).set(width=2), Text("···").scale(0.5)]] +
-        #               [ImageMobject(f"assets/cat_{i}_0999.png").set(width=2)]
-        #               )
-        #             ).arrange(RIGHT, buff=0.3)
-        #       for i in range(1, 4)]
-        # ).arrange(DOWN, buff=0.3).to_edge(DOWN)
-
-        formula_encode = MathTex(
-            r"\nabla_\theta\left\|\boldsymbol{\epsilon}-\boldsymbol{\epsilon}_\theta\left(\mathbf{x}_t, t\right)\right\|^2")
         formula_xt = MathTex(r"\mathbf{x}_t=\sqrt{\bar{\alpha}_t} ",
                              r"\mathbf{x}_0",
                              r"+\sqrt{1-\bar{\alpha}_t} ",
                              r"\boldsymbol{\epsilon}")
-        formula_decode = MathTex(
-            r"\mathbf{x}_{t-1}=\frac{1}{\sqrt{\alpha_t}}\left(\mathbf{x}_t-\frac{1-\alpha_t}{\sqrt{1-\bar{\alpha}_t}} \boldsymbol{\epsilon}_\theta\left(\mathbf{x}_t, t\right)\right)+\sigma_t \mathbf{z}")
         brace_decode = Brace(image_text_encode_decode[4:], direction=UP, buff=0.1)
         text_decode = Text("Decode").next_to(brace_decode, UP)
         brace_encode = Brace(image_text_encode_decode[:5], direction=DOWN, buff=0.1)
         text_encode = Text("Encode").next_to(brace_encode, DOWN)
-        formula_decode.next_to(text_decode, UP)
         brace_encode_only = Brace(image_text_encode_only, direction=DOWN, buff=0.1)
         text_encode_steps = Text("1000 Steps").next_to(brace_encode_only, DOWN)
         formula_xt.next_to(text_encode_steps, DOWN)
@@ -326,9 +314,79 @@ class Models(Scene):
         self.play(Write(formula_xt))
         self.play(Create(frame_box_xt), GrowArrow(arrow_xt_image))
         self.play(Create(frame_box_noise))
-        # self.play(Write(formula_decode))
 
-        # self.play(FadeOut(formula_xt, brace_encode, image_text_encode_decode, text_encode_steps, text_encode))
+        # 5.3 encode x_t
+        T = 1000
+        betas = np.linspace(0.0001, 0.02, T)
+        alphas = 1 - betas
+        alphas_bar = np.cumprod(alphas)
+        sqrt_alpha_bar = np.sqrt(alphas_bar)
+        sqrt_one_minus_alpha_bar = np.sqrt(1 - alphas_bar)
+        axes = Axes(
+            x_range=[0, T, 100],
+            y_range=[0, 1, 0.1],
+            axis_config={"color": WHITE},
+        ).add_coordinates().scale(0.9)
+
+        alpha_curve = axes.plot_line_graph(
+            x_values=np.arange(T),
+            y_values=sqrt_alpha_bar,
+            line_color=BLUE,
+            stroke_width=4,
+            add_vertex_dots=False
+        )
+
+        one_minus_alpha_curve = axes.plot_line_graph(
+            x_values=np.arange(T),
+            y_values=sqrt_one_minus_alpha_bar,
+            line_color=RED,
+            stroke_width=4,
+            add_vertex_dots=False
+        )
+        line_50 = axes.get_vertical_line(axes.c2p(50, 1),
+                                         line_config={"color": YELLOW, "dashed_ratio": 0.85})
+        line_800 = axes.get_vertical_line(axes.c2p(800, 1),
+                                          line_config={"color": YELLOW, "dashed_ratio": 0.85})
+
+        alpha_50 = sqrt_alpha_bar[50]
+        alpha_800 = sqrt_alpha_bar[800]
+        one_minus_alpha_50 = sqrt_one_minus_alpha_bar[50]
+        one_minus_alpha_800 = sqrt_one_minus_alpha_bar[800]
+        dot_alpha_50 = Dot(axes.c2p(50, alpha_50), color=BLUE)
+        dot_alpha_800 = Dot(axes.c2p(800, alpha_800), color=BLUE)
+        dot_one_minus_alpha_50 = Dot(axes.c2p(50, one_minus_alpha_50), color=RED)
+        dot_one_minus_alpha_800 = Dot(axes.c2p(800, one_minus_alpha_800), color=RED)
+
+        alpha_label = MathTex(r"\sqrt{\bar{\alpha}_t}", color=BLUE).move_to(4.5 * RIGHT + 2 * DOWN)
+        one_minus_alpha_label = MathTex(r"\sqrt{1 - \bar{\alpha}_t}", color=RED).move_to(4.5 * RIGHT + 2 * UP)
+        image_cat_50 = ImageMobject("assets/cat_0_0050.png").set(height=2).next_to(line_50, RIGHT)
+        image_cat_800 = ImageMobject("assets/cat_0_0999.png").set(height=2).next_to(line_800, LEFT)
+
+        self.play(FadeOut(frame_box_xt, frame_box_noise, arrow_xt_image,
+                          text_encode, brace_encode, image_text_encode_decode),
+                  formula_xt.animate.to_edge(UP).scale(0.8))
+
+        self.play(Create(axes))
+        self.play(Create(alpha_curve), Write(alpha_label))
+        self.play(Create(one_minus_alpha_curve), Write(one_minus_alpha_label))
+        self.play(Create(line_50), Create(dot_alpha_50), Create(dot_one_minus_alpha_50))
+        self.play(Create(line_800), Create(dot_alpha_800), Create(dot_one_minus_alpha_800))
+        self.play(FadeIn(image_cat_50), FadeIn(image_cat_800))
+
+        # 5.4 train model
+
+        # image_encode_set = Group(
+        #     *[Group(*([ele for j in [f"assets/cat_{i}{f}" for f in ('.jpg', '_0040.png', '_0060.png', '_0080.png')]
+        #                for ele in [ImageMobject(j).set(width=2), Text("···").scale(0.5)]] +
+        #               [ImageMobject(f"assets/cat_{i}_0999.png").set(width=2)]
+        #               )
+        #             ).arrange(RIGHT, buff=0.3)
+        #       for i in range(1, 4)]
+        # ).arrange(DOWN, buff=0.3).to_edge(DOWN)
+
+        formula_encode = MathTex(r"\nabla_\theta\left\|\boldsymbol{\epsilon}-",
+                                 r"\boldsymbol{\epsilon}_\theta\left(\mathbf{x}_t, t\right)\right\|^2")
+
 
 
 if __name__ == "__main__":

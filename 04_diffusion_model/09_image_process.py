@@ -12,15 +12,15 @@ def get_noise_image():
     sqrt_alphas_bar = np.sqrt(alphas_bar)
     sqrt_one_minus_alphas_bar = np.sqrt(1 - alphas_bar)
 
-    img = Image.open('assets/cat_0.jpg').convert('RGB')
+    img = Image.open('assets/cat_2.jpg').convert('RGB')
     img = np.array(img) / 255.0
-    t_list = list(range(0, 100, 5)) + [999]
+    t_list = list(range(35, 100, 5)) + [999]
     for t in t_list:
         epsilon = np.random.randn(*img.shape)
         x_t = sqrt_alphas_bar[t] * img + sqrt_one_minus_alphas_bar[t] * epsilon
         img_t = (x_t * 255).astype(np.uint8)
         img_t = Image.fromarray(img_t)
-        img_t.save(f'assets/cat_0_{t:04}.png')
+        img_t.save(f'assets/cat_2_{t:04}.png')
 
 
 def get_rgb_image():
