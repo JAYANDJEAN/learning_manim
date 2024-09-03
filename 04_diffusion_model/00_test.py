@@ -119,30 +119,45 @@ class MatrixMultiplication(Scene):
 
 class Tmp(Scene):
     def construct(self):
-        image_text_encode_only = Group(
-            *([ele for i in [f"assets/{f}" for f in ['cat_0.jpg', 'cat_0_0040.png', 'cat_0_0060.png', 'cat_0_0080.png']]
-               for ele in (ImageMobject(i).set(height=1.4), Text("···").scale(0.7))] +
-              [ImageMobject("assets/cat_0_0999.png").set(height=1.4)]
-              )
-        ).arrange(RIGHT, buff=0.3)
+        self.camera.background_color = "#1C1C1C"
+        gear = SVGMobject("assets/wheel.svg")
+        gears_clip = VGroup(gear.copy().scale(0.5).shift(0.8 * UP).rotate(10 * DEGREES).set_color('#3fc1c9'),
+                            gear.copy().scale(0.5).shift(0.55 * RIGHT).rotate(-8 * DEGREES).set_color('#364f6b'))
+        text_clip = Text("CLIP Model", font_size=24, color=GREY).next_to(gears_clip, DOWN, SMALL_BUFF)
+        surrounding_clip = SurroundingRectangle(VGroup(gears_clip, text_clip),
+                                                buff=0.2, color=WHITE, corner_radius=0.3).set_stroke(width=0.5)
+        model_clip = VGroup(gears_clip, text_clip, surrounding_clip).move_to(4 * LEFT)
 
-        formula_xt = MathTex(r"\mathbf{x}_t=\sqrt{\bar{\alpha}_t} ",
-                             r"\mathbf{x}_0",
-                             r"+\sqrt{1-\bar{\alpha}_t} ",
-                             r"\boldsymbol{\epsilon}")
+        gears = VGroup(gear.copy().scale(0.5).shift(0.78 * UP).set_color(YELLOW),
+                       gear.copy().scale(0.5).shift(0.565 * LEFT).set_color(ORANGE),
+                       gear.copy().scale(0.5).shift(0.57 * RIGHT))
+        text_model = Text("Diffusion Model", font_size=24, color=GREY).next_to(gears, DOWN, SMALL_BUFF)
+        surrounding_model = SurroundingRectangle(VGroup(gears, text_model),
+                                                 buff=0.2, color=WHITE, corner_radius=0.3).set_stroke(width=0.5)
+        model_diffusion = VGroup(gears, text_model, surrounding_model)
+        self.add(model_clip, model_diffusion)
 
-        brace_encode_only = Brace(image_text_encode_only, direction=DOWN, buff=0.1)
-        text_encode_steps = Text("1000 Steps").next_to(brace_encode_only, DOWN)
-        formula_xt.next_to(text_encode_steps, DOWN)
-        frame_box_xt = SurroundingRectangle(formula_xt[1], corner_radius=0.01).set_stroke(width=1.0)
-        frame_box_noise = SurroundingRectangle(formula_xt[3], corner_radius=0.01).set_stroke(width=1.0)
-        arrow_xt_image = Arrow(frame_box_xt.get_bottom(), image_text_encode_only[0].get_bottom(),
-                               path_arc=-90 * DEGREES, stroke_width=2.0, tip_length=0.2, buff=0.0)
-        self.play(FadeIn(image_text_encode_only, brace_encode_only, text_encode_steps))
+        self.play(LaggedStart(
+            AnimationGroup(
+                Rotate(gears[i], axis=IN if i == 0 else OUT, about_point=gears[i].get_center())
+                for i in range(3)
+            ), run_time=4, lag_ratio=0.0))
 
-        self.play(Write(formula_xt))
-        self.play(Create(frame_box_xt), GrowArrow(arrow_xt_image))
-        self.play(Create(frame_box_noise))
+        self.play(LaggedStart(
+            AnimationGroup(
+                Rotate(gears_clip[i], axis=IN if i == 0 else OUT, about_point=gears_clip[i].get_center())
+                for i in range(2)
+            ), run_time=4, lag_ratio=0.0))
+
+
+class CurvedArrows(Scene):
+    def construct(self):
+        # 创建一个弯曲的箭头
+        curved_arrow = CurvedArrow(start_point=LEFT, end_point=RIGHT, angle=PI / 2, color=BLUE)
+
+        # 在场景中添加弯曲箭头
+        self.play(Create(curved_arrow))
+        self.wait()
 
 
 if __name__ == "__main__":

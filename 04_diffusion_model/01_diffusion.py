@@ -26,7 +26,7 @@ class Models(Scene):
         gear = SVGMobject("assets/wheel.svg")
         image_prompt = ImageMobject("assets/prompt.png").set(width=4.2)
         gears = VGroup(gear.copy().scale(0.5).shift(0.78 * UP).set_color(YELLOW),
-                       gear.copy().scale(0.5).shift(0.57 * LEFT).set_color(ORANGE),
+                       gear.copy().scale(0.5).shift(0.565 * LEFT).set_color(ORANGE),
                        gear.copy().scale(0.5).shift(0.57 * RIGHT))
         text_model = Text("Diffusion Model", font_size=24, color=GREY).next_to(gears, DOWN, SMALL_BUFF)
         surrounding_model = SurroundingRectangle(VGroup(gears, text_model),
@@ -168,20 +168,29 @@ class Models(Scene):
         self.wait()
 
         # 4.
-        point_papers = VGroup(
-            Text("2020.06 \nDDPM", font="menlo"),
-            Text("2021.03 \nCLIP", font="menlo"),
-            Text("2021.12 \nLatent Diffusion", font="menlo"),
+        title_papers = VGroup(
+            Text("2020.06 \nDenoising Diffusion Probabilistic Models",
+                 font="menlo", t2c={'D': YELLOW, 'P': YELLOW, 'M': YELLOW}),
+            Text("2021.03 \nContrastive Language-Image Pre-Training",
+                 font="menlo", t2c={'C': YELLOW, 'L': YELLOW, 'I': YELLOW, 'P': YELLOW}),
+            Text("2021.12 \nLatent Diffusion Models", font="menlo"),
             Text("2024.03 \nStable Diffusion 3", font="menlo"),
         )
-        arrow_history = Arrow(7 * LEFT, 7 * RIGHT)
-        dots = VGroup(*[Dot(radius=0.1) for _ in range(4)]).arrange(RIGHT, buff=3)
-        for dot, point_paper in zip(dots, point_papers):
-            point_paper.next_to(dot, direction=UP, buff=0.1).scale(0.4)
+        image_papers = Group(
+            ImageMobject("assets/paper_ddpm.png").set(height=1),
+            ImageMobject("assets/paper_clip.png").set(height=0.9),
+            ImageMobject("assets/paper_ldm.png").set(height=0.9),
+            ImageMobject("assets/paper_sd3.png").set(height=1)
+        )
+        arrow_history = Arrow(4 * DOWN, 4 * UP).move_to(4 * LEFT)
+        dot_papers = VGroup(*[Dot(radius=0.1) for _ in range(4)]).arrange(DOWN, buff=1).move_to(4 * LEFT)
+        for dot, title, im in zip(dot_papers, title_papers, image_papers):
+            title.next_to(dot, direction=RIGHT, buff=0.1).scale(0.4)
+            im.next_to(title, direction=RIGHT, buff=0.1)
 
         self.play(FadeOut(image_eq))
-        self.play(Create(arrow_history))
-        self.play(Succession(*[Create(VGroup(dots[i], point_papers[i])) for i in range(4)]))
+        self.play(GrowArrow(arrow_history))
+        self.play(Succession(*[FadeIn(Group(dot_papers[i], title_papers[i], image_papers[i])) for i in range(4)]))
         self.wait()
 
         # 5. DDPM
@@ -199,7 +208,7 @@ class Models(Scene):
         arrow_model_cat = Arrow(model_diffusion.get_right(), image_cat.get_left())
         hard = Text("Hard!").scale(0.9).move_to(3 * RIGHT + 2.5 * UP)
         easy = Text("Easy!").scale(0.9).move_to(3 * RIGHT + 2.5 * UP)
-        self.play(Transform(VGroup(point_papers, arrow_history, dots), text_ddpm))
+        self.play(Transform(VGroup(title_papers, arrow_history, dot_papers), text_ddpm))
         self.play(FadeIn(model_diffusion))
         self.play(FadeIn(image_noise),
                   GrowArrow(arrow_noise_model),
@@ -409,6 +418,24 @@ class Models(Scene):
         self.play(FadeOut(image_unet, frame_box_model))
         self.play(Transform(formula_encode, model_diffusion))
 
+        image_input_noise = ImageMobject("assets/cat_out_0999.png").set(width=2).next_to(formula_encode, LEFT, buff=1)
+        image_output_cat = ImageMobject("assets/cat_out.jpg").set(width=2).next_to(formula_encode, RIGHT, buff=1)
+        image_output_dog = ImageMobject("assets/dog_out.jpg").set(width=2).next_to(formula_encode, RIGHT, buff=1)
+        text_question = Text("?").scale(3).next_to(image_output_dog, RIGHT)
+        arrow_input_model = Arrow(image_input_noise.get_right(), formula_encode.get_left())
+        arrow_model_output = Arrow(formula_encode.get_right(), image_output_cat.get_left())
+
+        self.play(FadeIn(image_input_noise), GrowArrow(arrow_input_model))
+        self.play(GrowArrow(arrow_model_output), FadeIn(image_output_cat))
+        self.play(Transform(image_output_cat, image_output_dog), Create(text_question))
+
+        # CLIP
+        gears_clip = VGroup(gear.copy().scale(0.5).shift(0.8 * UP).rotate(10 * DEGREES).set_color('#3fc1c9'),
+                            gear.copy().scale(0.5).shift(0.55 * RIGHT).rotate(-8 * DEGREES).set_color('#364f6b'))
+        text_clip = Text("CLIP Model", font_size=24, color=GREY).next_to(gears_clip, DOWN, SMALL_BUFF)
+        surrounding_clip = SurroundingRectangle(VGroup(gears_clip, text_clip),
+                                                buff=0.2, color=WHITE, corner_radius=0.3).set_stroke(width=0.5)
+        model_clip = VGroup(gears_clip, text_clip, surrounding_clip).move_to(4 * LEFT)
 
 
 if __name__ == "__main__":
