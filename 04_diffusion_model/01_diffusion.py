@@ -26,7 +26,7 @@ class Models(Scene):
         gear = SVGMobject("assets/wheel.svg")
         image_prompt = ImageMobject("assets/prompt.png").set(width=4.2)
         gears = VGroup(gear.copy().scale(0.5).shift(0.78 * UP).set_color(YELLOW),
-                       gear.copy().scale(0.5).shift(0.565 * LEFT).set_color(ORANGE),
+                       gear.copy().scale(0.5).shift(0.57 * LEFT).set_color(ORANGE),
                        gear.copy().scale(0.5).shift(0.57 * RIGHT))
         text_model = Text("Diffusion Model", font_size=24, color=GREY).next_to(gears, DOWN, SMALL_BUFF)
         surrounding_model = SurroundingRectangle(VGroup(gears, text_model),
