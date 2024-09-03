@@ -1,7 +1,7 @@
 from utils import *
 
 
-class Models(Scene):
+class DDPM(Scene):
     def construct(self):
         self.camera.background_color = "#1C1C1C"
 
@@ -167,7 +167,7 @@ class Models(Scene):
         self.play(FadeIn(image_eq))
         self.wait()
 
-        # 4.
+        # 4. 目录
         title_papers = VGroup(
             Text("2020.06 \nDenoising Diffusion Probabilistic Models",
                  font="menlo", t2c={'D': YELLOW, 'P': YELLOW, 'M': YELLOW}),
@@ -182,11 +182,11 @@ class Models(Scene):
             ImageMobject("assets/paper_ldm.png").set(height=0.9),
             ImageMobject("assets/paper_sd3.png").set(height=1)
         )
-        arrow_history = Arrow(4 * DOWN, 4 * UP).move_to(4 * LEFT)
-        dot_papers = VGroup(*[Dot(radius=0.1) for _ in range(4)]).arrange(DOWN, buff=1).move_to(4 * LEFT)
+        arrow_history = Arrow(4 * UP, 4 * DOWN).move_to(4 * LEFT)
+        dot_papers = VGroup(*[Dot(radius=0.1) for _ in range(4)]).arrange(DOWN, buff=1.5).move_to(4 * LEFT + 0.5 * UP)
         for dot, title, im in zip(dot_papers, title_papers, image_papers):
-            title.next_to(dot, direction=RIGHT, buff=0.1).scale(0.4)
-            im.next_to(title, direction=RIGHT, buff=0.1)
+            title.scale(0.4).next_to(dot, direction=RIGHT, buff=0.1)
+            im.scale(0.9).next_to(title, direction=DOWN, buff=0.1, aligned_edge=LEFT)
 
         self.play(FadeOut(image_eq))
         self.play(GrowArrow(arrow_history))
@@ -208,7 +208,9 @@ class Models(Scene):
         arrow_model_cat = Arrow(model_diffusion.get_right(), image_cat.get_left())
         hard = Text("Hard!").scale(0.9).move_to(3 * RIGHT + 2.5 * UP)
         easy = Text("Easy!").scale(0.9).move_to(3 * RIGHT + 2.5 * UP)
-        self.play(Transform(VGroup(title_papers, arrow_history, dot_papers), text_ddpm))
+        self.play(FadeOut(image_papers),
+                  Transform(VGroup(title_papers, arrow_history, dot_papers), text_ddpm,
+                            replace_mobject_with_target_in_scene=True))
         self.play(FadeIn(model_diffusion))
         self.play(FadeIn(image_noise),
                   GrowArrow(arrow_noise_model),
@@ -245,8 +247,8 @@ class Models(Scene):
             j = 0
             time1 = 0.7
             time2 = 0.3
-            line_width = 2
-            tip_length = 0.15
+            line_width = 2.5
+            tip_length = 0.2
             for j in range(len(image_group) - 1):
                 arr = Arrow(image_group[j + 1].get_right(), image_group[j].get_left(),
                             stroke_width=line_width, tip_length=tip_length) \
@@ -428,16 +430,63 @@ class Models(Scene):
         self.play(FadeIn(image_input_noise), GrowArrow(arrow_input_model))
         self.play(GrowArrow(arrow_model_output), FadeIn(image_output_cat))
         self.play(Transform(image_output_cat, image_output_dog), Create(text_question))
+        self.wait(3)
+        self.play(FadeOut(image_output_cat, text_question, arrow_input_model, arrow_model_output, image_input_noise,
+                          formula_encode, image_encode_set, brace_image_set, text_ddpm))
 
+
+class CLIP(Scene):
+    def construct(self):
+        self.camera.background_color = "#1C1C1C"
+        gear = SVGMobject("assets/wheel.svg")
         # CLIP
+        text_clip = Text("CLIP", font="menlo").to_edge(UL, buff=0.5).scale(0.7)
+
         gears_clip = VGroup(gear.copy().scale(0.5).shift(0.8 * UP).rotate(10 * DEGREES).set_color('#3fc1c9'),
                             gear.copy().scale(0.5).shift(0.55 * RIGHT).rotate(-8 * DEGREES).set_color('#364f6b'))
-        text_clip = Text("CLIP Model", font_size=24, color=GREY).next_to(gears_clip, DOWN, SMALL_BUFF)
-        surrounding_clip = SurroundingRectangle(VGroup(gears_clip, text_clip),
+        text_clip_model = Text("CLIP Model", font_size=24, color=GREY).next_to(gears_clip, DOWN, SMALL_BUFF)
+        surrounding_clip = SurroundingRectangle(VGroup(gears_clip, text_clip_model),
                                                 buff=0.2, color=WHITE, corner_radius=0.3).set_stroke(width=0.5)
-        model_clip = VGroup(gears_clip, text_clip, surrounding_clip).move_to(4 * LEFT)
+        model_clip = VGroup(gears_clip, text_clip_model, surrounding_clip)
+
+        image_cat = ImageMobject("assets/cat_0.jpg").set(height=3).move_to(4 * LEFT + 2 * DOWN)
+        arrow_image_model = Arrow(image_cat.get_right(), model_clip.get_left() + 0.5 * DOWN,
+                                  buff=0, stroke_width=3, tip_length=0.2)
+        embedding_image = WeightMatrix(length=14).set(width=0.4).move_to(3 * RIGHT + 2 * DOWN)
+        arrow_model_embed1 = Arrow(model_clip.get_right() + 0.5 * DOWN, embedding_image.get_left(),
+                                   buff=0, stroke_width=3, tip_length=0.2)
+
+        text_cat = Text("a cat").move_to(4 * LEFT + 2 * UP).scale(0.7)
+        surrounding_text_cat = SurroundingRectangle(text_cat, buff=0.2, color=WHITE,
+                                                    corner_radius=0.1).set_stroke(width=0.5)
+        text_cat = VGroup(text_cat, surrounding_text_cat)
+        arrow_text_model = Arrow(text_cat.get_right(), model_clip.get_left() + 0.5 * UP,
+                                 buff=0, stroke_width=3, tip_length=0.2)
+        embedding_text = WeightMatrix(length=14).set(width=0.4).move_to(3 * RIGHT + 2 * UP)
+        arrow_model_embed2 = Arrow(model_clip.get_right() + 0.5 * UP, embedding_text.get_left(),
+                                   buff=0, stroke_width=3, tip_length=0.2)
+
+        self.play(Write(text_clip))
+        self.play(FadeIn(model_clip))
+        self.play(Create(text_cat), GrowArrow(arrow_text_model))
+        self.play(LaggedStart(
+            AnimationGroup(
+                Rotate(gears_clip[i], axis=IN if i == 0 else OUT, about_point=gears_clip[i].get_center())
+                for i in range(2)
+            ), run_time=3, lag_ratio=0.0))
+        self.play(GrowArrow(arrow_model_embed2), Create(embedding_text))
+        self.play(FadeIn(image_cat), GrowArrow(arrow_image_model))
+        self.play(LaggedStart(
+            AnimationGroup(
+                Rotate(gears_clip[i], axis=IN if i == 0 else OUT, about_point=gears_clip[i].get_center())
+                for i in range(2)
+            ), run_time=3, lag_ratio=0.0))
+        self.play(GrowArrow(arrow_model_embed1), Create(embedding_image))
+        self.wait()
+
+
 
 
 if __name__ == "__main__":
-    scene = Models()
+    scene = CLIP()
     scene.render()
