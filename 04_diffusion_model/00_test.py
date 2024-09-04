@@ -1,28 +1,33 @@
 from utils import *
 
+from manim import *
+
+
+# class RotateCamera(ThreeDCamera):
+#     def construct(self):
+#         self.set_floor_plane("xz")
+#         self.play(frame.animate.reorient(-47, -7, 0, (-2.48, -5.84, -1.09), 20))
+#         self.wait()
+
 
 class RotateCameraExample(ThreeDScene):
     def construct(self):
-        image_prompt = ImageMobject("assets/prompt.png")
+        # image_prompt = ImageMobject("assets/prompt.png").set(height=4)
+        # rect = SurroundingRectangle(image_prompt, buff=0.0)
+        # image = Group(image_prompt, rect)
+        # 是image太大了，所以效果不好
+        im = VGroup(Circle(), Rectangle(), Triangle())
 
-        # 设置初始视角
-        images = Group(
-            ImageMobject("assets/prompt_b.png"),
-            ImageMobject("assets/prompt_g.png"),
-            ImageMobject("assets/prompt_r.png"),
-            ImageMobject("assets/prompt.png"), ).set(height=5).arrange(OUT, buff=1)
-        self.add(images)
+        self.play(Animation(im))
         self.move_camera(phi=-50 * DEGREES,
                          theta=-140 * DEGREES,
                          gamma=-37 * DEGREES,
                          focal_distance=30,
-                         frame_center=LEFT + DOWN * 0.3)
-
-        self.set_camera_orientation(phi=-50 * DEGREES,
-                                    theta=-140 * DEGREES,
-                                    gamma=-37 * DEGREES,
-                                    focal_distance=30,
-                                    frame_center=LEFT + DOWN * 0.3)
+                         frame_center=LEFT + DOWN * 0.3,
+                         run_time=3)
+        self.begin_3dillusion_camera_rotation()
+        self.wait(3)
+        self.stop_3dillusion_camera_rotation()
 
 
 class CameraAnglesAnimation(ThreeDScene):
@@ -161,5 +166,5 @@ class CurvedArrows(Scene):
 
 
 if __name__ == "__main__":
-    scene = Tmp()
+    scene = RotateCameraExample()
     scene.render()
