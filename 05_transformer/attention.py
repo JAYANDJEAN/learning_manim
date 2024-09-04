@@ -12,33 +12,23 @@ class AttentionPatterns(MovingCameraScene):
         words = list(filter(lambda s: s.strip(), phrase.split(" ")))
         word2mob = {word: Text(word) for word in words}
         word_mobs = VGroup(*word2mob.values()).arrange(RIGHT, buff=0.2).scale(0.7).move_to(2 * UP)
-
         self.play(LaggedStartMap(FadeIn, word_mobs, shift=0.5 * UP, lag_ratio=0.25))
         self.wait()
 
         # 2. Create word rects
         word2rect: Dict[str, VMobject] = dict()
         for word in word2mob:
-            rect = SurroundingRectangle(word2mob[word], buff=-0.013)
-            rect.set_stroke(GREY, 2)
-            rect.set_fill(GREY, 0.2)
+            rect = SurroundingRectangle(word2mob[word], buff=-0.013).set_stroke(GREY, 2).set_fill(GREY, 0.2)
             rect.stretch_to_fit_height(0.55)
             rect.stretch_to_fit_width(rect.width + 0.15)
             rect.align_to(word2mob[word], RIGHT)
             word2rect[word] = rect
 
-        ads = ["fluffy", "blue", "verdant"]
-        nouns = ["creature", "forest"]
-        others = ["a", "roamed", "the"]
-        adj_mobs, noun_mobs, other_mobs = [
-            VGroup(*[word2mob[substr] for substr in group])
-            for group in (ads, nouns, others)]
+        word_group = [["fluffy", "blue", "verdant"], ["creature", "forest"], ["a", "roamed", "the"]]
 
-        adj_rects, noun_rects, other_rects = [
-            VGroup(*[word2rect[substr] for substr in group])
-            for group in (ads, nouns, others)]
+        adj_mobs, noun_mobs, other_mobs = [VGroup(*[word2mob[substr] for substr in group]) for group in word_group]
+        adj_rects, noun_rects, other_rects = [VGroup(*[word2rect[substr] for substr in group]) for group in word_group]
         adj_rects.set_submobject_colors_by_gradient(BLUE_C, BLUE_D, GREEN)
-
         noun_rects.set_color(GREY_BROWN).set_stroke(width=3)
         adj_arrows = VGroup(*[Arrow(adj_mobs[i].get_top(), noun_mobs[j].get_top(),
                                     path_arc=-150 * DEGREES, buff=0.1, stroke_color=GREY_B)
@@ -47,7 +37,7 @@ class AttentionPatterns(MovingCameraScene):
         self.play(LaggedStartMap(DrawBorderThenFill, adj_rects), Animation(adj_mobs))
         self.wait()
         self.play(LaggedStartMap(DrawBorderThenFill, noun_rects), Animation(noun_mobs))
-        self.play(LaggedStartMap(Create, adj_arrows, lag_ratio=0.2, run_time=2.0))
+        self.play(LaggedStartMap(GrowArrow, adj_arrows, lag_ratio=0.2, run_time=2.0))
         # todo:不够美观
         self.play(ShowPassingFlash(adj_arrows.copy().set_color(BLUE), time_width=1, run_time=1.5))
         self.wait()
@@ -57,12 +47,8 @@ class AttentionPatterns(MovingCameraScene):
         all_rects.sort(lambda p: p[0])
         embeddings = VGroup(*[NumericEmbedding(length=10).set(width=0.5).next_to(rect, DOWN, buff=1.5)
                               for rect in all_rects])
-        emb_arrows = VGroup(*[Arrow(all_rects[0].get_bottom(), embeddings[0].get_top()).match_x(rect)
-                              for rect in all_rects])
-        for index, vect in [(5, LEFT), (6, RIGHT)]:
-            embeddings[index].shift(0.1 * vect)
-            emb_arrows[index].shift(0.05 * vect)
-
+        emb_arrows = VGroup(*[Arrow(all_rects[i].get_bottom(), embeddings[i].get_top())
+                              for i in range(len(all_rects))])
         self.play(FadeIn(other_rects),
                   Animation(word_mobs),
                   LaggedStartMap(GrowArrow, emb_arrows),
@@ -72,11 +58,12 @@ class AttentionPatterns(MovingCameraScene):
 
         # 4. Mention dimension of embedding
         brace = Brace(embeddings[0], LEFT, buff=SMALL_BUFF)
-        dim_value = Integer(12288)
-        dim_value.next_to(brace, LEFT)
-        dim_value.set_color(YELLOW)
+        dim_value = Integer(12288).next_to(brace, LEFT).set_color(YELLOW)
 
-        self.play(GrowFromCenter(brace), Create(dim_value), self.camera.frame.animate.shift(LEFT))
+        self.play(GrowFromCenter(brace),
+                  Create(dim_value),
+                  self.camera.frame.animate.shift(LEFT)
+                  )
         self.wait()
 
         # 5. Ingest meaning and and position
@@ -84,8 +71,8 @@ class AttentionPatterns(MovingCameraScene):
                          for word in ["fluffy", "blue", "creature", "verdant", "forest"]])
         image_embeddings = VGroup(*[embeddings[i] for i in [1, 2, 3, 6, 7]])
         self.play(LaggedStartMap(FadeIn, images, scale=2, lag_ratio=0.05))
-        self.play(LaggedStart((bake_mobject_into_vector_entries(image, embed)
-                               for image, embed in zip(images, image_embeddings)),
+        self.play(LaggedStart(*[bake_mobject_into_vector_entries(image, embed)
+                                for image, embed in zip(images, image_embeddings)],
                               lag_ratio=0.2,
                               run_time=4))
         self.add(embeddings)
@@ -94,24 +81,25 @@ class AttentionPatterns(MovingCameraScene):
         pos_labels = VGroup(*[Integer(n, font_size=36).next_to(rect, DOWN, buff=0.1)
                               for n, rect in enumerate(all_rects, start=1)])
         pos_labels.set_color(TEAL)
-        arrow_group = AnimationGroup(arrow.animate.scale(0.7, about_edge=DOWN)
-                                     for arrow in emb_arrows)
-        self.play(LaggedStart(arrow_group, lag_ratio=0.1),
-                  LaggedStartMap(FadeIn, pos_labels, shift=0.25 * DOWN, lag_ratio=0.1))
-        self.play(LaggedStart((bake_mobject_into_vector_entries(pos, embed)
-                               for pos, embed in zip(pos_labels, embeddings)),
-                              lag_ratio=0.2,
-                              run_time=4))
+
+        self.play(
+            LaggedStart(
+                AnimationGroup(arrow.animate.scale(0.7, about_edge=DOWN)
+                               for arrow in emb_arrows),
+                lag_ratio=0.1),
+            LaggedStartMap(FadeIn, pos_labels, shift=0.25 * DOWN, lag_ratio=0.1)
+        )
+        self.play(
+            LaggedStart(*[bake_mobject_into_vector_entries(pos, embed)
+                          for pos, embed in zip(pos_labels, embeddings)],
+                        lag_ratio=0.2,
+                        run_time=4)
+        )
         self.wait()
 
         # 7. Collapse vectors
-        emb_syms = VGroup()
-        for n, rect in enumerate(all_rects, start=1):
-            sym = MathTex(f"\\vec{{E}}_{{{n}}}")
-            sym.next_to(rect, DOWN, buff=0.75)
-            sym.set_color(GREY_A)
-            emb_syms.add(sym)
-
+        emb_syms = VGroup(*[MathTex(f"\\vec{{E}}_{{{n}}}").next_to(rect, DOWN, buff=0.75).set_color(GREY_A)
+                            for n, rect in enumerate(all_rects, start=1)])
         emb_arrows.target = emb_arrows.generate_target()
         for rect, arrow, sym in zip(all_rects, emb_arrows.target, emb_syms):
             x_min = rect.get_x(LEFT)
@@ -123,32 +111,13 @@ class AttentionPatterns(MovingCameraScene):
                 top_point = rect.get_bottom()
             arrow.become(Arrow(top_point, low_point, buff=SMALL_BUFF))
 
-        all_brackets = VGroup(*[emb.get_brackets() for emb in embeddings])
-        for brackets in all_brackets:
-            brackets.target = brackets.generate_target()
-            brackets.target.stretch(0, 1, about_edge=UP)
-            brackets.target.set_fill(opacity=0)
-
-        ghost_syms = emb_syms.copy()
-        ghost_syms.set_opacity(0)
-
         self.play(
             self.camera.frame.animate.set_x(0),
-            LaggedStart(
-                (AnimationGroup(
-                    LaggedStart(
-                        (FadeTransform(entry, sym)
-                         for entry in embedding.get_columns()[0]),
-                        lag_ratio=0.01,
-                        group_type=Group
-                    ),
-                    MoveToTarget(brackets),
-                    group_type=Group,
-                )
-                    for sym, embedding, brackets in zip(ghost_syms, embeddings, all_brackets)),
-                group_type=Group,
-                run_time=2
-            ),
+            LaggedStart(*[FadeTransform(embed, sym)
+                          for sym, embed in zip(emb_syms, embeddings)],
+                        group_type=Group,
+                        run_time=2
+                        ),
             LaggedStartMap(FadeIn, emb_syms, shift=UP),
             brace.animate.stretch(0.25, 1, about_edge=UP).set_opacity(0),
             FadeOut(dim_value, shift=0.25 * UP),
@@ -183,12 +152,9 @@ class AttentionPatterns(MovingCameraScene):
 
         self.play(
             Create(full_connections, lag_ratio=0.01, run_time=2),
-            LaggedStart(
-                (TransformFromCopy(sym1, sym2)
-                 for sym1, sym2 in zip(emb_syms, emb_sym_primes)),
-                lag_ratio=0.05,
-                run_time=4
-            ),
+            LaggedStart(*[TransformFromCopy(sym1, sym2) for sym1, sym2 in zip(emb_syms, emb_sym_primes)],
+                        lag_ratio=0.05,
+                        run_time=4),
         )
         self.wait()
 
@@ -200,9 +166,7 @@ class AttentionPatterns(MovingCameraScene):
         # 9. Show black box that matrix multiples can be added to
         in_arrows = VGroup(*[Vector(0.25 * DOWN).next_to(sym, DOWN, SMALL_BUFF)
                              for sym in emb_syms])
-        box = Rectangle(width=15.0, height=3.0)
-        box.set_fill(GREY_E, 1)
-        box.set_stroke(WHITE, 1)
+        box = Rectangle(width=15.0, height=3.0).set_fill(GREY_E, 1).set_stroke(WHITE, 1)
         box.next_to(in_arrows, DOWN, SMALL_BUFF)
         out_arrows = in_arrows.copy()
         out_arrows.next_to(box, DOWN)
@@ -260,13 +224,17 @@ class AttentionPatterns(MovingCameraScene):
         index = words.index("creature")
         q_vect = q_vects[index]
         q_arrow = q_arrows[index]
-        self.play(LaggedStart(
-            text_q.animate.scale(0.75).next_to(q_vect, RIGHT),
-            FadeIn(q_vect, shift=DOWN),
-            GrowArrow(q_arrow),
-            self.camera.frame.animate.move_to(ORIGIN),
-            text_a.animate.fade(0.5),
-        ))
+        self.play(
+            LaggedStart(
+                AnimationGroup(
+                    text_q.animate.scale(0.75).next_to(q_vect, RIGHT),
+                    FadeIn(q_vect, shift=DOWN),
+                    GrowArrow(q_arrow),
+                    self.camera.frame.animate.move_to(ORIGIN),
+                    text_a.animate.fade(0.5)
+                )
+            )
+        )
         self.play(bake_mobject_into_vector_entries(text_q, q_vect))
         self.wait()
 
@@ -304,20 +272,20 @@ class AttentionPatterns(MovingCameraScene):
         mat_label.next_to(mat_brace, UP, SMALL_BUFF)
         mat_label.set_color(YELLOW)
 
-        self.play(
-            self.camera.frame.animate.set_height(11).move_to(all_rects, UP).shift(0.35 * UP),
-            FadeOut(text_a),
-            FadeIn(e_vect),
-            FadeIn(matrix),
-            TransformFromCopy(emb_syms[index], e_label_copy),
-            FadeOut(q_vect),
-            TransformFromCopy(q_vect, ghost_q_vect),
-            MaintainPositionRelativeTo(text_q, q_vect),
-        )
-        self.play(
-            GrowFromCenter(mat_brace),
-            FadeIn(mat_label, shift=0.1 * UP),
-        )
+        # self.play(
+        #     self.camera.frame.animate.set_height(11).move_to(all_rects, UP).shift(0.35 * UP),
+        #     FadeOut(text_a),
+        #     FadeIn(e_vect),
+        #     FadeIn(matrix),
+        #     TransformFromCopy(emb_syms[index], e_label_copy),
+        #     FadeOut(q_vect),
+        #     TransformFromCopy(q_vect, ghost_q_vect),
+        #     MaintainPositionRelativeTo(text_q, q_vect),
+        # )
+        # self.play(
+        #     GrowFromCenter(mat_brace),
+        #     FadeIn(mat_label, shift=0.1 * UP),
+        # )
         # todo
         # self.remove(ghost_q_vect)
         # eq, rhs = show_matrix_vector_product(self, matrix, e_vect)

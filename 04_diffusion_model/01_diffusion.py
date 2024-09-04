@@ -457,7 +457,7 @@ class CLIP(Scene):
                                    buff=0, stroke_width=3, tip_length=0.2)
 
         text_cat = Text("a cat").move_to(4 * LEFT + 2 * UP).scale(0.7)
-        surrounding_text_cat = SurroundingRectangle(text_cat, buff=0.2, color=WHITE,
+        surrounding_text_cat = SurroundingRectangle(text_cat, buff=0.01, color=WHITE,
                                                     corner_radius=0.1).set_stroke(width=0.5)
         text_cat = VGroup(text_cat, surrounding_text_cat)
         arrow_text_model = Arrow(text_cat.get_right(), model_clip.get_left() + 0.5 * UP,

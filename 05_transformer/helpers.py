@@ -7,14 +7,13 @@ def bake_mobject_into_vector_entries(mob, vector, path_arc=30 * DEGREES, group_t
     entries = vector.get_entries()
     mob_copies = Group(*(mob.copy() for _ in range(len(entries))))
     return AnimationGroup(
-        LaggedStart(
-            (FadeOut(mc, target_position=entry.get_center(), path_arc=path_arc)
-             for mc, entry in zip(mob_copies, entries)),
-            lag_ratio=0.05,
-            group_type=group_type,
-            run_time=2,
-            remover=True
-        ),
+        LaggedStart(*[FadeOut(mc, target_position=entry.get_center(), path_arc=path_arc)
+                      for mc, entry in zip(mob_copies, entries)],
+                    lag_ratio=0.05,
+                    group_type=group_type,
+                    run_time=2,
+                    remover=True
+                    ),
         RandomizeMatrixEntries(
             vector,
             rate_func=lambda t: clip(smooth(2 * t - 1), 0, 1),
@@ -50,7 +49,8 @@ class WeightMatrix(DecimalMatrix):
         self.value_range = value_range
 
         if values is None:
-            values = np.random.uniform(*self.value_range, size=shape)
+            # values = np.random.uniform(*self.value_range, size=shape)
+            values = np.zeros(shape=shape)
 
         super().__init__(values)
         self.reset_entry_colors()
