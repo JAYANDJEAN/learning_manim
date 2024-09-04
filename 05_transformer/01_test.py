@@ -21,7 +21,7 @@ class Test(MovingCameraScene):
             rect.align_to(word2mob[word], RIGHT)
             word2rect[word] = rect
         all_rects = VGroup(*word2rect.values())
-        embeddings = VGroup(*[NumericEmbedding(length=10).set(width=0.5).next_to(rect, DOWN, buff=1.5)
+        embeddings = VGroup(*[WeightMatrix(length=10).set(width=0.5).next_to(rect, DOWN, buff=1.5)
                               for rect in all_rects])
         emb_arrows = VGroup(*[Arrow(all_rects[i].get_bottom(), embeddings[i].get_top())
                               for i in range(len(all_rects))])

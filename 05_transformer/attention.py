@@ -4,7 +4,6 @@ from helpers import *
 
 
 class AttentionPatterns(MovingCameraScene):
-
     def construct(self):
         self.camera.background_color = "#1C1C1C"
         # 1. Add sentence
@@ -25,7 +24,6 @@ class AttentionPatterns(MovingCameraScene):
             word2rect[word] = rect
 
         word_group = [["fluffy", "blue", "verdant"], ["creature", "forest"], ["a", "roamed", "the"]]
-
         adj_mobs, noun_mobs, other_mobs = [VGroup(*[word2mob[substr] for substr in group]) for group in word_group]
         adj_rects, noun_rects, other_rects = [VGroup(*[word2rect[substr] for substr in group]) for group in word_group]
         adj_rects.set_submobject_colors_by_gradient(BLUE_C, BLUE_D, GREEN)
@@ -45,7 +43,7 @@ class AttentionPatterns(MovingCameraScene):
         # 3. Show embeddings
         all_rects = VGroup(*adj_rects, *noun_rects, *other_rects)
         all_rects.sort(lambda p: p[0])
-        embeddings = VGroup(*[NumericEmbedding(length=10).set(width=0.5).next_to(rect, DOWN, buff=1.5)
+        embeddings = VGroup(*[WeightMatrix(length=10).set(width=0.5).next_to(rect, DOWN, buff=1.5)
                               for rect in all_rects])
         emb_arrows = VGroup(*[Arrow(all_rects[i].get_bottom(), embeddings[i].get_top())
                               for i in range(len(all_rects))])
@@ -110,10 +108,9 @@ class AttentionPatterns(MovingCameraScene):
             else:
                 top_point = rect.get_bottom()
             arrow.become(Arrow(top_point, low_point, buff=SMALL_BUFF))
-
+        self.play(self.camera.frame.animate.set_x(0))
         self.play(
-            self.camera.frame.animate.set_x(0),
-            LaggedStart(*[FadeTransform(embed, sym)
+            LaggedStart(*[Transform(embed, sym)
                           for sym, embed in zip(emb_syms, embeddings)],
                         group_type=Group,
                         run_time=2
@@ -218,7 +215,7 @@ class AttentionPatterns(MovingCameraScene):
         text_a.save_state()
         q_arrows = VGroup(*[Vector(0.75 * DOWN).next_to(sym, DOWN, SMALL_BUFF)
                             for sym in emb_syms])
-        q_vects = VGroup(*[NumericEmbedding(length=7).set(height=2).next_to(arrow, DOWN)
+        q_vects = VGroup(*[WeightMatrix(length=7).set(height=2).next_to(arrow, DOWN)
                            for arrow in q_arrows])
 
         index = words.index("creature")
@@ -240,12 +237,8 @@ class AttentionPatterns(MovingCameraScene):
 
         # 13. Label query vector
         brace = Brace(q_vect, LEFT, SMALL_BUFF)
-        query_word = Text("Query")
-        query_word.set_color(YELLOW)
-        query_word.next_to(brace, LEFT, SMALL_BUFF)
-        dim_text = Text("128-dimensional", font_size=36)
-        dim_text.set_color(YELLOW)
-        dim_text.next_to(brace, LEFT, SMALL_BUFF)
+        query_word = Text("Query").set_color(YELLOW).next_to(brace, LEFT, SMALL_BUFF)
+        dim_text = Text("128-dimensional", font_size=36).set_color(YELLOW).next_to(brace, LEFT, SMALL_BUFF)
         dim_text.set_y(query_word.get_y(DOWN))
 
         self.play(GrowFromCenter(brace), FadeIn(query_word, shift=0.25 * LEFT))
@@ -255,87 +248,60 @@ class AttentionPatterns(MovingCameraScene):
         self.wait()
 
         # 14. Show individual matrix product
-        e_vect = NumericEmbedding(length=12).match_width(q_vect)
-        e_vect.next_to(q_vect, DR, buff=1.5)
-        matrix = WeightMatrix(shape=(7, 12)).match_height(q_vect)
-        matrix.next_to(e_vect, LEFT)
-        e_label_copy = emb_syms[index].copy()
-        e_label_copy.next_to(e_vect, UP)
+        e_vect = WeightMatrix(length=12).match_width(q_vect).next_to(q_vect, DR, buff=1.5)
+        matrix = WeightMatrix(shape=(7, 12)).match_height(q_vect).next_to(e_vect, LEFT)
+        rhs = WeightMatrix(length=7).match_width(q_vect).next_to(e_vect, RIGHT, buff=0.7)
+
         q_vect.save_state()
-        ghost_q_vect = NumericEmbedding(length=7).match_height(q_vect)
-        ghost_q_vect.get_columns().set_opacity(0)
-        ghost_q_vect.get_brackets().space_out_submobjects(1.75)
-        ghost_q_vect.next_to(e_vect, RIGHT, buff=0.7)
+
+        rhs.get_columns().set_opacity(0)
+        rhs.get_brackets().space_out_submobjects(1.75)
 
         mat_brace = Brace(matrix, UP)
-        mat_label = MathTex("W_Q")
-        mat_label.next_to(mat_brace, UP, SMALL_BUFF)
-        mat_label.set_color(YELLOW)
-
-        # self.play(
-        #     self.camera.frame.animate.set_height(11).move_to(all_rects, UP).shift(0.35 * UP),
-        #     FadeOut(text_a),
-        #     FadeIn(e_vect),
-        #     FadeIn(matrix),
-        #     TransformFromCopy(emb_syms[index], e_label_copy),
-        #     FadeOut(q_vect),
-        #     TransformFromCopy(q_vect, ghost_q_vect),
-        #     MaintainPositionRelativeTo(text_q, q_vect),
-        # )
-        # self.play(
-        #     GrowFromCenter(mat_brace),
-        #     FadeIn(mat_label, shift=0.1 * UP),
-        # )
-        # todo
-        # self.remove(ghost_q_vect)
-        # eq, rhs = show_matrix_vector_product(self, matrix, e_vect)
-
-        rhs = ghost_q_vect
-        ghost_q_vect.get_columns().set_opacity(1.0)
-
-        new_q_vect = rhs.match_width(q_vect).copy()
-        new_q_vect.move_to(q_vect, LEFT)
+        mat_label = MathTex("W_Q").next_to(mat_brace, UP, SMALL_BUFF).set_color(YELLOW)
 
         self.play(
-            TransformFromCopy(rhs, new_q_vect, path_arc=PI / 2),
-            text_q.animate.next_to(new_q_vect, RIGHT)
+            self.camera.frame.animate.set_height(11).move_to(all_rects, UP).shift(0.35 * UP),
+            FadeOut(text_a),
+            FadeIn(e_vect),
+            FadeIn(matrix),
+            FadeOut(q_vect),
+            FadeIn(rhs),
+            MaintainPositionRelativeTo(text_q, q_vect),
+        )
+        self.play(
+            GrowFromCenter(mat_brace),
+            FadeIn(mat_label, shift=0.1 * UP),
+        )
+        self.play(
+            rhs.animate.set_opacity(1.0),
+            TransformFromCopy(rhs, q_vect, path_arc=PI / 2),
+            text_q.animate.next_to(q_vect, RIGHT)
         )
         self.wait()
 
         # 15. Collapse query vector
-        # q_syms = VGroup()
-        # for n, arrow in enumerate(q_arrows, start=1):
-        #     sym = MathTex(f"\\vec{{Q}}_{{{n}}}", font_size=48)
-        #     sym.next_to(arrow, DOWN, SMALL_BUFF)
-        #     q_syms.add(sym)
-        #
-        # mat_label2 = mat_label.copy()
-        #
-        # q_sym = q_syms[index]
-        # low_q_sym = q_sym.copy()
-        # low_q_sym.next_to(rhs, UP)
-        #
-        # self.play(LaggedStart(
-        #     LaggedStart(
-        #         (FadeTransform(entry, q_sym, remover=True)
-        #          for entry in new_q_vect.get_columns()[0]),
-        #         lag_ratio=0.01,
-        #         group_type=Group,
-        #     ),
-        #     new_q_vect.get_brackets().animate.stretch(0, 1, about_edge=UP).set_opacity(0),
-        #     FadeOut(query_word, target_position=q_sym.get_center()),
-        #     FadeOut(dim_text, target_position=q_sym.get_center()),
-        #     FadeOut(brace),
-        #     text_q.animate.next_to(q_sym, DOWN),
-        #     FadeIn(low_q_sym, UP),
-        #     lag_ratio=0.1,
-        # ))
-        # self.remove(new_q_vect)
-        # self.add(q_sym)
-        # self.play(
-        #     mat_label2.animate.scale(0.9).next_to(q_arrow, RIGHT, buff=0.15),
-        # )
-        # self.wait()
+        q_syms = VGroup()
+        for n, arrow in enumerate(q_arrows, start=1):
+            sym = MathTex(f"\\vec{{Q}}_{{{n}}}", font_size=48)
+            sym.next_to(arrow, DOWN, SMALL_BUFF)
+            q_syms.add(sym)
+        q_sym = q_syms[index]
+        self.play(
+            LaggedStart(
+                LaggedStart(*[FadeTransform(entry, q_sym, remover=True)
+                              for entry in q_vect.get_columns()[0]],
+                            lag_ratio=0.01,
+                            group_type=Group,
+                            ),
+                q_vect.get_brackets().animate.stretch(0, 1, about_edge=UP).set_opacity(0),
+                FadeOut(query_word, target_position=q_sym.get_center()),
+                FadeOut(dim_text, target_position=q_sym.get_center()),
+                FadeOut(brace),
+                lag_ratio=0.1,
+            ))
+        self.add(q_sym)
+        self.wait()
 
 
 if __name__ == "__main__":

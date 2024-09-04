@@ -39,47 +39,26 @@ def value_to_color(value,
 
 class WeightMatrix(DecimalMatrix):
     def __init__(self,
-                 values: Optional[np.ndarray] = None,
-                 shape: tuple[int, int] = (6, 8),
+                 length: int = 7,
+                 shape: Optional[Tuple[int, int]] = None,
                  value_range: tuple[float, float] = (-9.9, 9.9)):
 
-        if values is not None:
-            shape = values.shape
+        if shape is None:
+            shape = (length, 1)
         self.shape = shape
         self.value_range = value_range
-
-        if values is None:
-            # values = np.random.uniform(*self.value_range, size=shape)
-            values = np.zeros(shape=shape)
-
+        # values = np.random.uniform(*self.value_range, size=shape)
+        values = np.zeros(shape=shape)
         super().__init__(values)
         self.reset_entry_colors()
 
+    # todo: 没有省略号
     def reset_entry_colors(self):
         for entry in self.get_entries():
-            entry.set_color(color=value_to_color(
-                entry.get_value(), min_value=0, max_value=max(self.value_range))
+            entry.set_color(
+                color=value_to_color(entry.get_value(), min_value=0, max_value=max(self.value_range))
             )
         return self
-
-
-# todo: 没有省略号
-class NumericEmbedding(WeightMatrix):
-    def __init__(self,
-                 values: Optional[np.ndarray] = None,
-                 shape: Optional[Tuple[int, int]] = None,
-                 length: int = 7,
-                 value_range: tuple[float, float] = (-9.9, 9.9),
-                 **kwargs,
-                 ):
-
-        if values is not None:
-            if len(values.shape) == 1:
-                values = values.reshape((values.shape[0], 1))
-            shape = values.shape
-        if shape is None:
-            shape = (length, 1)
-        super().__init__(values, shape=shape, value_range=value_range)
 
 
 class RandomizeMatrixEntries(Animation):
@@ -87,14 +66,11 @@ class RandomizeMatrixEntries(Animation):
         self.matrix = matrix
         self.entries = matrix.get_entries()
         self.start_values = [entry.get_value() for entry in self.entries]
-        # self.target_values = np.random.uniform(
-        #     matrix.value_range[0],
-        #     matrix.value_range[1],
-        #     len(self.entries)
-        # )
+
         # todo: 不完美
-        self.target_values = [np.random.uniform(0, matrix.value_range[1]) if x > 0
-                              else np.random.uniform(matrix.value_range[0], 0) for x in self.start_values]
+        # self.target_values = [np.random.uniform(0, matrix.value_range[1]) if x > 0
+        #                       else np.random.uniform(matrix.value_range[0], 0) for x in self.start_values]
+        self.target_values = [1.0 for x in self.start_values]
         super().__init__(matrix, **kwargs)
 
     def interpolate_mobject(self, alpha: float) -> None:
@@ -105,7 +81,6 @@ class RandomizeMatrixEntries(Animation):
             entry.set_value(interpolate(start, target, sub_alpha))
 
         self.matrix.reset_entry_colors()
-        # self.matrix.element_alignment_corner = DR
 
 
 def matrix_row_vector_product(scene, row, vector, entry, to_fade):
