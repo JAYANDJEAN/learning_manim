@@ -1,7 +1,5 @@
 from utils import *
 
-from manim import *
-
 
 # class RotateCamera(ThreeDCamera):
 #     def construct(self):
@@ -17,8 +15,24 @@ class RotateCameraExample(ThreeDScene):
         # image = Group(image_prompt, rect)
         # 是image太大了，所以效果不好
         im = VGroup(Circle(), Rectangle(), Triangle())
-
-        self.play(Animation(im))
+        lattice = NumberPlane(
+            x_range=(-14, 14, 1),
+            y_range=(-17, 17, 1),
+            background_line_style={
+                "stroke_color": GRAY,
+                "stroke_width": 1,
+                "stroke_opacity": 1.0,
+            },
+            axis_config={
+                "stroke_color": GRAY,
+                "stroke_width": 1,
+                "include_numbers": False,
+            },
+            faded_line_ratio=0,  # Disable fading of grid lines
+        )
+        lattice.set(width=4.0)
+        lattices = Group(lattice.copy(), lattice.copy(), lattice.copy()).arrange(IN, buff=0.4)
+        self.add(lattices)
         self.move_camera(phi=-50 * DEGREES,
                          theta=-140 * DEGREES,
                          gamma=-37 * DEGREES,
@@ -165,6 +179,27 @@ class CurvedArrows(Scene):
         self.wait()
 
 
+class Rotate3DAxes(Scene):
+    def construct(self):
+        # 创建一个3D坐标系
+        axes = ThreeDAxes(x_range=(-4, 4, 1),
+                          y_range=(-4, 4, 1),
+                          z_range=(-4, 4, 1)
+                          ).scale(0.7).move_to(2 * RIGHT)
+
+        axes.rotate(angle=90 * DEGREES, axis=RIGHT)
+        axes.rotate(angle=-117 * DEGREES, axis=OUT)
+        axes.rotate(angle=69.755 * DEGREES, axis=UP - OUT)
+
+        labels = axes.get_axis_labels(
+            Text("x-axis").scale(0.4), Text("y-axis").scale(0.4), Text("z-axis").scale(0.4)
+        )
+        self.add(axes, labels)
+
+        self.add(axes, labels)
+
+
+
 if __name__ == "__main__":
-    scene = RotateCameraExample()
+    scene = Rotate3DAxes()
     scene.render()

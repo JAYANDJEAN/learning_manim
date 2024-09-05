@@ -447,44 +447,49 @@ class CLIP(Scene):
         text_clip_model = Text("CLIP Model", font_size=24, color=GREY).next_to(gears_clip, DOWN, SMALL_BUFF)
         surrounding_clip = SurroundingRectangle(VGroup(gears_clip, text_clip_model),
                                                 buff=0.2, color=WHITE, corner_radius=0.3).set_stroke(width=0.5)
-        model_clip = VGroup(gears_clip, text_clip_model, surrounding_clip)
+        model_clip = VGroup(gears_clip, text_clip_model, surrounding_clip).move_to(ORIGIN)
 
-        image_cat = ImageMobject("assets/cat_0.jpg").set(height=3).move_to(4 * LEFT + 2 * DOWN)
-        arrow_image_model = Arrow(image_cat.get_right(), model_clip.get_left() + 0.5 * DOWN,
-                                  buff=0, stroke_width=3, tip_length=0.2)
-        embedding_image = WeightMatrix(length=14).set(width=0.4).move_to(3 * RIGHT + 2 * DOWN)
-        arrow_model_embed1 = Arrow(model_clip.get_right() + 0.5 * DOWN, embedding_image.get_left(),
-                                   buff=0, stroke_width=3, tip_length=0.2)
-
-        text_cat = Text("a cat").move_to(4 * LEFT + 2 * UP).scale(0.7)
-        surrounding_text_cat = SurroundingRectangle(text_cat, buff=0.01, color=WHITE,
+        text_cat = Text(" A CAT ").move_to(3 * LEFT + 2 * UP).scale(0.7)
+        surrounding_text_cat = SurroundingRectangle(text_cat, buff=0.1, color=WHITE,
                                                     corner_radius=0.1).set_stroke(width=0.5)
         text_cat = VGroup(text_cat, surrounding_text_cat)
-        arrow_text_model = Arrow(text_cat.get_right(), model_clip.get_left() + 0.5 * UP,
-                                 buff=0, stroke_width=3, tip_length=0.2)
-        embedding_text = WeightMatrix(length=14).set(width=0.4).move_to(3 * RIGHT + 2 * UP)
-        arrow_model_embed2 = Arrow(model_clip.get_right() + 0.5 * UP, embedding_text.get_left(),
-                                   buff=0, stroke_width=3, tip_length=0.2)
+        embedding_text = WeightMatrix(length=14).set(width=0.4).move_to(3.5 * RIGHT + 2 * UP)
+        arc_text_embed = CurvedArrow(start_point=text_cat.get_center(),
+                                     end_point=embedding_text.get_left(),
+                                     radius=5,
+                                     color=GREY)
 
-        self.play(Write(text_clip))
+        image_cat = ImageMobject("assets/cat_0.jpg").set(height=2).move_to(3 * LEFT + 2 * DOWN)
+        embedding_image = WeightMatrix(length=14).set(width=0.4).move_to(3.5 * RIGHT + 2 * DOWN)
+        arc_image_embed = CurvedArrow(start_point=image_cat.get_center(),
+                                      end_point=embedding_image.get_left(),
+                                      radius=-5,
+                                      color=GREY)
+
+        self.add(text_clip)
         self.play(FadeIn(model_clip))
-        self.play(Create(text_cat), GrowArrow(arrow_text_model))
-        self.play(LaggedStart(
-            AnimationGroup(
-                Rotate(gears_clip[i], axis=IN if i == 0 else OUT, about_point=gears_clip[i].get_center())
-                for i in range(2)
-            ), run_time=3, lag_ratio=0.0))
-        self.play(GrowArrow(arrow_model_embed2), Create(embedding_text))
-        self.play(FadeIn(image_cat), GrowArrow(arrow_image_model))
-        self.play(LaggedStart(
-            AnimationGroup(
-                Rotate(gears_clip[i], axis=IN if i == 0 else OUT, about_point=gears_clip[i].get_center())
-                for i in range(2)
-            ), run_time=3, lag_ratio=0.0))
-        self.play(GrowArrow(arrow_model_embed1), Create(embedding_image))
+        self.play(Create(text_cat))
+        self.play(
+            Create(arc_text_embed),
+            LaggedStart(
+                AnimationGroup(
+                    Rotate(gears_clip[i], axis=IN if i == 0 else OUT, about_point=gears_clip[i].get_center())
+                    for i in range(2)
+                ), run_time=3, lag_ratio=0.0),
+            Create(embedding_text)
+        )
+
+        self.play(FadeIn(image_cat))
+        self.play(
+            Create(arc_image_embed),
+            LaggedStart(
+                AnimationGroup(
+                    Rotate(gears_clip[i], axis=IN if i == 0 else OUT, about_point=gears_clip[i].get_center())
+                    for i in range(2)
+                ), run_time=3, lag_ratio=0.0),
+            Create(embedding_image)
+        )
         self.wait()
-
-
 
 
 if __name__ == "__main__":
