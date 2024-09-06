@@ -10,30 +10,6 @@ from manim import *
 #         self.wait()
 
 
-class TwoAndThreeDimensionalScene(ThreeDScene):
-    def construct(self):
-        # 创建二维坐标系，并移动到左侧
-        plane = NumberPlane()
-        plane.move_to(LEFT * 4)  # 移动到画布左侧
-
-        # 创建三维坐标系，并移动到右侧
-        axes_3d = ThreeDAxes()
-        axes_3d.move_to(RIGHT * 4)  # 移动到画布右侧
-
-        # 将坐标系添加到场景中
-        self.add(plane)
-        self.add(axes_3d)
-
-        # 如果需要显示3D视角，则进入3D模式
-        self.begin_ambient_camera_rotation(rate=0.1)  # 可选的，使摄像机缓慢旋转以查看3D坐标系
-
-        # 暂停几秒以便观察
-        self.wait(3)
-
-        # 停止3D相机旋转
-        self.stop_ambient_camera_rotation()
-
-
 class RotateCameraExample(ThreeDScene):
     def construct(self):
         # image_prompt = ImageMobject("assets/prompt.png").set(height=4)
@@ -190,5 +166,5 @@ class CurvedArrows(Scene):
 
 
 if __name__ == "__main__":
-    scene = TwoAndThreeDimensionalScene()
+    scene = RotateCameraExample()
     scene.render()
