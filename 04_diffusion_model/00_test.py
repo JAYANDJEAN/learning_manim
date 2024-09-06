@@ -165,6 +165,32 @@ class CurvedArrows(Scene):
         self.wait()
 
 
+from manim import *
+
+
+class FixedCircleAndRotatingAxes(ThreeDScene):
+    def construct(self):
+        # 设置相机初始角度
+        self.set_camera_orientation(phi=75 * DEGREES, theta=-30 * DEGREES)  # 修改theta来调整视角
+
+        # 创建固定在左侧的圆
+        circle = Circle().set_color(RED)
+        self.add_fixed_in_frame_mobjects(circle)  # 将圆固定在2D层
+        circle.move_to(3 * LEFT)  # 圆固定在左侧 3 * LEFT 的位置
+
+        # 在右侧创建一个 3D 坐标轴
+        axes = ThreeDAxes()
+        axes.move_to(3 * RIGHT + 3 * UP)  # 坐标轴固定在右侧 3 * RIGHT 的位置
+        self.add(axes)
+
+        # 让坐标轴绕自身的 z 轴旋转
+        self.play(Rotate(axes, angle=PI / 6, axis=Z_AXIS, run_time=2))
+
+        # 停留展示最终画面
+        self.wait(2)
+
+
+# 渲染场景
 if __name__ == "__main__":
-    scene = RotateCameraExample()
+    scene = FixedCircleAndRotatingAxes()
     scene.render()
