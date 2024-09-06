@@ -3,6 +3,25 @@ from typing import Optional, Tuple
 from manim import *
 
 
+def bake_mobject_into_vector_entries(mob, vector, path_arc=30 * DEGREES, group_type=None):
+    entries = vector.get_entries()
+    mob_copies = Group(*(mob.copy() for _ in range(len(entries))))
+    return AnimationGroup(
+        LaggedStart(*[FadeOut(mc, target_position=entry.get_center(), path_arc=path_arc)
+                      for mc, entry in zip(mob_copies, entries)],
+                    lag_ratio=0.05,
+                    group_type=group_type,
+                    run_time=2,
+                    remover=True
+                    ),
+        RandomizeMatrixEntries(
+            vector,
+            rate_func=lambda t: clip(smooth(2 * t - 1), 0, 1),
+            run_time=2
+        ),
+    )
+
+
 def value_to_color(value, min_value=0.0, max_value=10.0):
     low_positive_color = BLUE_A
     high_positive_color = BLUE_E
@@ -268,3 +287,25 @@ class WeightMatrix(DecimalMatrix):
                 color=value_to_color(entry.get_value(), min_value=0, max_value=max(self.value_range))
             )
         return self
+
+
+class RandomizeMatrixEntries(Animation):
+    def __init__(self, matrix, **kwargs):
+        self.matrix = matrix
+        self.entries = matrix.get_entries()
+        self.start_values = [entry.get_value() for entry in self.entries]
+
+        # todo: 不完美
+        # self.target_values = [np.random.uniform(0, matrix.value_range[1]) if x > 0
+        #                       else np.random.uniform(matrix.value_range[0], 0) for x in self.start_values]
+        self.target_values = [1.0 for x in self.start_values]
+        super().__init__(matrix, **kwargs)
+
+    def interpolate_mobject(self, alpha: float) -> None:
+        for index, entry in enumerate(self.entries):
+            start = self.start_values[index]
+            target = self.target_values[index]
+            sub_alpha = self.get_sub_alpha(alpha, index, len(self.entries))
+            entry.set_value(interpolate(start, target, sub_alpha))
+
+        self.matrix.reset_entry_colors()

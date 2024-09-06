@@ -251,12 +251,12 @@ class AttentionPatterns(MovingCameraScene):
         e_vect = WeightMatrix(length=12).match_width(q_vect).next_to(q_vect, DR, buff=1.5)
         matrix = WeightMatrix(shape=(7, 12)).match_height(q_vect).next_to(e_vect, LEFT)
         rhs = WeightMatrix(length=7).match_width(q_vect).next_to(e_vect, RIGHT, buff=0.7)
+        e_label_copy = emb_syms[index].copy().next_to(e_vect, UP)
 
         q_vect.save_state()
 
         rhs.get_columns().set_opacity(0)
         rhs.get_brackets().space_out_submobjects(1.75)
-
         mat_brace = Brace(matrix, UP)
         mat_label = MathTex("W_Q").next_to(mat_brace, UP, SMALL_BUFF).set_color(YELLOW)
 
@@ -265,6 +265,7 @@ class AttentionPatterns(MovingCameraScene):
             FadeOut(text_a),
             FadeIn(e_vect),
             FadeIn(matrix),
+            TransformFromCopy(emb_syms[index], e_label_copy),
             FadeOut(q_vect),
             FadeIn(rhs),
             MaintainPositionRelativeTo(text_q, q_vect),
@@ -286,7 +287,12 @@ class AttentionPatterns(MovingCameraScene):
             sym = MathTex(f"\\vec{{Q}}_{{{n}}}", font_size=48)
             sym.next_to(arrow, DOWN, SMALL_BUFF)
             q_syms.add(sym)
+
+        mat_label2 = mat_label.copy()
         q_sym = q_syms[index]
+        low_q_sym = q_sym.copy()
+        low_q_sym.next_to(rhs, UP)
+
         self.play(
             LaggedStart(
                 LaggedStart(*[FadeTransform(entry, q_sym, remover=True)
@@ -300,8 +306,79 @@ class AttentionPatterns(MovingCameraScene):
                 FadeOut(brace),
                 lag_ratio=0.1,
             ))
-        self.add(q_sym)
+        self.add(q_arrows, q_syms)
+        self.play(FadeOut(text_q, e_vect, matrix, rhs, mat_label, mat_brace, e_label_copy))
         self.wait()
+
+        # 16. E to Q rects
+
+        # 17. Add other query vectors
+
+        # Draw grid
+        key_word_groups = word_groups.copy()
+        key_word_groups.arrange(DOWN, buff=0.75, aligned_edge=RIGHT)
+        key_word_groups.next_to(q_syms, DL, buff=LARGE_BUFF)
+        key_word_groups.shift(3.0 * LEFT)
+        q_groups = VGroup(
+            *[VGroup(*[group[i] for group in [emb_arrows, emb_syms, q_arrows, q_syms]])
+              for i in range(len(emb_arrows))]
+        )
+        q_groups.target = q_groups.generate_target()
+        q_groups.target.arrange_to_fit_width(12, about_edge=LEFT)
+        q_groups.target.shift(0.25 * DOWN)
+
+        word_groups.target = word_groups.generate_target()
+        for word_group, q_group in zip(word_groups.target, q_groups.target):
+            word_group.scale(0.7)
+            word_group.next_to(q_group[0], UP, SMALL_BUFF)
+
+        h_lines = VGroup()
+        v_buff = 0.5 * (key_word_groups[0].get_y(DOWN) - key_word_groups[1].get_y(UP))
+        for kwg in key_word_groups:
+            h_line = Line(LEFT, RIGHT).set_width(20)
+            h_line.next_to(kwg, UP, buff=v_buff)
+            h_line.align_to(key_word_groups, LEFT)
+            h_lines.add(h_line)
+
+        v_lines = VGroup()
+        h_buff = 0.5
+        for q_group in q_groups.target:
+            v_line = Line(UP, DOWN).set_height(14)
+            v_line.next_to(q_group, LEFT, buff=h_buff, aligned_edge=UP)
+            v_lines.add(v_line)
+        v_lines.add(v_lines[-1].copy().next_to(q_groups.target, RIGHT, 0.5, UP))
+
+        grid_lines = VGroup(*h_lines, *v_lines)
+        grid_lines.set_stroke(GREY_A, 1)
+
+        self.play(
+            self.camera.frame.animate.set_height(15, about_edge=UP).set_x(-2),
+            MoveToTarget(q_groups),
+            MoveToTarget(word_groups),
+            Create(h_lines, lag_ratio=0.2),
+            Create(v_lines, lag_ratio=0.2),
+        )
+
+        # Take all dot products
+        # dot_prods = VGroup()
+        # for k_sym in k_syms:
+        #     for q_sym in q_syms:
+        #         square_center = np.array([q_sym.get_x(), k_sym.get_y(), 0])
+        #         dot = Tex(R".", font_size=72)
+        #         dot.move_to(square_center)
+        #         dot.set_fill(opacity=0)
+        #         dot_prod = VGroup(k_sym.copy(), dot, q_sym.copy())
+        #         dot_prod.target = dot_prod.generate_target()
+        #         dot_prod.target.arrange(RIGHT, buff=0.15)
+        #         dot_prod.target.scale(0.65)
+        #         dot_prod.target.move_to(square_center)
+        #         dot_prod.target.set_fill(opacity=1)
+        #         dot_prods.add(dot_prod)
+        #
+        # self.play(
+        #     LaggedStartMap(MoveToTarget, dot_prods, lag_ratio=0.025, run_time=4)
+        # )
+        # self.wait()
 
 
 if __name__ == "__main__":

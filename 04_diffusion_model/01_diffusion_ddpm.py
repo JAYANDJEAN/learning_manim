@@ -40,9 +40,7 @@ class DDPM(Scene):
             WeightMatrix(shape=(12, 7)).set(width=4),
         )
 
-        text_prompt = Paragraph("a cyberpunk with ",
-                                "natural greys and ",
-                                "whites and browns.",
+        text_prompt = Paragraph("a cyberpunk with ", "natural greys and ", "whites and browns.",
                                 line_spacing=1.0, font="menlo").scale(0.4)
         surrounding_prompt = SurroundingRectangle(text_prompt,
                                                   buff=0.2, color=WHITE, corner_radius=0.3).set_stroke(width=0.5)
@@ -435,58 +433,6 @@ class DDPM(Scene):
                           formula_encode, image_encode_set, brace_image_set, text_ddpm))
 
 
-class CLIP(Scene):
-    def construct(self):
-        self.camera.background_color = "#1C1C1C"
-        gear = SVGMobject("assets/wheel.svg")
-        # CLIP
-        text_clip = Text("CLIP", font="menlo").to_edge(UL, buff=0.5).scale(0.7)
-
-        gears_clip = VGroup(gear.copy().scale(0.5).shift(0.8 * UP).rotate(10 * DEGREES).set_color('#3fc1c9'),
-                            gear.copy().scale(0.5).shift(0.55 * RIGHT).rotate(-8 * DEGREES).set_color('#364f6b'))
-        text_clip_model = Text("CLIP Model", font_size=24, color=GREY).next_to(gears_clip, DOWN, SMALL_BUFF)
-        surrounding_clip = SurroundingRectangle(VGroup(gears_clip, text_clip_model),
-                                                buff=0.2, color=WHITE, corner_radius=0.3).set_stroke(width=0.5)
-        model_clip = VGroup(gears_clip, text_clip_model, surrounding_clip)
-
-        image_cat = ImageMobject("assets/cat_0.jpg").set(height=3).move_to(4 * LEFT + 2 * DOWN)
-        arrow_image_model = Arrow(image_cat.get_right(), model_clip.get_left() + 0.5 * DOWN,
-                                  buff=0, stroke_width=3, tip_length=0.2)
-        embedding_image = WeightMatrix(length=14).set(width=0.4).move_to(3 * RIGHT + 2 * DOWN)
-        arrow_model_embed1 = Arrow(model_clip.get_right() + 0.5 * DOWN, embedding_image.get_left(),
-                                   buff=0, stroke_width=3, tip_length=0.2)
-
-        text_cat = Text("a cat").move_to(4 * LEFT + 2 * UP).scale(0.7)
-        surrounding_text_cat = SurroundingRectangle(text_cat, buff=0.01, color=WHITE,
-                                                    corner_radius=0.1).set_stroke(width=0.5)
-        text_cat = VGroup(text_cat, surrounding_text_cat)
-        arrow_text_model = Arrow(text_cat.get_right(), model_clip.get_left() + 0.5 * UP,
-                                 buff=0, stroke_width=3, tip_length=0.2)
-        embedding_text = WeightMatrix(length=14).set(width=0.4).move_to(3 * RIGHT + 2 * UP)
-        arrow_model_embed2 = Arrow(model_clip.get_right() + 0.5 * UP, embedding_text.get_left(),
-                                   buff=0, stroke_width=3, tip_length=0.2)
-
-        self.play(Write(text_clip))
-        self.play(FadeIn(model_clip))
-        self.play(Create(text_cat), GrowArrow(arrow_text_model))
-        self.play(LaggedStart(
-            AnimationGroup(
-                Rotate(gears_clip[i], axis=IN if i == 0 else OUT, about_point=gears_clip[i].get_center())
-                for i in range(2)
-            ), run_time=3, lag_ratio=0.0))
-        self.play(GrowArrow(arrow_model_embed2), Create(embedding_text))
-        self.play(FadeIn(image_cat), GrowArrow(arrow_image_model))
-        self.play(LaggedStart(
-            AnimationGroup(
-                Rotate(gears_clip[i], axis=IN if i == 0 else OUT, about_point=gears_clip[i].get_center())
-                for i in range(2)
-            ), run_time=3, lag_ratio=0.0))
-        self.play(GrowArrow(arrow_model_embed1), Create(embedding_image))
-        self.wait()
-
-
-
-
 if __name__ == "__main__":
-    scene = CLIP()
+    scene = DDPM()
     scene.render()
