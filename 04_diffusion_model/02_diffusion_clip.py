@@ -254,15 +254,10 @@ class CLIP(Scene):
                     for j in range(num_width)]).arrange(RIGHT, buff=0.12)
             for i in range(num_height)
         ]).arrange(RIGHT, buff=0.12).move_to(3 * UP + RIGHT).scale(0.7)
-        # image_grid.target = Group(*[ImageMobject(np.array(sub_image)).scale(0.5)
-        #                             for sub_image in sub_images]).arrange(RIGHT, buff=0.12).move_to(
-        #     3 * UP + RIGHT).scale(0.7)
         self.play(MoveToTarget(image_grid))
         self.wait()
 
-        image_grid = Group(*[ImageMobject(np.array(sub_image)).scale(0.5)
-                             for sub_image in sub_images]).arrange(RIGHT, buff=0.12).move_to(
-            3 * UP + RIGHT).scale(0.7)
+        image_grid = Group(*[j for image_grid_line in image_grid for j in image_grid_line])
         image_embedding_words = VGroup(*[WeightMatrix(length=10).set(width=0.5).next_to(im, DOWN, buff=1.0)
                                          for im in image_grid])
         image_arrow_embeds = VGroup(*[Arrow(image_grid[i].get_bottom(), image_embedding_words[i].get_top())
