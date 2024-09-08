@@ -2,6 +2,22 @@ from typing import Optional, Tuple
 
 from manim import *
 
+def create_pixels(image_mob, pixel_width=0.1):
+    x0, y0, z0 = image_mob.get_corner(UL)
+    x1, y1, z1 = image_mob.get_corner(DR)
+    points = np.array([
+        [x, y, 0]
+        for y in np.arange(y0, y1, -pixel_width)
+        for x in np.arange(x0, x1, pixel_width)
+    ])
+    square = Square(pixel_width).set_fill(WHITE, 1).set_stroke(width=0)
+    pixels = VGroup(
+        square.copy().move_to(point, UL).set_color(
+            Color(rgb=image_mob.point_to_rgb(point))
+        )
+        for point in points
+    )
+    return pixels
 
 def bake_mobject_into_vector_entries(mob, vector, path_arc=30 * DEGREES, group_type=None):
     entries = vector.get_entries()
@@ -309,3 +325,50 @@ class RandomizeMatrixEntries(Animation):
             entry.set_value(interpolate(start, target, sub_alpha))
 
         self.matrix.reset_entry_colors()
+
+
+class ContextAnimation(LaggedStart):
+    def __init__(self,
+                 target,
+                 sources,
+                 direction=UP,
+                 time_width=2,
+                 min_stroke_width=0,
+                 max_stroke_width=5,
+                 lag_ratio=None,
+                 strengths=None,
+                 run_time=3,
+                 fix_in_frame=False,
+                 path_arc=PI / 2,
+                 **kwargs,
+                 ):
+        arcs = VGroup()
+        if strengths is None:
+            strengths = np.random.random(len(sources)) ** 2
+        for source, strength in zip(sources, strengths):
+            sign = direction[1] * (-1) ** int(source.get_x() < target.get_x())
+            arcs.add(Line(
+                source.get_edge_center(direction),
+                target.get_edge_center(direction),
+                path_arc=sign * path_arc,
+                stroke_color=random_bright_color(),
+                stroke_width=interpolate(
+                    min_stroke_width,
+                    max_stroke_width,
+                    strength,
+                )
+            ))
+        if fix_in_frame:
+            arcs.fix_in_frame()
+        arcs.shuffle()
+        lag_ratio = 0.5 / len(arcs) if lag_ratio is None else lag_ratio
+
+        super().__init__(
+            *(
+                ShowPassingFlashWithThinningStrokeWidth(arc, time_width=time_width)
+                for arc in arcs
+            ),
+            lag_ratio=lag_ratio,
+            run_time=run_time,
+            **kwargs,
+        )
