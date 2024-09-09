@@ -1,7 +1,5 @@
 from utils import *
 
-from manim import *
-
 
 # class RotateCamera(ThreeDCamera):
 #     def construct(self):
@@ -10,24 +8,42 @@ from manim import *
 #         self.wait()
 
 
+
 class RotateCameraExample(ThreeDScene):
     def construct(self):
         # image_prompt = ImageMobject("assets/prompt.png").set(height=4)
         # rect = SurroundingRectangle(image_prompt, buff=0.0)
         # image = Group(image_prompt, rect)
         # 是image太大了，所以效果不好
-        im = VGroup(Circle(), Rectangle(), Triangle())
+        lattice = NumberPlane(
+            x_range=(-14, 14, 1),
+            y_range=(-17, 17, 1),
+            background_line_style={
+                "stroke_color": GRAY,
+                "stroke_width": 1,
+                "stroke_opacity": 1.0,
+            },
+            axis_config={
+                "stroke_color": GRAY,
+                "stroke_width": 1,
+                "include_numbers": False,
+            },
+            faded_line_ratio=0,
+        ).set(width=4.0)
+        angle_text = always_redraw(
+            lambda: Text(
+                f"phi: {self.camera.get_phi() / PI * 180:.2f}, theta: {self.camera.get_theta() / PI * 180:.2f}, gamma: {self.camera.get_gamma() / PI * 180:.2f}",
+                font_size=12).to_edge(UP + LEFT)
+        )
+        self.add_fixed_in_frame_mobjects(angle_text)
 
-        self.play(Animation(im))
-        self.move_camera(phi=-50 * DEGREES,
-                         theta=-140 * DEGREES,
-                         gamma=-37 * DEGREES,
-                         focal_distance=30,
-                         frame_center=LEFT + DOWN * 0.3,
-                         run_time=3)
-        self.begin_3dillusion_camera_rotation()
-        self.wait(3)
-        self.stop_3dillusion_camera_rotation()
+        self.add(lattice)
+        self.move_camera(phi=15 * DEGREES, run_time=3)
+        self.wait()
+        self.move_camera(theta=-45 * DEGREES, run_time=3)
+        self.wait()
+        self.move_camera(gamma=30 * DEGREES, run_time=3)
+
 
 
 class CameraAnglesAnimation(ThreeDScene):
@@ -122,75 +138,7 @@ class MatrixMultiplication(Scene):
                           entry.animate.set_opacity(1))
 
 
-class Tmp(Scene):
-    def construct(self):
-        self.camera.background_color = "#1C1C1C"
-        gear = SVGMobject("assets/wheel.svg")
-        gears_clip = VGroup(gear.copy().scale(0.5).shift(0.8 * UP).rotate(10 * DEGREES).set_color('#3fc1c9'),
-                            gear.copy().scale(0.5).shift(0.55 * RIGHT).rotate(-8 * DEGREES).set_color('#364f6b'))
-        text_clip = Text("CLIP Model", font_size=24, color=GREY).next_to(gears_clip, DOWN, SMALL_BUFF)
-        surrounding_clip = SurroundingRectangle(VGroup(gears_clip, text_clip),
-                                                buff=0.2, color=WHITE, corner_radius=0.3).set_stroke(width=0.5)
-        model_clip = VGroup(gears_clip, text_clip, surrounding_clip).move_to(4 * LEFT)
-
-        gears = VGroup(gear.copy().scale(0.5).shift(0.78 * UP).set_color(YELLOW),
-                       gear.copy().scale(0.5).shift(0.565 * LEFT).set_color(ORANGE),
-                       gear.copy().scale(0.5).shift(0.57 * RIGHT))
-        text_model = Text("Diffusion Model", font_size=24, color=GREY).next_to(gears, DOWN, SMALL_BUFF)
-        surrounding_model = SurroundingRectangle(VGroup(gears, text_model),
-                                                 buff=0.2, color=WHITE, corner_radius=0.3).set_stroke(width=0.5)
-        model_diffusion = VGroup(gears, text_model, surrounding_model)
-        self.add(model_clip, model_diffusion)
-
-        self.play(LaggedStart(
-            AnimationGroup(
-                Rotate(gears[i], axis=IN if i == 0 else OUT, about_point=gears[i].get_center())
-                for i in range(3)
-            ), run_time=4, lag_ratio=0.0))
-
-        self.play(LaggedStart(
-            AnimationGroup(
-                Rotate(gears_clip[i], axis=IN if i == 0 else OUT, about_point=gears_clip[i].get_center())
-                for i in range(2)
-            ), run_time=4, lag_ratio=0.0))
-
-
-class CurvedArrows(Scene):
-    def construct(self):
-        # 创建一个弯曲的箭头
-        curved_arrow = CurvedArrow(start_point=LEFT, end_point=RIGHT, angle=PI / 2, color=BLUE)
-
-        # 在场景中添加弯曲箭头
-        self.play(Create(curved_arrow))
-        self.wait()
-
-
-from manim import *
-
-
-class FixedCircleAndRotatingAxes(ThreeDScene):
-    def construct(self):
-        # 设置相机初始角度
-        self.set_camera_orientation(phi=75 * DEGREES, theta=-30 * DEGREES)  # 修改theta来调整视角
-
-        # 创建固定在左侧的圆
-        circle = Circle().set_color(RED)
-        self.add_fixed_in_frame_mobjects(circle)  # 将圆固定在2D层
-        circle.move_to(3 * LEFT)  # 圆固定在左侧 3 * LEFT 的位置
-
-        # 在右侧创建一个 3D 坐标轴
-        axes = ThreeDAxes()
-        axes.move_to(3 * RIGHT + 3 * UP)  # 坐标轴固定在右侧 3 * RIGHT 的位置
-        self.add(axes)
-
-        # 让坐标轴绕自身的 z 轴旋转
-        self.play(Rotate(axes, angle=PI / 6, axis=Z_AXIS, run_time=2))
-
-        # 停留展示最终画面
-        self.wait(2)
-
-
 # 渲染场景
 if __name__ == "__main__":
-    scene = FixedCircleAndRotatingAxes()
+    scene = RotateCameraExample()
     scene.render()
