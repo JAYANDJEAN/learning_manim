@@ -9,13 +9,33 @@ class CLIP(Scene):
         gear = SVGMobject("assets/wheel.svg")
         # CLIP
         text_clip = Text("CLIP", font="menlo").to_edge(UL, buff=0.5).scale(0.7)
-
         gears_clip = VGroup(gear.copy().scale(0.5).shift(0.8 * UP).rotate(10 * DEGREES).set_color('#3fc1c9'),
                             gear.copy().scale(0.5).shift(0.55 * RIGHT).rotate(-8 * DEGREES).set_color('#364f6b'))
         text_clip_model = Text("CLIP Model", font_size=24, color=GREY).next_to(gears_clip, DOWN, SMALL_BUFF)
         surrounding_clip = SurroundingRectangle(VGroup(gears_clip, text_clip_model),
                                                 buff=0.2, color=WHITE, corner_radius=0.3).set_stroke(width=0.5)
-        model_clip = VGroup(gears_clip, text_clip_model, surrounding_clip).move_to(ORIGIN)
+        model_clip = VGroup(gears_clip, text_clip_model, surrounding_clip)
+
+        # show part
+        text_encoder = VGroup(gear.copy().scale(0.3).set_color('#3fc1c9'),
+                              Text("Text Encoder", font="menlo").scale(0.7)).arrange(RIGHT, buff=0.5)
+        image_encoder = VGroup(gear.copy().scale(0.3).set_color('#364f6b'),
+                               Text("Image Encoder", font="menlo").scale(0.7)).arrange(RIGHT, buff=0.5)
+        encoders = VGroup(text_encoder, image_encoder).arrange(DOWN, aligned_edge=LEFT, buff=0.3)
+        brace_clip = Brace(encoders, direction=LEFT, buff=0.5)
+        VGroup(model_clip, brace_clip, encoders).arrange(RIGHT, buff=0.7)
+
+        self.play(FadeIn(model_clip))
+        self.play(GrowFromCenter(brace_clip))
+        self.play(
+            Indicate(model_clip[0][0]),
+            TransformFromCopy(model_clip[0][0], text_encoder, path_arc=30 * DEGREES)
+        )
+        self.play(
+            Indicate(model_clip[0][1]),
+            TransformFromCopy(model_clip[0][1], image_encoder, path_arc=-30 * DEGREES)
+        )
+        self.play(FadeOut(brace_clip, encoders))
 
         text_cat = Text("A CAT").scale(0.9)
         surrounding_text_cat = SurroundingRectangle(
@@ -55,7 +75,7 @@ class CLIP(Scene):
             label.set(width=0.6).next_to(all_embedding.target[i], UP)
 
         self.add(text_clip)
-        self.play(FadeIn(model_clip))
+        self.play(model_clip.animate.move_to(ORIGIN))
         self.play(Create(text_cat))
         self.play(
             LaggedStart(
@@ -97,22 +117,6 @@ class CLIP(Scene):
         self.wait()
         self.play(FadeOut(all_embedding, all_label, target_position=4 * RIGHT, scale=0.6))
         self.play(model_clip.animate.shift(LEFT))
-
-        # show part
-        # text_encoder = VGroup(gear.copy().scale(0.5).set_color('#3fc1c9'),
-        #                       Text("Text Encoder", font="menlo").scale(0.7)).arrange(RIGHT, buff=0.5)
-        # image_encoder = VGroup(gear.copy().scale(0.5).set_color('#364f6b'),
-        #                        Text("Image Encoder", font="menlo").scale(0.7)).arrange(RIGHT, buff=0.5)
-        # encoders = VGroup(text_encoder, image_encoder).arrange(DOWN, aligned_edge=LEFT, buff=0.5)
-        # brace_clip = Brace(encoders, direction=LEFT, buff=0.5)
-        # VGroup(brace_clip, encoders).next_to(model_clip, RIGHT)
-        #
-        # self.play(GrowFromCenter(brace_clip))
-        # self.play(
-        #     FadeIn(text_encoder, shift=0.5 * UP),
-        #     FadeIn(image_encoder, shift=0.5 * DOWN)
-        # )
-        # self.play(FadeOut(brace_clip, text_encoder, image_encoder))
 
         # show text encoder
         phrase = "a cyberpunk with natural greys and whites and browns"
@@ -164,10 +168,12 @@ class CLIP(Scene):
         rect_out = SurroundingRectangle(emb_sym_out).set_stroke(YELLOW, 2)
         emb_sym_out.generate_target()
         emb_sym_out.target.scale(1.4).move_to(np.array([text_words.get_center()[0], -0.5, 0]))
-        arrow_embed_out = Arrow(text_words.get_bottom(), emb_sym_out.target.get_top())
+        arrow_embed_out = Arrow(text_words.get_bottom(), emb_sym_out.target.get_top(), buff=1.5)
         embedding_out = WeightMatrix(length=14).set(width=0.5).move_to(emb_sym_out.target)
         arrow_embed_out.generate_target()
         arrow_embed_out.target = Arrow(text_words.get_bottom(), embedding_out.get_top())
+        brace_text = Brace(embedding_out, direction=RIGHT, buff=0.1)
+        dim_text = Text("768-dimensional", font_size=24).set_color(YELLOW).next_to(brace_text, RIGHT)
 
         self.play(LaggedStartMap(FadeIn, text_words, shift=0.5 * UP, lag_ratio=0.25))
         self.play(LaggedStartMap(DrawBorderThenFill, rect_words))
@@ -213,7 +219,10 @@ class CLIP(Scene):
             GrowArrow(arrow_embed_out))
         self.play(
             Transform(emb_sym_out, embedding_out),
-            MoveToTarget(arrow_embed_out))
+            MoveToTarget(arrow_embed_out)
+        )
+        self.play(GrowFromCenter(brace_text), Create(dim_text))
+        self.play(FadeOut(brace_text, dim_text))
         self.wait()
 
         # show image encoder
@@ -286,7 +295,7 @@ class CLIP(Scene):
         rect_out = SurroundingRectangle(emb_sym_out).set_stroke(YELLOW, 2)
         emb_sym_out.generate_target()
         emb_sym_out.target.scale(1.4).move_to(np.array([image_grid.get_center()[0], -0.5, 0]))
-        arrow_embed_out = Arrow(image_grid.get_bottom(), emb_sym_out.target.get_top())
+        arrow_embed_out = Arrow(image_grid.get_bottom(), emb_sym_out.target.get_top(), buff=1.5)
         embedding_out = WeightMatrix(length=14).set(width=0.5).move_to(emb_sym_out.target)
         arrow_embed_out.generate_target()
         arrow_embed_out.target = Arrow(image_grid.get_bottom(), embedding_out.get_top())
@@ -332,8 +341,6 @@ class CLIP(Scene):
         self.wait()
         self.play(FadeOut(emb_sym_out, arrow_embed_out, image_grid))
         self.wait(3)
-
-
 
 
 class CLIPEmbedding(ThreeDScene):

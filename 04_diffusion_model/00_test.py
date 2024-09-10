@@ -8,7 +8,6 @@ from utils import *
 #         self.wait()
 
 
-
 class RotateCameraExample(ThreeDScene):
     def construct(self):
         # image_prompt = ImageMobject("assets/prompt.png").set(height=4)
@@ -43,7 +42,6 @@ class RotateCameraExample(ThreeDScene):
         self.move_camera(theta=-45 * DEGREES, run_time=3)
         self.wait()
         self.move_camera(gamma=30 * DEGREES, run_time=3)
-
 
 
 class CameraAnglesAnimation(ThreeDScene):
@@ -138,7 +136,31 @@ class MatrixMultiplication(Scene):
                           entry.animate.set_opacity(1))
 
 
+class RotateImageAroundYAxis(ThreeDScene):
+    def construct(self):
+        # 设置相机的初始视角
+        self.set_camera_orientation(phi=0 * DEGREES, theta=0 * DEGREES)
+
+        # 加载图片 (假设图片路径为 "example.png")
+        image = ImageMobject("assets/prompt.png")
+
+        # 将图片调整到合适的大小
+        image.scale(2)
+
+        # 添加图片到场景
+        self.add(image)
+
+        # 使图片在场景中心
+        image.move_to(ORIGIN)
+
+        # 绕 y 轴旋转图片 90 度 (3D变换)
+        self.play(Rotate(image, angle=PI / 4, axis=UP))
+
+        # 等待几秒展示最终效果
+        self.wait(2)
+
+
 # 渲染场景
 if __name__ == "__main__":
-    scene = RotateCameraExample()
+    scene = RotateImageAroundYAxis()
     scene.render()
