@@ -2,6 +2,7 @@ from typing import Optional, Tuple
 
 from manim import *
 
+
 def create_pixels(image_mob, pixel_width=0.1):
     x0, y0, z0 = image_mob.get_corner(UL)
     x1, y1, z1 = image_mob.get_corner(DR)
