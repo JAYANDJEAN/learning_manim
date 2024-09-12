@@ -76,44 +76,41 @@ class DDPM(Scene):
                      end=box.get_corner(direction=UL)).set_stroke(WHITE, 1)
         line2 = Line(start=model_diffusion.target.get_corner(direction=DR),
                      end=box.get_corner(direction=DL)).set_stroke(WHITE, 1)
-        # shape_list = [[(7, 7), (7, 6), (7, 6)],
-        #               [(8, 6), (6, 6), (8, 6)],
-        #               [(8, 5), (5, 6), (8, 6)],
-        #               [(7, 7), (7, 6), (7, 6)],
-        #               [(8, 6), (6, 6), (8, 6)]]
-        # matrix_mul = []
-        # for i, shapes in enumerate(shape_list):
-        #     matrix1, matrix2, matrix3 = [
-        #         VGroup(WeightMatrix(shape=shape).set(width=0.4 * shape[1]),
-        #                WeightMatrix(shape=shape).set(width=0.4 * shape[1])
-        #                .set_opacity(0.4).shift(0.1 * RIGHT + 0.1 * UP),
-        #                WeightMatrix(shape=shape).set(width=0.4 * shape[1])
-        #                .set_opacity(0.2).shift(0.2 * RIGHT + 0.2 * UP)
-        #                ) for shape in shapes]
-        #     eq = Tex('=')
-        #     all_matrix = (VGroup(matrix1, matrix2, eq, matrix3)
-        #                   .arrange(RIGHT, buff=0.2)
-        #                   .move_to(box.get_center()))
-        #     matrix_mul.append(Animation()
-        #                       # Succession(
-        #                       #     Create(VGroup(matrix1, matrix2, eq)),
-        #                       #     TransformFromCopy(VGroup(matrix1, matrix2), matrix3, path_arc=90 * DEGREES),
-        #                       #     FadeOut(all_matrix)
-        #                       # )
-        #                       )
+        shape_list = [
+            [(7, 7), (7, 6), (7, 6)],
+            [(8, 6), (6, 6), (8, 6)],
+            [(8, 5), (5, 6), (8, 6)]
+        ]
 
         self.play(FadeOut(image_prompt, arrow_prompt_embedding, arrow_embedding_model, arrow_model_matrix, prompt))
         self.play(Wiggle(embedding_prompt))
         self.play(FadeOut(embedding_prompt), MoveToTarget(model_diffusion))
         self.play(LaggedStartMap(Create, VGroup(box, line1, line2)))
-        # todo: 动画效果不满意
-        self.play(
-            # Succession(*matrix_mul),
-            LaggedStart(
-                AnimationGroup(
-                    Rotate(gears[i], axis=IN if i == 0 else OUT, about_point=gears[i].get_center())
-                    for i in range(3)
-                ), run_time=5, lag_ratio=0.0))
+        for i, shapes in enumerate(shape_list):
+            matrix1, matrix2, matrix3 = [
+                VGroup(WeightMatrix(shape=shape).set(width=0.4 * shape[1]),
+                       WeightMatrix(shape=shape).set(width=0.4 * shape[1])
+                       .set_opacity(0.4).shift(0.1 * RIGHT + 0.1 * UP),
+                       WeightMatrix(shape=shape).set(width=0.4 * shape[1])
+                       .set_opacity(0.2).shift(0.2 * RIGHT + 0.2 * UP)
+                       ) for shape in shapes]
+            eq = Tex('=')
+            mul = Tex('*')
+            all_matrix = VGroup(matrix1, mul, matrix2, eq, matrix3).arrange(RIGHT, buff=0.3).move_to(box.get_center())
+            # todo: 动画效果不满意
+            self.play(LaggedStartMap(FadeIn, VGroup(matrix1, mul, matrix2, eq), lag_ratio=0.01))
+            self.play(
+                RandomizeMatrixEntries(matrix3[0], run_time=2),
+                LaggedStartMap(FadeIn, VGroup(matrix3[1], matrix3[2]), lag_ratio=0.1),
+                LaggedStart(
+                    AnimationGroup(
+                        Rotate(gears[i], axis=IN if i == 0 else OUT, about_point=gears[i].get_center())
+                        for i in range(3)
+                    ), run_time=2, lag_ratio=0.0)
+            )
+            self.wait()
+            self.play(FadeOut(all_matrix))
+
         self.wait()
 
         # 3.2. what is the image
@@ -230,13 +227,22 @@ class DDPM(Scene):
         self.wait()
 
         # 5.1 Decode
-        path_cats = (["assets/cat_0.jpg"] + [f"assets/cat_0_00{i}.png" for i in range(35, 96, 5)] +
+        path_cats = (["assets/cat_0.jpg"] +
+                     [f"assets/cat_0_00{i}.png" for i in range(35, 96, 5)] +
                      ["assets/cat_0_0999.png"])
         image_cat_decode = Group(
             *[Group(
                 *[ImageMobject(path_cats[j]) for j in range(i * 5, (i + 1) * 5)]
             ).set(height=1.8).arrange(LEFT if i != 1 else RIGHT, buff=0.3) for i in range(3)]
         ).arrange(DOWN, buff=0.3).shift(0.5 * DOWN)
+
+        image_text_decode = Group(
+            *([ele for i in [f"assets/{f}" for f in ['cat_0_0999.png', 'cat_0_0095.png',
+                                                     'cat_0_0065.png', 'cat_0_0035.png']]
+               for ele in [ImageMobject(i).set(height=1.4), Text("···").scale(0.7)]] +
+              [ImageMobject("assets/cat_0.jpg").set(height=1.4)]
+              )
+        ).arrange(RIGHT, buff=0.3)
 
         self.play(FadeOut(easy, arrow_model_cat, model_diffusion, arrow_noise_model,
                           image_noise, arrow_prompt_model, prompt_cat),
@@ -251,33 +257,57 @@ class DDPM(Scene):
             tip_length = 0.2
             for j in range(len(image_group) - 1):
                 arr = Arrow(image_group[j + 1].get_right(), image_group[j].get_left(),
-                            stroke_width=line_width, tip_length=tip_length) \
+                            stroke_width=line_width, tip_length=tip_length,
+                            max_tip_length_to_length_ratio=1.0,
+                            max_stroke_width_to_length_ratio=20
+                            ) \
                     if i != 1 else Arrow(image_group[j + 1].get_left(), image_group[j].get_right(),
-                                         stroke_width=line_width, tip_length=tip_length)
+                                         stroke_width=line_width, tip_length=tip_length,
+                                         max_tip_length_to_length_ratio=1.0,
+                                         max_stroke_width_to_length_ratio=20)
                 arrow_between_images.append(arr)
                 self.play(FadeIn(image_group[j], run_time=time1 if i == 0 else time2),
                           GrowArrow(arr, run_time=time1 if i == 0 else time2))
             self.play(FadeIn(image_group[j + 1], run_time=time1 if i == 0 else time2))
             if i == 0:
                 # todo: 形状不满意
-                arr = Arrow(image_cat_decode[i + 1][0].get_left(), image_group[j + 1].get_left(),
-                            path_arc=-90 * DEGREES, stroke_width=line_width, tip_length=tip_length, buff=0.0)
+                arr = CubicBezier(image_cat_decode[i + 1][0].get_left(),
+                                  image_cat_decode[i + 1][0].get_left() + 0.3 * LEFT,
+                                  image_group[j + 1].get_left() + 0.3 * LEFT,
+                                  image_group[j + 1].get_left(), stroke_width=line_width)
                 arrow_between_images.append(arr)
-                self.play(GrowArrow(arr, run_time=time1))
+                self.play(Create(arr, run_time=time1))
             elif i == 1:
-                arr = Arrow(image_cat_decode[i + 1][0].get_right(), image_group[j + 1].get_right(),
-                            path_arc=90 * DEGREES, stroke_width=line_width, tip_length=tip_length, buff=0.0)
+                arr = CubicBezier(image_cat_decode[i + 1][0].get_right(),
+                                  image_cat_decode[i + 1][0].get_right() + 0.3 * RIGHT,
+                                  image_group[j + 1].get_right() + 0.3 * RIGHT,
+                                  image_group[j + 1].get_right(), stroke_width=line_width)
                 arrow_between_images.append(arr)
-                self.play(GrowArrow(arr, run_time=time2))
+                self.play(Create(arr, run_time=time2))
 
         images_and_lines = Group(image_cat_decode, Group(*arrow_between_images))
         images_and_lines.generate_target()
         images_and_lines.target.scale(0.7).to_edge(RIGHT)
         brace_images_and_lines = Brace(images_and_lines.target, direction=LEFT, buff=0.1)
+        brace_images_and_lines.generate_target()
+        brace_images_and_lines.target = Brace(image_text_decode, direction=UP, buff=0.1)
         text_images_and_lines = Text("Decode").next_to(brace_images_and_lines, LEFT)
         self.play(FadeOut(image_cat_35, image_cat))  # 因为用transform，所以还得去掉
         self.play(MoveToTarget(images_and_lines))
         self.play(GrowFromCenter(brace_images_and_lines), Write(text_images_and_lines))
+        # 特殊处理，方便做transform
+        image_cat_decode = Group(*[i for group in image_cat_decode for i in group])
+        image_only_decode = Group(*[i for i in image_text_decode if isinstance(i, ImageMobject)])
+        text_only_decode = Group(*[i for i in image_text_decode if isinstance(i, Text)])
+        brace_images_and_lines.generate_target()
+        brace_images_and_lines.target = Brace(image_text_decode, direction=UP, buff=0.1)
+        self.play(
+            FadeOut(VGroup(*arrow_between_images)),
+            Transform(image_cat_decode, image_only_decode, replace_mobject_with_target_in_scene=True),
+            FadeIn(text_only_decode),
+            MoveToTarget(brace_images_and_lines),
+            text_images_and_lines.animate.next_to(brace_images_and_lines.target, UP)
+        )
         self.wait()
 
         # 5.2 Encode
@@ -287,10 +317,6 @@ class DDPM(Scene):
               [ImageMobject("assets/cat_0.jpg").set(height=1.4)]
               )
         ).arrange(RIGHT, buff=0.3)
-        # 特殊处理，方便做transform
-        image_cat_decode = Group(*[i for group in image_cat_decode for i in group])
-        image_encode_decode = Group(*[i for i in image_text_encode_decode if isinstance(i, ImageMobject)])
-        text_encode_decode = Group(*[i for i in image_text_encode_decode if isinstance(i, Text)])
 
         image_text_encode_only = Group(
             *([ele for i in [f"assets/{f}" for f in ['cat_0.jpg', 'cat_0_0040.png', 'cat_0_0060.png', 'cat_0_0080.png']]
@@ -304,7 +330,7 @@ class DDPM(Scene):
                              r"+\sqrt{1-\bar{\alpha}_t} ",
                              r"\boldsymbol{\epsilon}")
         brace_decode = Brace(image_text_encode_decode[4:], direction=UP, buff=0.1)
-        text_decode = Text("Decode").next_to(brace_decode, UP)
+
         brace_encode = Brace(image_text_encode_decode[:5], direction=DOWN, buff=0.1)
         text_encode = Text("Encode").next_to(brace_encode, DOWN)
         brace_encode_only = Brace(image_text_encode_only, direction=DOWN, buff=0.1)
@@ -315,14 +341,20 @@ class DDPM(Scene):
         arrow_xt_image = Arrow(frame_box_xt.get_bottom(), image_text_encode_only[0].get_bottom(),
                                path_arc=-90 * DEGREES, stroke_width=2.0, tip_length=0.2, buff=0.0)
 
-        self.play(FadeOut(brace_images_and_lines, text_images_and_lines, VGroup(*arrow_between_images)))
-        self.play(Transform(image_cat_decode, image_encode_decode), FadeIn(text_encode_decode))
-        self.play(GrowFromCenter(brace_decode), Write(text_decode))
+        self.play(
+            Transform(brace_images_and_lines, brace_decode, replace_mobject_with_target_in_scene=True),
+            text_images_and_lines.animate.next_to(brace_decode, UP)
+        )
+        self.play(Transform(image_text_decode, image_text_encode_decode, replace_mobject_with_target_in_scene=True))
         self.play(GrowFromCenter(brace_encode), Write(text_encode))
-        self.play(FadeOut(brace_decode, text_decode))
-        self.play(Transform(image_text_encode_decode, image_text_encode_only),
-                  FadeOut(image_cat_decode))
-        self.play(Transform(brace_encode, brace_encode_only))
+
+        self.play(FadeOut(brace_decode, text_images_and_lines))
+        self.play(
+            Transform(image_text_encode_decode, image_text_encode_only),
+            FadeOut(image_cat_decode),
+            Transform(brace_encode, brace_encode_only)
+        )
+
         self.play(Transform(text_encode, text_encode_steps))
         self.play(Write(formula_xt))
         self.play(Create(frame_box_xt), GrowArrow(arrow_xt_image))
@@ -435,58 +467,6 @@ class DDPM(Scene):
                           formula_encode, image_encode_set, brace_image_set, text_ddpm))
 
 
-class CLIP(Scene):
-    def construct(self):
-        self.camera.background_color = "#1C1C1C"
-        gear = SVGMobject("assets/wheel.svg")
-        # CLIP
-        text_clip = Text("CLIP", font="menlo").to_edge(UL, buff=0.5).scale(0.7)
-
-        gears_clip = VGroup(gear.copy().scale(0.5).shift(0.8 * UP).rotate(10 * DEGREES).set_color('#3fc1c9'),
-                            gear.copy().scale(0.5).shift(0.55 * RIGHT).rotate(-8 * DEGREES).set_color('#364f6b'))
-        text_clip_model = Text("CLIP Model", font_size=24, color=GREY).next_to(gears_clip, DOWN, SMALL_BUFF)
-        surrounding_clip = SurroundingRectangle(VGroup(gears_clip, text_clip_model),
-                                                buff=0.2, color=WHITE, corner_radius=0.3).set_stroke(width=0.5)
-        model_clip = VGroup(gears_clip, text_clip_model, surrounding_clip)
-
-        image_cat = ImageMobject("assets/cat_0.jpg").set(height=3).move_to(4 * LEFT + 2 * DOWN)
-        arrow_image_model = Arrow(image_cat.get_right(), model_clip.get_left() + 0.5 * DOWN,
-                                  buff=0, stroke_width=3, tip_length=0.2)
-        embedding_image = WeightMatrix(length=14).set(width=0.4).move_to(3 * RIGHT + 2 * DOWN)
-        arrow_model_embed1 = Arrow(model_clip.get_right() + 0.5 * DOWN, embedding_image.get_left(),
-                                   buff=0, stroke_width=3, tip_length=0.2)
-
-        text_cat = Text("a cat").move_to(4 * LEFT + 2 * UP).scale(0.7)
-        surrounding_text_cat = SurroundingRectangle(text_cat, buff=0.01, color=WHITE,
-                                                    corner_radius=0.1).set_stroke(width=0.5)
-        text_cat = VGroup(text_cat, surrounding_text_cat)
-        arrow_text_model = Arrow(text_cat.get_right(), model_clip.get_left() + 0.5 * UP,
-                                 buff=0, stroke_width=3, tip_length=0.2)
-        embedding_text = WeightMatrix(length=14).set(width=0.4).move_to(3 * RIGHT + 2 * UP)
-        arrow_model_embed2 = Arrow(model_clip.get_right() + 0.5 * UP, embedding_text.get_left(),
-                                   buff=0, stroke_width=3, tip_length=0.2)
-
-        self.play(Write(text_clip))
-        self.play(FadeIn(model_clip))
-        self.play(Create(text_cat), GrowArrow(arrow_text_model))
-        self.play(LaggedStart(
-            AnimationGroup(
-                Rotate(gears_clip[i], axis=IN if i == 0 else OUT, about_point=gears_clip[i].get_center())
-                for i in range(2)
-            ), run_time=3, lag_ratio=0.0))
-        self.play(GrowArrow(arrow_model_embed2), Create(embedding_text))
-        self.play(FadeIn(image_cat), GrowArrow(arrow_image_model))
-        self.play(LaggedStart(
-            AnimationGroup(
-                Rotate(gears_clip[i], axis=IN if i == 0 else OUT, about_point=gears_clip[i].get_center())
-                for i in range(2)
-            ), run_time=3, lag_ratio=0.0))
-        self.play(GrowArrow(arrow_model_embed1), Create(embedding_image))
-        self.wait()
-
-
-
-
 if __name__ == "__main__":
-    scene = CLIP()
+    scene = DDPM()
     scene.render()

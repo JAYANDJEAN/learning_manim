@@ -3,23 +3,6 @@ from typing import Optional, Tuple
 from manim import *
 
 
-def create_pixels(image_mob, pixel_width=0.1):
-    x0, y0, z0 = image_mob.get_corner(UL)
-    x1, y1, z1 = image_mob.get_corner(DR)
-    points = np.array([
-        [x, y, 0]
-        for y in np.arange(y0, y1, -pixel_width)
-        for x in np.arange(x0, x1, pixel_width)
-    ])
-    square = Square(pixel_width).set_fill(WHITE, 1).set_stroke(width=0)
-    pixels = VGroup(
-        square.copy().move_to(point, UL).set_color(
-            Color(rgb=image_mob.point_to_rgb(point))
-        )
-        for point in points
-    )
-    return pixels
-
 def bake_mobject_into_vector_entries(mob, vector, path_arc=30 * DEGREES, group_type=None):
     entries = vector.get_entries()
     mob_copies = Group(*(mob.copy() for _ in range(len(entries))))

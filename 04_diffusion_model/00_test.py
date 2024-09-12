@@ -96,17 +96,77 @@ class DashTest(Scene):
                 "stroke_opacity": 0.3
             }
         )
-        mob1 = CubicBezier(3 * LEFT, UP, DOWN, 3 * RIGHT)
-        vt = ValueTracker(0)
-        num_dashes = 8
-        speed = 7
+        gear = SVGMobject("assets/wheel.svg")
+        gears = VGroup(gear.copy().scale(0.5).shift(0.78 * UP).set_color(YELLOW),
+                       gear.copy().scale(0.5).shift(0.57 * LEFT).set_color(ORANGE),
+                       gear.copy().scale(0.5).shift(0.57 * RIGHT))
+        text_model = Text("Diffusion Model", font_size=24, color=GREY).next_to(gears, DOWN, SMALL_BUFF)
+        surrounding_model = SurroundingRectangle(VGroup(gears, text_model),
+                                                 buff=0.2, color=WHITE, corner_radius=0.3).set_stroke(width=0.5)
+        model_diffusion = VGroup(gears, text_model, surrounding_model)
 
-        dash1 = DashedMObject(mob1, num_dashes=num_dashes, dashed_ratio=0.5, dash_offset=0)
-        dash1.add_updater(dash_updater)
+        curve = VMobject()
+        curve.start_new_path(model_diffusion.get_right())
+        curve.add_cubic_bezier_curve_to(
+            model_diffusion.get_right() + 3 * RIGHT + 3.0 * UP,
+            model_diffusion.get_left() + 3 * LEFT + 3.0 * UP,
+            model_diffusion.get_left()
+        )
+        curve.insert_n_curves(10).set_stroke(width=1.5).set_color(WHITE)
 
-        self.add(plane, dash1)
-        self.play(vt.animate.set_value(speed), run_time=6)
-        self.wait()
+        # 定义四个控制点
+        start = LEFT
+        control1 = UP + LEFT*2
+        control2 = DOWN + RIGHT*2
+        end = RIGHT
+
+        # 创建贝塞尔曲线
+        bezier_curve = CubicBezier(start, control1, control2, end)
+
+        # 添加贝塞尔曲线到场景
+        self.add(bezier_curve)
+
+        # 创建一个箭头并放在贝塞尔曲线的终点
+        arrow_tip = ArrowTip().move_to(end)
+
+        # 计算箭头的旋转角度，使其沿着曲线的方向
+        direction = bezier_curve.point_from_proportion(1) - bezier_curve.point_from_proportion(0.99)
+        arrow_tip.rotate(angle_of_vector(direction))
+
+        self.add(model_diffusion, arrow_tip)
+        # for n in range(4):
+        #     self.play(
+        #         ShowPassingFlash(curve, time_width=1.5, run_time=4),
+        #         LaggedStart(
+        #             AnimationGroup(
+        #                 Rotate(gears[i],
+        #                        axis=IN if i == 0 else OUT,
+        #                        about_point=gears[i].get_center()
+        #                        )
+        #                 for i in range(3)
+        #             ), lag_ratio=0.0, run_time=4)
+        #     )
+        # vt = ValueTracker(0)
+        # num_dashes = 50
+        # speed = 7
+        #
+        # dash1 = DashedMObject(curve, num_dashes=num_dashes, dashed_ratio=0.5, dash_offset=0)
+        # dash1.add_updater(dash_updater)
+        #
+        # self.add(model_diffusion, dash1)
+        # self.play(
+        #     vt.animate.set_value(speed),
+        #     LaggedStart(
+        #         AnimationGroup(
+        #             Rotate(gears[i],
+        #                    axis=IN if i == 0 else OUT,
+        #                    about_point=gears[i].get_center()
+        #                    )
+        #             for i in range(3)
+        #         ), lag_ratio=0.0)
+        #     , run_time=5, rate_func=linear
+        # )
+        # self.wait()
 
 
 class MatrixMultiplication(Scene):
@@ -162,5 +222,5 @@ class RotateImageAroundYAxis(ThreeDScene):
 
 # 渲染场景
 if __name__ == "__main__":
-    scene = RotateImageAroundYAxis()
+    scene = DashTest()
     scene.render()

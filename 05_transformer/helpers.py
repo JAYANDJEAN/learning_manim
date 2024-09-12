@@ -47,8 +47,8 @@ class WeightMatrix(DecimalMatrix):
             shape = (length, 1)
         self.shape = shape
         self.value_range = value_range
-        # values = np.random.uniform(*self.value_range, size=shape)
-        values = np.zeros(shape=shape)
+        values = np.random.uniform(*self.value_range, size=shape)
+        # values = np.zeros(shape=shape)
         super().__init__(values)
         self.reset_entry_colors()
 
@@ -68,9 +68,9 @@ class RandomizeMatrixEntries(Animation):
         self.start_values = [entry.get_value() for entry in self.entries]
 
         # todo: 不完美
-        # self.target_values = [np.random.uniform(0, matrix.value_range[1]) if x > 0
-        #                       else np.random.uniform(matrix.value_range[0], 0) for x in self.start_values]
-        self.target_values = [1.0 for x in self.start_values]
+        self.target_values = [np.random.uniform(0, matrix.value_range[1]) if x > 0
+                              else np.random.uniform(matrix.value_range[0], 0) for x in self.start_values]
+        # self.target_values = [1.0 for x in self.start_values]
         super().__init__(matrix, **kwargs)
 
     def interpolate_mobject(self, alpha: float) -> None:
