@@ -96,9 +96,9 @@ class DDPM(Scene):
                        ) for shape in shapes]
             eq = Tex('=')
             mul = Tex('*')
-            all_matrix = VGroup(matrix1, mul, matrix2, eq, matrix3).arrange(RIGHT, buff=0.3).move_to(box.get_center())
+            all_matrix = VGroup(matrix1, mul, matrix2, eq, matrix3).arrange(RIGHT, buff=0.1).move_to(box.get_center())
             # todo: 动画效果不满意
-            self.play(LaggedStartMap(FadeIn, VGroup(matrix1, mul, matrix2, eq), lag_ratio=0.01))
+            self.play(LaggedStartMap(FadeIn, VGroup(matrix1, mul, matrix2, eq), lag_ratio=0.01, run_time=0.5))
             self.play(
                 RandomizeMatrixEntries(matrix3[0], run_time=2),
                 LaggedStartMap(FadeIn, VGroup(matrix3[1], matrix3[2]), lag_ratio=0.1),
@@ -106,7 +106,7 @@ class DDPM(Scene):
                     AnimationGroup(
                         Rotate(gears[i], axis=IN if i == 0 else OUT, about_point=gears[i].get_center())
                         for i in range(3)
-                    ), run_time=2, lag_ratio=0.0)
+                    ), run_time=2, lag_ratio=0.0),
             )
             self.wait()
             self.play(FadeOut(all_matrix))
@@ -254,7 +254,7 @@ class DDPM(Scene):
             time1 = 0.7
             time2 = 0.3
             line_width = 2.5
-            tip_length = 0.2
+            tip_length = 0.15
             for j in range(len(image_group) - 1):
                 arr = Arrow(image_group[j + 1].get_right(), image_group[j].get_left(),
                             stroke_width=line_width, tip_length=tip_length,
