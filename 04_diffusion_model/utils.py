@@ -35,6 +35,22 @@ def value_to_color(value, min_value=0.0, max_value=10.0):
     return interpolate_color(*colors, alpha)
 
 
+class ArrowWithLabel(Arrow):
+    def __init__(self,
+                 *args,
+                 label: Text | ImageMobject = None,
+                 label_buff: float = 0.1,
+                 label_rotation: float = PI / 2,
+                 **kwargs
+                 ):
+        super().__init__(*args, **kwargs)
+        self.label = label
+        start, end = self.get_start_and_end()
+        direction = normalize(end - start)
+        self.label.rotate(label_rotation, RIGHT)
+        self.label.next_to(end, direction, buff=label_buff)
+
+
 class PathMapper(VMobject):
     def __init__(self, path_source: VMobject, num_of_path_points=100, **kwargs):
         super().__init__(**kwargs)

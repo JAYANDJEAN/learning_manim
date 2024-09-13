@@ -3,7 +3,7 @@ from PIL import Image
 from utils import *
 
 
-class CLIP(Scene):
+class CLIP(ThreeDScene):
     def construct(self):
         self.camera.background_color = "#1C1C1C"
         gear = SVGMobject("assets/wheel.svg")
@@ -36,46 +36,49 @@ class CLIP(Scene):
             TransformFromCopy(model_clip[0][1], image_encoder, path_arc=-30 * DEGREES)
         )
         self.play(FadeOut(brace_clip, encoders))
+        self.play(model_clip.animate.move_to(2 * LEFT))
+        self.wait()
+
+        input_pos = 5 * LEFT
+        output_pos = 0.5 * RIGHT
+        last_pos = 5.5 * RIGHT + 1.5 * UP
 
         text_cat = Text("A CAT").scale(0.9)
         surrounding_text_cat = SurroundingRectangle(
             text_cat, buff=0.1, color=WHITE, corner_radius=0.1).set_stroke(width=0.7)
-        text_cat = VGroup(text_cat, surrounding_text_cat).move_to(3 * LEFT)
-        embedding_text_cat = WeightMatrix(length=14).set(width=0.5).move_to(2.5 * RIGHT)
+        text_cat = VGroup(text_cat, surrounding_text_cat).move_to(input_pos)  #
+        embedding_text_cat = WeightMatrix(length=14).set(width=0.5).move_to(output_pos)  #
         brace_text = Brace(embedding_text_cat, direction=RIGHT, buff=0.1)
         dim_text = Text("768-dimensional", font_size=24).set_color(YELLOW).next_to(brace_text, RIGHT)
         embedding_text_cat.generate_target()
-        embedding_text_cat.target.scale(0.7).move_to(6 * RIGHT + 1 * UP)
+        embedding_text_cat.target.set(width=0.4).move_to(last_pos)  #
         text_cat.generate_target()
-        text_cat.target.scale(0.3).next_to(embedding_text_cat.target, UP)
+        text_cat.target.set(width=0.45).next_to(embedding_text_cat.target, 1.2 * UP)
 
-        image_cat = ImageMobject("assets/cat_0.jpg").set(height=2).move_to(3 * LEFT)
-        embedding_image = WeightMatrix(length=14).set(width=0.5).move_to(2.5 * RIGHT)
-        embedding_image.generate_target()
-        embedding_image.target.scale(0.7).move_to(5 * RIGHT + 1 * UP)
+        image_cat = ImageMobject("assets/cat_out.jpg").set(height=2).move_to(input_pos)
+        embedding_image_cat = WeightMatrix(length=14).set(width=0.5).move_to(output_pos)
+        embedding_image_cat.generate_target()
+        embedding_image_cat.target.set(width=0.4).move_to(last_pos + 0.6 * LEFT)
         image_cat.generate_target()
-        image_cat.target.scale(0.15).next_to(embedding_image.target, UP)
+        image_cat.target.set(width=0.45).next_to(embedding_image_cat.target, UP)
 
         text_dog = Text("A DOG").scale(0.9)
         surrounding_text_dog = SurroundingRectangle(
             text_dog, buff=0.1, color=WHITE, corner_radius=0.1).set_stroke(width=0.7)
-        text_dog = VGroup(text_dog, surrounding_text_dog).move_to(3 * LEFT)
-        embedding_text_dog = WeightMatrix(length=14).set(width=0.5).move_to(2.5 * RIGHT)
+        text_dog = VGroup(text_dog, surrounding_text_dog).move_to(input_pos)
+        embedding_text_dog = WeightMatrix(length=14).set(width=0.5).move_to(output_pos)
         embedding_text_dog.generate_target()
-        embedding_text_dog.target.scale(0.7).move_to(4 * RIGHT + 1 * UP)
+        embedding_text_dog.target.set(width=0.4).move_to(last_pos + 1.2 * LEFT)
         text_dog.generate_target()
-        text_dog.target.scale(0.3).next_to(embedding_text_dog.target, UP)
+        text_dog.target.set(width=0.45).next_to(embedding_text_dog.target, 1.2 * UP)
 
-        all_embedding = VGroup(embedding_text_cat, embedding_image, embedding_text_dog)
-        all_label = Group(text_cat, image_cat, text_dog)
-        all_embedding.generate_target()
-        all_embedding.target.set(width=0.5).arrange(LEFT, buff=0.3).move_to(1.3 * LEFT + 0.3 * DOWN)
-        all_label.generate_target()
-        for i, label in enumerate(all_label.target):
-            label.set(width=0.6).next_to(all_embedding.target[i], UP)
+        image_dog = ImageMobject("assets/dog_out.jpg").set(height=2).move_to(input_pos)
+        embedding_image_dog = WeightMatrix(length=14).set(width=0.5).move_to(output_pos)
+        embedding_image_dog.generate_target()
+        embedding_image_dog.target.set(width=0.4).move_to(last_pos + 1.8 * LEFT)
+        image_dog.generate_target()
+        image_dog.target.set(width=0.45).next_to(embedding_image_dog.target, UP)
 
-        self.add(text_clip)
-        self.play(model_clip.animate.move_to(ORIGIN))
         self.play(Create(text_cat))
         self.play(
             LaggedStart(
@@ -96,9 +99,9 @@ class CLIP(Scene):
                     Rotate(gears_clip[i], axis=IN if i == 0 else OUT, about_point=gears_clip[i].get_center())
                     for i in range(2)
                 ), run_time=3, lag_ratio=0.0),
-            LaggedStart(bake_mobject_into_vector_entries(image_cat, embedding_image, path_arc=-30 * DEGREES))
+            LaggedStart(bake_mobject_into_vector_entries(image_cat, embedding_image_cat, path_arc=-30 * DEGREES))
         )
-        self.play(MoveToTarget(embedding_image), MoveToTarget(image_cat))
+        self.play(MoveToTarget(embedding_image_cat), MoveToTarget(image_cat))
 
         self.play(Create(text_dog))
         self.play(
@@ -110,13 +113,92 @@ class CLIP(Scene):
             LaggedStart(bake_mobject_into_vector_entries(text_dog, embedding_text_dog)),
         )
         self.play(MoveToTarget(embedding_text_dog), MoveToTarget(text_dog))
+
+        self.play(FadeIn(image_dog))
+        self.play(
+            LaggedStart(
+                AnimationGroup(
+                    Rotate(gears_clip[i], axis=IN if i == 0 else OUT, about_point=gears_clip[i].get_center())
+                    for i in range(2)
+                ), run_time=3, lag_ratio=0.0),
+            LaggedStart(bake_mobject_into_vector_entries(image_dog, embedding_image_dog, path_arc=-30 * DEGREES))
+        )
+        self.play(MoveToTarget(embedding_image_dog), MoveToTarget(image_dog))
         self.wait()
-        self.play(model_clip.animate.shift(4 * LEFT + 0.3 * DOWN),
-                  MoveToTarget(all_embedding),
-                  MoveToTarget(all_label))
+
+        axes = ThreeDAxes()
+        arrow_text_dog = ArrowWithLabel(
+            axes.get_origin(),
+            [3, 2, 2],
+            stroke_width=2.0,
+            stroke_color=BLUE,
+            label=Text('A DOG', font_size=14),
+            buff=0,
+        )
+        arrow_image_dog = ArrowWithLabel(
+            axes.get_origin(),
+            [1, 3, 1.8],
+            stroke_width=2.0,
+            stroke_color=BLUE,
+            label=ImageMobject("assets/dog_out.jpg").set(width=0.45),
+            buff=0,
+        )
+
+        arrow_text_cat = ArrowWithLabel(
+            axes.get_origin(),
+            [-2, -1, 2],
+            stroke_width=2.0,
+            stroke_color=RED,
+            label=Text('A CAT', font_size=14),
+            buff=0,
+        )
+        arrow_image_cat = ArrowWithLabel(
+            axes.get_origin(),
+            [-1.5, -2, 2.5],
+            stroke_width=2.0,
+            stroke_color=RED,
+            label=ImageMobject("assets/cat_out.jpg").set(width=0.45),
+            buff=0,
+        )
+
+        self.play(FadeOut(model_clip))
+        self.add_fixed_in_frame_mobjects(
+            embedding_image_dog, image_dog,
+            embedding_text_dog, text_dog,
+            embedding_image_cat, image_cat,
+            embedding_text_cat, text_cat
+        )
+
+        self.set_camera_orientation(phi=75 * DEGREES, theta=-45 * DEGREES)
+        self.play(Create(axes))
+        self.begin_ambient_camera_rotation(rate=0.1)
+        self.play(
+            FadeTransform(VGroup(embedding_text_dog, text_dog), arrow_text_dog),
+            FadeIn(arrow_text_dog.label)
+        )
+        self.play(
+            FadeTransform(embedding_image_dog, arrow_image_dog),
+            FadeOut(image_dog),
+            # FadeIn(arrow_image_dog.label)
+        )
+        self.play(
+            FadeTransform(VGroup(embedding_text_cat, text_cat), arrow_text_cat),
+            FadeIn(arrow_text_cat.label)
+        )
+        self.play(
+            FadeTransform(embedding_image_cat, arrow_image_cat),
+            FadeOut(image_cat),
+            # FadeIn(arrow_image_cat.label)
+        )
+        self.wait(5)
+        self.stop_ambient_camera_rotation()
+        self.play(FadeOut(arrow_image_cat, arrow_text_cat,
+                          arrow_image_dog, arrow_text_dog,
+                          arrow_text_cat.label, arrow_text_dog.label
+                          ))
+        self.play(FadeOut(axes))
+        self.set_camera_orientation(phi=0 * DEGREES, theta=-90 * DEGREES)
         self.wait()
-        self.play(FadeOut(all_embedding, all_label, target_position=4 * RIGHT, scale=0.6))
-        self.play(model_clip.animate.shift(LEFT))
 
         # show text encoder
         phrase = "a cyberpunk with natural greys and whites and browns"
@@ -174,7 +256,9 @@ class CLIP(Scene):
         arrow_embed_out.target = Arrow(text_words.get_bottom(), embedding_out.get_top())
         brace_text = Brace(embedding_out, direction=RIGHT, buff=0.1)
         dim_text = Text("768-dimensional", font_size=24).set_color(YELLOW).next_to(brace_text, RIGHT)
+        model_clip.move_to(6 * LEFT)
 
+        self.play(FadeIn(model_clip))
         self.play(LaggedStartMap(FadeIn, text_words, shift=0.5 * UP, lag_ratio=0.25))
         self.play(LaggedStartMap(DrawBorderThenFill, rect_words))
         self.play(
@@ -341,29 +425,6 @@ class CLIP(Scene):
         self.wait()
         self.play(FadeOut(emb_sym_out, arrow_embed_out, image_grid))
         self.wait(3)
-
-
-class CLIPEmbedding(ThreeDScene):
-    def construct(self):
-        self.camera.background_color = "#1C1C1C"
-
-        text_cat = Text("A CAT").scale(0.1).move_to(2 * LEFT)
-        image_cat = ImageMobject("assets/cat_0.jpg").set(height=0.5).move_to(2.1 * LEFT)
-        text_dog = Text("A DOG").scale(0.1).move_to(2 * RIGHT, 2 * UP)
-        self.add_fixed_in_frame_mobjects(text_cat, text_dog, image_cat)
-        axes = ThreeDAxes()
-        vector1 = Arrow3D(start=ORIGIN, end=2 * DOWN + 2 * RIGHT + 4 * UP, color=RED)
-        vector2 = Arrow3D(start=ORIGIN, end=2.1 * DOWN + 2.1 * RIGHT + 3 * UP, color=GREEN)
-        vector3 = Arrow3D(start=ORIGIN, end=2 * UP + 2 * LEFT + 3 * UP, color=BLUE)
-
-        self.set_camera_orientation(phi=75 * DEGREES, theta=30 * DEGREES, focal_distance=20.0)
-        self.play(Create(axes))
-        self.play(Create(vector1), Write(text_cat))
-        self.play(Create(vector2), FadeIn(image_cat))
-        self.play(Create(vector3), Write(text_dog))
-        # self.begin_ambient_camera_rotation(rate=0.05)  # 以一定速度旋转相机
-        # self.stop_ambient_camera_rotation()
-        self.wait(2)
 
 
 if __name__ == "__main__":

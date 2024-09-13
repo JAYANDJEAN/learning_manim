@@ -1,15 +1,22 @@
-from manim import *
+from helpers import *
 
 
 class LabeledArrowIn3D(ThreeDScene):
     def construct(self):
-        # 设置 3D 坐标系
+        im = ImageMobject("assets/image.png").scale(0.1)
         axes = ThreeDAxes()
-        arrow = LabeledArrow(".", start=ORIGIN, end=RIGHT * 3 + UP * 2 + OUT, label_position=0.5)
-        label = always_redraw(Text("label").next_to(arrow.get_top()))
-        self.set_camera_orientation(phi=75 * DEGREES, theta=-45 * DEGREES)
-        self.add(axes, arrow, label)
-        self.begin_ambient_camera_rotation(rate=0.1)  # 让摄像机旋转以展示 3D 效果
+        arrow = ArrowWithLabel(
+            axes.get_origin(),
+            [2, 1, 3],
+            stroke_width=1.5,
+            stroke_color=YELLOW,
+            label=Text('label', font_size=14),
+            buff=0,
+        )
+
+        self.set_camera_orientation(phi=75 * DEGREES, theta=-45 * DEGREES, frame_center=2 * LEFT)
+        self.add(axes, arrow, arrow.label)
+        self.begin_ambient_camera_rotation(rate=0.1)
         self.wait(5)
 
 
