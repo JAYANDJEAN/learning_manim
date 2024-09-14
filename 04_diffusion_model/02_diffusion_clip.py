@@ -454,6 +454,13 @@ class CLIP2(Scene):
         model_text_encoder = VGroup(gears_text_encoder, text_encoder, surrounding_text_encoder)
         model_text_encoder.move_to(2.5 * LEFT + 2.5 * UP)
 
+        text_set = Group(
+            Text("A CAT").set(width=2).set_opacity(1.0),
+            Text("A CAT").set(width=2).set_opacity(0.4).shift(0.1 * UP + 0.1 * RIGHT),
+            Text("A CAT").set(width=2).set_opacity(0.2).shift(0.2 * UP + 0.2 * RIGHT),
+            Text("A CAT").set(width=2).set_opacity(0.1).shift(0.3 * UP + 0.3 * RIGHT),
+        ).move_to(5.5 * LEFT + 2.5 * UP)
+
         gears_image_encoder = VGroup(gear.copy().scale(0.5).set_color('#364f6b'))
         text_image_encoder = Text("Image Encoder", font_size=18, color=GREY).next_to(gears_image_encoder, DOWN,
                                                                                      SMALL_BUFF)
@@ -461,6 +468,13 @@ class CLIP2(Scene):
                                                          buff=0.2, color=WHITE, corner_radius=0.3).set_stroke(width=0.5)
         model_image_encoder = VGroup(gears_image_encoder, text_image_encoder, surrounding_image_encoder)
         model_image_encoder.move_to(2.5 * LEFT + 1.5 * DOWN)
+
+        image_set = Group(
+            ImageMobject("assets/cat_out.jpg").set(width=2).set_opacity(1.0),
+            ImageMobject("assets/cat_out.jpg").set(width=2).set_opacity(0.4).shift(0.1 * UP + 0.1 * RIGHT),
+            ImageMobject("assets/cat_out.jpg").set(width=2).set_opacity(0.2).shift(0.2 * UP + 0.2 * RIGHT),
+            ImageMobject("assets/cat_out.jpg").set(width=2).set_opacity(0.1).shift(0.3 * UP + 0.3 * RIGHT),
+        ).move_to(5.5 * LEFT + 1.5 * DOWN)
 
         # lines
         table_mid = 3.5 * RIGHT + 1.5 * DOWN
@@ -525,13 +539,17 @@ class CLIP2(Scene):
                             r"-\frac{1}{2|\mathcal{B}|} ",
                             r"\sum_{i=1}^{|\mathcal{B}|}\left(",
                             r"\log \frac{e^{t \mathbf{x}_i \cdot \mathbf{y}_i}}{\sum_{j=1}^{|\mathcal{B}|} e^{t_i} \cdot \mathbf{y}_j}",
-                            r"+\log \frac{e^{t \mathbf{x}_i} \cdot \mathbf{y}_i}{\sum_{j=1}^{|\mathcal{B}|} e^{t \mathbf{x}_j \cdot \mathbf{y}_i}}",
+                            r"+",
+                            r"\log \frac{e^{t \mathbf{x}_i} \cdot \mathbf{y}_i}{\sum_{j=1}^{|\mathcal{B}|} e^{t \mathbf{x}_j \cdot \mathbf{y}_i}}",
                             r"\right)")
         loss_func.move_to(3.5 * LEFT + 0.5 * UP).scale(0.5)
+        loss_func_box1 = SurroundingRectangle(loss_func[3], buff=0.05, corner_radius=0.01).set_stroke(width=2.0)
+        loss_func_box2 = SurroundingRectangle(loss_func[5], buff=0.05, corner_radius=0.01).set_stroke(width=2.0)
 
         self.add(model_image_encoder, model_text_encoder,
                  table, table_text, table_image, lines_out_image, lines_out_text,
-                 syms_text, syms_image, circle_image_text, loss_func)
+                 syms_text, syms_image, circle_image_text, loss_func, loss_func_box1, loss_func_box2,
+                 image_set, text_set)
 
 
 if __name__ == "__main__":
