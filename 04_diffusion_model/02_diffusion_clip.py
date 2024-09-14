@@ -1,6 +1,7 @@
 from PIL import Image
 
 from utils import *
+import random
 
 
 class CLIP(ThreeDScene):
@@ -101,6 +102,8 @@ class CLIP(ThreeDScene):
                 ), run_time=3, lag_ratio=0.0),
             LaggedStart(bake_mobject_into_vector_entries(image_cat, embedding_image_cat, path_arc=-30 * DEGREES))
         )
+        self.play(GrowFromCenter(brace_text), Create(dim_text))
+        self.play(FadeOut(brace_text, dim_text))
         self.play(MoveToTarget(embedding_image_cat), MoveToTarget(image_cat))
 
         self.play(Create(text_dog))
@@ -140,7 +143,7 @@ class CLIP(ThreeDScene):
             [1, 3, 1.8],
             stroke_width=2.0,
             stroke_color=BLUE,
-            label=ImageMobject("assets/dog_out.jpg").set(width=0.45),
+            label=Text('dog image', font_size=14),
             buff=0,
         )
 
@@ -157,7 +160,7 @@ class CLIP(ThreeDScene):
             [-1.5, -2, 2.5],
             stroke_width=2.0,
             stroke_color=RED,
-            label=ImageMobject("assets/cat_out.jpg").set(width=0.45),
+            label=Text('cat image', font_size=14),
             buff=0,
         )
 
@@ -173,28 +176,29 @@ class CLIP(ThreeDScene):
         self.play(Create(axes))
         self.begin_ambient_camera_rotation(rate=0.1)
         self.play(
+            FadeTransform(embedding_image_dog, arrow_image_dog),
+            FadeOut(image_dog),
+            FadeIn(arrow_image_dog.label)
+        )
+        self.play(
             FadeTransform(VGroup(embedding_text_dog, text_dog), arrow_text_dog),
             FadeIn(arrow_text_dog.label)
         )
         self.play(
-            FadeTransform(embedding_image_dog, arrow_image_dog),
-            FadeOut(image_dog),
-            # FadeIn(arrow_image_dog.label)
+            FadeTransform(embedding_image_cat, arrow_image_cat),
+            FadeOut(image_cat),
+            FadeIn(arrow_image_cat.label)
         )
         self.play(
             FadeTransform(VGroup(embedding_text_cat, text_cat), arrow_text_cat),
             FadeIn(arrow_text_cat.label)
         )
-        self.play(
-            FadeTransform(embedding_image_cat, arrow_image_cat),
-            FadeOut(image_cat),
-            # FadeIn(arrow_image_cat.label)
-        )
         self.wait(5)
         self.stop_ambient_camera_rotation()
         self.play(FadeOut(arrow_image_cat, arrow_text_cat,
                           arrow_image_dog, arrow_text_dog,
-                          arrow_text_cat.label, arrow_text_dog.label
+                          arrow_text_cat.label, arrow_text_dog.label,
+                          arrow_image_dog.label, arrow_image_cat.label
                           ))
         self.play(FadeOut(axes))
         self.set_camera_orientation(phi=0 * DEGREES, theta=-90 * DEGREES)
@@ -218,6 +222,8 @@ class CLIP(ThreeDScene):
                                 for i, n in enumerate([4, 14323, 237, 673, 554, 28, 489, 28, 1921])])
         arrow_numbers = VGroup(*[Arrow(rect_words[i].get_bottom(), text_numbers[i].get_top())
                                  for i in range(len(rect_words))])
+        brace_numbers = Brace(VGroup(text_words, text_numbers), direction=LEFT)
+        text_tokenizer = Text("Tokenizer", font_size=24).set_color(YELLOW).next_to(brace_numbers, LEFT)
 
         embedding_words = VGroup(*[WeightMatrix(length=10).set(width=0.5).next_to(rect, DOWN, buff=2.0)
                                    for rect in rect_words])
@@ -250,13 +256,13 @@ class CLIP(ThreeDScene):
         rect_out = SurroundingRectangle(emb_sym_out).set_stroke(YELLOW, 2)
         emb_sym_out.generate_target()
         emb_sym_out.target.scale(1.4).move_to(np.array([text_words.get_center()[0], -0.5, 0]))
-        arrow_embed_out = Arrow(text_words.get_bottom(), emb_sym_out.target.get_top(), buff=1.5)
+        arrow_embed_out = Arrow(text_words.get_bottom() + 0.5 * DOWN, emb_sym_out.target.get_top() + 0.5 * UP)
         embedding_out = WeightMatrix(length=14).set(width=0.5).move_to(emb_sym_out.target)
         arrow_embed_out.generate_target()
         arrow_embed_out.target = Arrow(text_words.get_bottom(), embedding_out.get_top())
         brace_text = Brace(embedding_out, direction=RIGHT, buff=0.1)
         dim_text = Text("768-dimensional", font_size=24).set_color(YELLOW).next_to(brace_text, RIGHT)
-        model_clip.move_to(6 * LEFT)
+        model_clip.move_to(5 * LEFT)
 
         self.play(FadeIn(model_clip))
         self.play(LaggedStartMap(FadeIn, text_words, shift=0.5 * UP, lag_ratio=0.25))
@@ -265,12 +271,13 @@ class CLIP(ThreeDScene):
             LaggedStartMap(GrowArrow, arrow_numbers),
             LaggedStartMap(Create, text_numbers)
         )
+        self.play(GrowFromCenter(brace_numbers), Write(text_tokenizer))
         self.play(
             LaggedStartMap(GrowArrow, arrow_embeds),
             LaggedStartMap(FadeIn, embedding_words, shift=0.5 * DOWN)
         )
         self.play(
-            FadeOut(arrow_numbers, text_numbers),
+            FadeOut(arrow_numbers, text_numbers, brace_numbers, text_tokenizer),
             LaggedStart(*[Transform(embed, sym)
                           for sym, embed in zip(emb_syms, embedding_words)],
                         group_type=Group,
@@ -379,7 +386,7 @@ class CLIP(ThreeDScene):
         rect_out = SurroundingRectangle(emb_sym_out).set_stroke(YELLOW, 2)
         emb_sym_out.generate_target()
         emb_sym_out.target.scale(1.4).move_to(np.array([image_grid.get_center()[0], -0.5, 0]))
-        arrow_embed_out = Arrow(image_grid.get_bottom(), emb_sym_out.target.get_top(), buff=1.5)
+        arrow_embed_out = Arrow(image_grid.get_bottom() + 0.5 * DOWN, emb_sym_out.target.get_top() + 0.5 * UP)
         embedding_out = WeightMatrix(length=14).set(width=0.5).move_to(emb_sym_out.target)
         arrow_embed_out.generate_target()
         arrow_embed_out.target = Arrow(image_grid.get_bottom(), embedding_out.get_top())
@@ -427,6 +434,106 @@ class CLIP(ThreeDScene):
         self.wait(3)
 
 
+class CLIP2(Scene):
+    def construct(self):
+        self.camera.background_color = "#1C1C1C"
+        gear = SVGMobject("assets/wheel.svg")
+        # CLIP
+        text_clip = Text("CLIP", font="menlo").to_edge(UL, buff=0.5).scale(0.7)
+        gears_clip = VGroup(gear.copy().scale(0.5).shift(0.8 * UP).rotate(10 * DEGREES).set_color('#3fc1c9'),
+                            gear.copy().scale(0.5).shift(0.55 * RIGHT).rotate(-8 * DEGREES).set_color('#364f6b'))
+        text_clip_model = Text("CLIP Model", font_size=24, color=GREY).next_to(gears_clip, DOWN, SMALL_BUFF)
+        surrounding_clip = SurroundingRectangle(VGroup(gears_clip, text_clip_model),
+                                                buff=0.2, color=WHITE, corner_radius=0.3).set_stroke(width=0.5)
+        model_clip = VGroup(gears_clip, text_clip_model, surrounding_clip).move_to(5 * LEFT)
+
+        gears_text_encoder = VGroup(gear.copy().scale(0.5).set_color('#3fc1c9'))
+        text_encoder = Text("Text Encoder", font_size=18, color=GREY).next_to(gears_text_encoder, DOWN, SMALL_BUFF)
+        surrounding_text_encoder = SurroundingRectangle(VGroup(gears_text_encoder, text_encoder),
+                                                        buff=0.2, color=WHITE, corner_radius=0.3).set_stroke(width=0.5)
+        model_text_encoder = VGroup(gears_text_encoder, text_encoder, surrounding_text_encoder)
+        model_text_encoder.move_to(2.5 * LEFT + 2.5 * UP)
+
+        gears_image_encoder = VGroup(gear.copy().scale(0.5).set_color('#364f6b'))
+        text_image_encoder = Text("Image Encoder", font_size=18, color=GREY).next_to(gears_image_encoder, DOWN,
+                                                                                     SMALL_BUFF)
+        surrounding_image_encoder = SurroundingRectangle(VGroup(gears_image_encoder, text_image_encoder),
+                                                         buff=0.2, color=WHITE, corner_radius=0.3).set_stroke(width=0.5)
+        model_image_encoder = VGroup(gears_image_encoder, text_image_encoder, surrounding_image_encoder)
+        model_image_encoder.move_to(2.5 * LEFT + 1.5 * DOWN)
+
+        # lines
+        table_mid = 3.5 * RIGHT + 1.5 * DOWN
+        grid_size = 0.75
+        grid_num = 6
+        table = (Rectangle(width=grid_size * grid_num, height=grid_size * grid_num,
+                           grid_xstep=grid_size, grid_ystep=grid_size)
+                 .set_stroke(width=2.0).set_stroke(color=GREY).move_to(table_mid))
+
+        table_text = (Rectangle(width=grid_size * grid_num, height=grid_size,
+                                grid_xstep=grid_size, grid_ystep=grid_size)
+                      .set_stroke(width=2.0).set_stroke(color=GREY).next_to(table, UP, buff=0.3))
+
+        table_image = (Rectangle(width=grid_size, height=grid_size * grid_num,
+                                 grid_xstep=grid_size, grid_ystep=grid_size)
+                       .set_stroke(width=2.0).set_stroke(color=GREY).next_to(table, LEFT, buff=0.3))
+        lines_out_image = VGroup(*[
+            CubicBezier(
+                model_image_encoder.get_right(),
+                model_image_encoder.get_right() + 1.0 * RIGHT,
+                table_image.get_left() + (2.5 * UP + i * DOWN) * grid_size + 1.0 * LEFT,
+                table_image.get_left() + (2.5 * UP + i * DOWN) * grid_size
+            ) for i in range(grid_num)])
+        lines_out_image.set_stroke(width=2.0).set_stroke(color=GREY)
+
+        lines_out_text = VGroup(*[
+            CubicBezier(
+                model_text_encoder.get_right(),
+                table_text.get_top() + (2.5 * LEFT + i * RIGHT) * grid_size + 0.7 * UP,
+                table_text.get_top() + (2.5 * LEFT + i * RIGHT) * grid_size + 0.6 * UP,
+                table_text.get_top() + (2.5 * LEFT + i * RIGHT) * grid_size
+            ) for i in range(grid_num)])
+        lines_out_text.set_stroke(width=2.0).set_stroke(color=GREY)
+
+        syms_text = VGroup(*[MathTex(f"T_{{{i}}}")
+                           .set(width=grid_size - 0.45)
+                           .set_color(GREY)
+                           .move_to(table_text.get_center() + (3.5 * LEFT + i * RIGHT) * grid_size)
+                             for i in range(1, grid_num + 1)])
+
+        syms_image = VGroup(*[MathTex(f"I_{{{i}}}")
+                            .set(width=grid_size - 0.45)
+                            .set_color(GREY)
+                            .move_to(table_image.get_center() + (3.5 * UP + i * DOWN) * grid_size)
+                              for i in range(1, grid_num + 1)])
+
+        syms_image_text = VGroup(*[MathTex(f"I_{{{i}}}\cdot T_{{{j}}}")
+                                 .set(width=grid_size - 0.2)
+                                 .set_color(GREY)
+                                 .move_to(table_mid + (3.5 * UP + i * DOWN + 3.5 * LEFT + j * RIGHT) * grid_size)
+                                   for j in range(1, grid_num + 1) for i in range(1, grid_num + 1)])
+
+        circle_image_text = VGroup(*[Circle(radius=random.uniform(0.15, 0.25) if j == i else random.uniform(0.05, 0.1))
+                                   .set_fill(GREY)
+                                   .set_opacity(0.7)
+                                   .set_stroke(color=GREY)
+                                   .set_stroke(width=0)
+                                   .move_to(table_mid + (2.5 * UP + i * DOWN + 2.5 * LEFT + j * RIGHT) * grid_size)
+                                     for j in range(grid_num) for i in range(grid_num)])
+
+        loss_func = MathTex(r"\operatorname{loss}=",
+                            r"-\frac{1}{2|\mathcal{B}|} ",
+                            r"\sum_{i=1}^{|\mathcal{B}|}\left(",
+                            r"\log \frac{e^{t \mathbf{x}_i \cdot \mathbf{y}_i}}{\sum_{j=1}^{|\mathcal{B}|} e^{t_i} \cdot \mathbf{y}_j}",
+                            r"+\log \frac{e^{t \mathbf{x}_i} \cdot \mathbf{y}_i}{\sum_{j=1}^{|\mathcal{B}|} e^{t \mathbf{x}_j \cdot \mathbf{y}_i}}",
+                            r"\right)")
+        loss_func.move_to(3.5 * LEFT + 0.5 * UP).scale(0.5)
+
+        self.add(model_image_encoder, model_text_encoder,
+                 table, table_text, table_image, lines_out_image, lines_out_text,
+                 syms_text, syms_image, circle_image_text, loss_func)
+
+
 if __name__ == "__main__":
-    scene = CLIP()
+    scene = CLIP2()
     scene.render()
