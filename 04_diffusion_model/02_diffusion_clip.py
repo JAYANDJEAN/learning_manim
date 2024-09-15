@@ -553,5 +553,5 @@ class CLIP2(Scene):
 
 
 if __name__ == "__main__":
-    scene = CLIP2()
+    scene = CLIP()
     scene.render()
