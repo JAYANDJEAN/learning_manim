@@ -1,5 +1,4 @@
 from typing import Optional, Tuple
-
 from manim import *
 
 

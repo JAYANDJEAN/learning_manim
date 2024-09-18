@@ -1,24 +1,83 @@
-from utils import *
-from PIL import Image
 import random
+
+from PIL import Image
+
+from utils import *
 
 
 class Diffusion(ThreeDScene):
-    def construct(self):
-        self.camera.background_color = "#1C1C1C"
-
-        # 1. title
-        title = Text("How does diffusion model work")
-        logo = MathTex(r"\mathbb{JAYANDJEAN}", fill_color="#ece6e2").next_to(title, DOWN, buff=0.5).scale(1.2)
-        self.play(Write(title))
-        self.play(Write(logo))
-        self.play(
-            FadeOut(title),
-            logo.animate.scale(0.4).move_to(RIGHT * 5.5 + UP * 3.5)
+    def __init__(self):
+        super().__init__()
+        self.gear = SVGMobject("assets/wheel.svg")
+        # models
+        # -----------------------------
+        self.gears_diffusion = VGroup(
+            self.gear.copy().scale(0.5).shift(0.78 * UP).set_color(YELLOW),
+            self.gear.copy().scale(0.5).shift(0.57 * LEFT).set_color(ORANGE),
+            self.gear.copy().scale(0.5).shift(0.57 * RIGHT)
         )
-        self.wait()
+        text_diffusion = Text(
+            "Diffusion Model", font="Menlo", font_size=20, color=GREY
+        ).next_to(self.gears_diffusion, DOWN, SMALL_BUFF)
+        self.model_diffusion = VGroup(
+            self.gears_diffusion, text_diffusion,
+            SurroundingRectangle(
+                VGroup(self.gears_diffusion, text_diffusion),
+                buff=0.2, color=GREY, corner_radius=0.3, stroke_width=2.0
+            )
+        )
+        # -----------------------------
+        self.gears_clip = VGroup(
+            self.gear.copy().scale(0.5).shift(0.8 * UP).rotate(10 * DEGREES).set_color(BLUE_C),
+            self.gear.copy().scale(0.5).shift(0.55 * RIGHT).rotate(-8 * DEGREES).set_color(BLUE_E)
+        )
+        text_clip = Text(
+            "CLIP Model", font="Menlo", font_size=20, color=GREY
+        ).next_to(self.gears_clip, DOWN, SMALL_BUFF)
+        self.model_clip = VGroup(
+            self.gears_clip, text_clip,
+            SurroundingRectangle(
+                VGroup(self.gears_clip, text_clip),
+                buff=0.2, color=GREY, corner_radius=0.3, stroke_width=2.0
+            )
+        )
+        # -----------------------------
+        self.gears_text_encoder = VGroup(self.gear.copy().scale(0.4).set_color(BLUE_C))
+        text_text_encoder = Text(
+            "Text Encoder", font="Menlo", font_size=14, color=GREY
+        ).next_to(self.gears_text_encoder, DOWN, SMALL_BUFF)
+        self.model_text_encoder = VGroup(
+            self.gears_text_encoder, text_text_encoder,
+            SurroundingRectangle(
+                VGroup(self.gears_text_encoder, text_text_encoder),
+                buff=0.2, color=GREY, corner_radius=0.3, stroke_width=2.0
+            )
+        )
 
+        self.gears_image_encoder = VGroup(self.gear.copy().scale(0.4).set_color(BLUE_E))
+        text_image_encoder = Text(
+            "Image Encoder", font="Menlo", font_size=14, color=GREY
+        ).next_to(self.gears_image_encoder, DOWN, SMALL_BUFF)
+        self.model_image_encoder = VGroup(
+            self.gears_image_encoder, text_image_encoder,
+            SurroundingRectangle(
+                VGroup(self.gears_image_encoder, text_image_encoder),
+                buff=0.2, color=GREY, corner_radius=0.3, stroke_width=2.0
+            )
+        )
+
+        # ==============================================================
+        # title
+        self.title = Text("How does diffusion model work")
+        self.logo = MathTex(
+            r"\mathbb{JAYANDJEAN}", fill_color="#ece6e2"
+        ).next_to(self.title, DOWN, buff=0.5).scale(1.2)
+        self.title_clip = Text("CLIP", font="Menlo").to_edge(UL, buff=0.5).scale(0.7)
+        self.title_ddpm = Text("DDPM", font="Menlo").to_edge(UL, buff=0.5).scale(0.7)
+
+    def ddpm1(self):
         # 2. show diffusion products
+        # 清理干净
         mid = ImageMobject("assets/mid.jpg").set(height=2)
         sd3 = ImageMobject("assets/sd3.png").set(height=2)
         flux = ImageMobject("assets/flux.png").set(height=2)
@@ -29,15 +88,7 @@ class Diffusion(ThreeDScene):
         self.wait()
 
         # 3. show generating images
-        gear = SVGMobject("assets/wheel.svg")
         image_prompt = ImageMobject("assets/prompt.png").set(width=4.2)
-        gears = VGroup(gear.copy().scale(0.5).shift(0.78 * UP).set_color(YELLOW),
-                       gear.copy().scale(0.5).shift(0.57 * LEFT).set_color(ORANGE),
-                       gear.copy().scale(0.5).shift(0.57 * RIGHT))
-        text_model = Text("Diffusion Model", font="Menlo", font_size=24, color=GREY).next_to(gears, DOWN, SMALL_BUFF)
-        surrounding_model = SurroundingRectangle(VGroup(gears, text_model),
-                                                 buff=0.2, color=GREY, corner_radius=0.3, stroke_width=2.0)
-        model_diffusion = VGroup(gears, text_model, surrounding_model)
 
         embedding_prompt = WeightMatrix(length=15).set(width=0.5)
         matrix_image = VGroup(
@@ -50,16 +101,16 @@ class Diffusion(ThreeDScene):
                                 "natural greys and ",
                                 "whites and browns.",
                                 line_spacing=1.0, font="Menlo").scale(0.4)
-        surrounding_prompt = SurroundingRectangle(text_prompt,
-                                                  buff=0.2, color=WHITE, corner_radius=0.3).set_stroke(width=0.5)
+        surrounding_prompt = SurroundingRectangle(
+            text_prompt, buff=0.2, color=WHITE, corner_radius=0.3, stroke_width=0.5)
         prompt = VGroup(surrounding_prompt, text_prompt)
-        Group(prompt, embedding_prompt, model_diffusion, matrix_image).arrange(RIGHT, buff=1.0)
+        Group(prompt, embedding_prompt, self.model_diffusion, matrix_image).arrange(RIGHT, buff=1.0)
         arrow_prompt_embedding = Arrow(prompt.get_right(), embedding_prompt.get_left())
-        arrow_embedding_model = Arrow(embedding_prompt.get_right(), model_diffusion.get_left())
-        arrow_model_matrix = Arrow(model_diffusion.get_right(), matrix_image.get_left())
+        arrow_embedding_model = Arrow(embedding_prompt.get_right(), self.model_diffusion.get_left())
+        arrow_model_matrix = Arrow(self.model_diffusion.get_right(), matrix_image.get_left())
         image_prompt.move_to(matrix_image.get_center())
 
-        self.play(FadeIn(model_diffusion))
+        self.play(FadeIn(self.model_diffusion))
         self.play(Create(prompt))
         self.play(
             GrowArrow(arrow_prompt_embedding),
@@ -69,7 +120,8 @@ class Diffusion(ThreeDScene):
             GrowArrow(arrow_embedding_model),
             LaggedStart(
                 AnimationGroup(
-                    Rotate(gears[i], axis=IN if i == 0 else OUT, about_point=gears[i].get_center())
+                    Rotate(self.gears_diffusion[i], axis=IN if i == 0 else OUT,
+                           about_point=self.gears_diffusion[i].get_center())
                     for i in range(3)
                 ), run_time=4, lag_ratio=0.0)
         )
@@ -79,16 +131,16 @@ class Diffusion(ThreeDScene):
         self.wait()
 
         # 3.1. why we need embedding
-        model_diffusion.generate_target()
+        self.model_diffusion.generate_target()
         box = Rectangle(width=9.5, height=4.5).set_fill(GREY_E, 1).set_stroke(WHITE, 1)
-        VGroup(model_diffusion.target, box).arrange(RIGHT, buff=1)
-        line1 = Line(start=model_diffusion.target.get_corner(direction=UR),
+        VGroup(self.model_diffusion.target, box).arrange(RIGHT, buff=1)
+        line1 = Line(start=self.model_diffusion.target.get_corner(direction=UR),
                      end=box.get_corner(direction=UL)).set_stroke(WHITE, 1)
-        line2 = Line(start=model_diffusion.target.get_corner(direction=DR),
+        line2 = Line(start=self.model_diffusion.target.get_corner(direction=DR),
                      end=box.get_corner(direction=DL)).set_stroke(WHITE, 1)
 
         self.play(Wiggle(embedding_prompt))
-        self.play(FadeOut(embedding_prompt), MoveToTarget(model_diffusion))
+        self.play(FadeOut(embedding_prompt), MoveToTarget(self.model_diffusion))
         self.play(LaggedStartMap(Create, VGroup(box, line1, line2)))
 
         matrix1, matrix2, matrix3 = [
@@ -107,14 +159,14 @@ class Diffusion(ThreeDScene):
                 LaggedStartMap(RandomizeMatrixEntries, VGroup(matrix1[0], matrix2[0], matrix3[0]), lag_ratio=0.1),
                 LaggedStart(
                     AnimationGroup(
-                        Rotate(gears[i],
+                        Rotate(self.gears_diffusion[i],
                                axis=IN if i == 0 else OUT,
-                               about_point=gears[i].get_center())
+                               about_point=self.gears_diffusion[i].get_center())
                         for i in range(3)
                     ), run_time=2, lag_ratio=0.0),
             )
         self.play(FadeOut(all_matrix))
-        self.play(FadeOut(box, line1, line2, model_diffusion))
+        self.play(FadeOut(box, line1, line2, self.model_diffusion))
         self.wait()
 
         # 3.2. what is the image
@@ -172,7 +224,9 @@ class Diffusion(ThreeDScene):
         self.play(FadeOut(image_eq, matrix_image_show))
         self.wait()
 
+    def ddpm2(self):
         # 4. 目录
+        # 清理干净
         title_papers = VGroup(
             Text("2020.06 \nDenoising Diffusion Probabilistic Models",
                  font="Menlo", t2c={'D': YELLOW_E, 'P': YELLOW_E, 'M': YELLOW_E}),
@@ -198,31 +252,32 @@ class Diffusion(ThreeDScene):
         self.wait()
 
         # 5. DDPM
-        model_diffusion.move_to(ORIGIN)
-        text_ddpm = Text("DDPM", font="Menlo").to_edge(UL, buff=0.5).scale(0.7)
+        self.model_diffusion.move_to(ORIGIN)
+
         text_prompt_cat = Text("a photo of a cat", font="Menlo").scale(0.4)
         surrounding_prompt_cat = SurroundingRectangle(text_prompt_cat,
                                                       buff=0.1, color=WHITE, corner_radius=0.1).set_stroke(width=0.5)
         prompt_cat = VGroup(text_prompt_cat, surrounding_prompt_cat).move_to(3 * UP)
-        arrow_prompt_model = Arrow(prompt_cat.get_bottom(), model_diffusion.get_top())
+        arrow_prompt_model = Arrow(prompt_cat.get_bottom(), self.model_diffusion.get_top())
         image_noise = ImageMobject("assets/cat_0_0999.png").set(width=4).move_to(4.5 * LEFT)
         image_cat_35 = ImageMobject("assets/cat_0_0035.png").set(width=4).move_to(4.5 * LEFT)
         image_cat = ImageMobject("assets/cat_0.jpg").set(width=4).move_to(4.5 * RIGHT)
-        arrow_noise_model = Arrow(image_noise.get_right(), model_diffusion.get_left())
-        arrow_model_cat = Arrow(model_diffusion.get_right(), image_cat.get_left())
+        arrow_noise_model = Arrow(image_noise.get_right(), self.model_diffusion.get_left())
+        arrow_model_cat = Arrow(self.model_diffusion.get_right(), image_cat.get_left())
         hard = Text("Hard!").scale(0.9).move_to(3 * RIGHT + 2.5 * UP)
         easy = Text("Easy!").scale(0.9).move_to(3 * RIGHT + 2.5 * UP)
         self.play(
             FadeOut(image_papers),
-            FadeTransform(VGroup(title_papers, arrow_history, dot_papers), text_ddpm)
+            FadeTransform(VGroup(title_papers, arrow_history, dot_papers), self.title_ddpm)
         )
-        self.play(FadeIn(model_diffusion, shift=DOWN))
+        self.play(FadeIn(self.model_diffusion, shift=DOWN))
         self.play(FadeIn(image_noise, shift=DOWN), Write(prompt_cat))
         self.play(GrowArrow(arrow_noise_model),
                   GrowArrow(arrow_prompt_model),
                   LaggedStart(
                       AnimationGroup(
-                          Rotate(gears[i], axis=IN if i == 0 else OUT, about_point=gears[i].get_center())
+                          Rotate(self.gears_diffusion[i], axis=IN if i == 0 else OUT,
+                                 about_point=self.gears_diffusion[i].get_center())
                           for i in range(3)
                       ), run_time=2, lag_ratio=0.0)
                   )
@@ -231,7 +286,7 @@ class Diffusion(ThreeDScene):
         self.play(FadeOut(image_noise, shift=DOWN))
         self.play(FadeIn(image_cat_35, shift=DOWN), FadeOut(hard))
         self.play(Indicate(easy))
-        self.play(FadeOut(easy, arrow_model_cat, model_diffusion, arrow_noise_model,
+        self.play(FadeOut(easy, arrow_model_cat, self.model_diffusion, arrow_noise_model,
                           arrow_prompt_model, prompt_cat))
         self.wait()
 
@@ -430,9 +485,17 @@ class Diffusion(ThreeDScene):
         self.play(Create(line_50), Create(dot_alpha_50), Create(dot_one_minus_alpha_50))
         self.play(Create(line_800), Create(dot_alpha_800), Create(dot_one_minus_alpha_800))
         self.play(FadeIn(image_cat_50), FadeIn(image_cat_800))
+        self.play(FadeOut(image_cat_50, image_cat_800,
+                          line_800, dot_alpha_800, dot_one_minus_alpha_800,
+                          line_50, dot_alpha_50, dot_one_minus_alpha_50,
+                          one_minus_alpha_curve, one_minus_alpha_label,
+                          alpha_curve, alpha_label, axes, formula_xt))
+
         self.wait()
 
+    def ddpm3(self):
         # 5.4 train model
+        # 清理干净
         image_encode_set = Group(
             *[Group(*([ele for j in [f"assets/cat_{i}{f}" for f in ('.jpg', '_0040.png', '_0060.png', '_0080.png')]
                        for ele in [ImageMobject(j).set(width=2), Text("···").scale(0.5)]] +
@@ -443,77 +506,82 @@ class Diffusion(ThreeDScene):
         ).arrange(DOWN, buff=0.3).move_to(DOWN)
 
         image_encode_set.generate_target()
-        image_encode_set.target.scale(0.6).move_to(UP)
+        image_encode_set.target.scale(0.6).move_to(1.6 * UP)
         brace_image_set = Brace(image_encode_set.target, direction=DOWN)
         formula_encode = MathTex(r"\nabla_\theta\|\boldsymbol{\epsilon}-",
                                  r"\boldsymbol{\epsilon}_\theta",
                                  r"(\mathbf{x}_t, t)\|^2").next_to(brace_image_set, DOWN)
-        frame_box_model = SurroundingRectangle(formula_encode[1], corner_radius=0.01).set_stroke(width=2.0)
-        image_unet = ImageMobject("assets/unet.png").set(width=4).next_to(formula_encode, DOWN, buff=.1)
-        model_diffusion.next_to(brace_image_set, DOWN)
-
-        self.play(FadeOut(image_cat_50, image_cat_800,
-                          line_800, dot_alpha_800, dot_one_minus_alpha_800,
-                          line_50, dot_alpha_50, dot_one_minus_alpha_50,
-                          one_minus_alpha_curve, one_minus_alpha_label,
-                          alpha_curve, alpha_label, axes, formula_xt))
-        self.play(LaggedStartMap(FadeIn, image_encode_set, lag_ratio=1.0))
-        self.play(MoveToTarget(image_encode_set), GrowFromCenter(brace_image_set))
-        self.play(Write(formula_encode), Create(frame_box_model))
-        self.play(FadeIn(image_unet))
-        self.play(FadeOut(image_unet, frame_box_model))
-        self.play(Transform(formula_encode, model_diffusion))
-
-        image_input_noise = ImageMobject("assets/cat_out_0999.png").set(width=2).next_to(formula_encode, LEFT, buff=1)
-        image_output_cat = ImageMobject("assets/cat_out.jpg").set(width=2).next_to(formula_encode, RIGHT, buff=1)
-        image_output_dog = ImageMobject("assets/dog_out.jpg").set(width=2).next_to(formula_encode, RIGHT, buff=1)
+        formula_decode = MathTex(r"\mathbf{x}_{t-1}",
+                                 r"=",
+                                 r"\frac{1}{\sqrt{\alpha_t}}\left(",
+                                 r"\mathbf{x}_t-",
+                                 r"\frac{1-\alpha_t}{\sqrt{1-\bar{\alpha}_t}} ",
+                                 r"\boldsymbol{\epsilon}_\theta",
+                                 r"\left(\mathbf{x}_t, t\right)\right)+\sigma_t \mathbf{z}")
+        self.model_diffusion.next_to(brace_image_set, DOWN)
+        frame_box_model = SurroundingRectangle(
+            formula_encode[1], corner_radius=0.01
+        ).set_stroke(YELLOW_E, 2.0)
+        image_unet = ImageMobject("assets/unet.png").set(width=4).next_to(formula_encode, DOWN, buff=0.5)
+        image_input_noise = (ImageMobject("assets/cat_out_0999.png").set(width=2)
+                             .next_to(self.model_diffusion, LEFT, buff=1))
+        image_output_cat = (ImageMobject("assets/cat_out.jpg").set(width=2)
+                            .next_to(self.model_diffusion, RIGHT, buff=1))
+        image_output_dog = (ImageMobject("assets/dog_out.jpg").set(width=2)
+                            .next_to(self.model_diffusion, RIGHT, buff=1))
         text_question = Text("?").scale(3).next_to(image_output_dog, RIGHT)
-        arrow_input_model = Arrow(image_input_noise.get_right(), formula_encode.get_left())
-        arrow_model_output = Arrow(formula_encode.get_right(), image_output_cat.get_left())
+        arrow_input_model = Arrow(image_input_noise.get_right(), self.model_diffusion.get_left())
+        arrow_model_output = Arrow(self.model_diffusion.get_right(), image_output_cat.get_left())
 
-        self.play(FadeIn(image_input_noise), GrowArrow(arrow_input_model))
-        self.play(GrowArrow(arrow_model_output), FadeIn(image_output_cat))
-        self.play(Transform(image_output_cat, image_output_dog), Create(text_question))
-        self.play(FadeOut(image_output_cat, text_question, arrow_input_model, arrow_model_output, image_input_noise,
-                          formula_encode, image_encode_set, brace_image_set, text_ddpm))
-        self.wait()
+        self.add(self.model_diffusion,
+                 image_input_noise, image_output_cat, arrow_input_model, arrow_model_output)
 
-        # 6. CLIP
-        text_clip = Text("CLIP", font="Menlo").to_edge(UL, buff=0.5).scale(0.7)
-        gears_clip = VGroup(gear.copy().scale(0.5).shift(0.8 * UP).rotate(10 * DEGREES).set_color(BLUE_C),
-                            gear.copy().scale(0.5).shift(0.55 * RIGHT).rotate(-8 * DEGREES).set_color(BLUE_E))
-        text_clip_model = Text(
-            "CLIP Model", font="Menlo", font_size=20, color=GREY).next_to(gears_clip, DOWN, SMALL_BUFF)
-        surrounding_clip = SurroundingRectangle(
-            VGroup(gears_clip, text_clip_model),
-            buff=0.2, color=GREY, corner_radius=0.3, stroke_width=2.0)
-        model_clip = VGroup(gears_clip, text_clip_model, surrounding_clip)
-        self.play(FadeTransform(text_ddpm, text_clip))
+        # self.model_diffusion.next_to(brace_image_set, DOWN)
+        # self.play(LaggedStartMap(FadeIn, image_encode_set, lag_ratio=1.0))
+        # self.play(MoveToTarget(image_encode_set), GrowFromCenter(brace_image_set))
+        # self.play(Write(formula_encode), Create(frame_box_model))
+        # self.play(FadeIn(image_unet))
+        # self.play(FadeOut(image_unet, frame_box_model))
+        # self.play(Transform(formula_encode, self.model_diffusion))
+        # self.play(FadeIn(image_input_noise), GrowArrow(arrow_input_model))
+        # self.play(GrowArrow(arrow_model_output), FadeIn(image_output_cat))
+        # self.play(Transform(image_output_cat, image_output_dog), Create(text_question))
+        # self.play(FadeOut(image_output_cat, text_question, arrow_input_model,
+        #                   arrow_model_output, image_input_noise,
+        #                   formula_encode, image_encode_set, brace_image_set))
+        #
+        # self.wait()
 
+    def clip1(self):
         # 7. show part
-        text_encoder = VGroup(gear.copy().scale(0.4).set_color(BLUE_C),
+        # 还有model_clip
+        self.play(FadeTransform(self.title_ddpm, self.title_clip))
+        text_encoder = VGroup(self.gear.copy().scale(0.4).set_color(BLUE_C),
                               Text("Text Encoder", font="Menlo", font_size=30)).arrange(RIGHT, buff=0.5)
-        image_encoder = VGroup(gear.copy().scale(0.4).set_color(BLUE_E),
+        image_encoder = VGroup(self.gear.copy().scale(0.4).set_color(BLUE_E),
                                Text("Image Encoder", font="Menlo", font_size=30)).arrange(RIGHT, buff=0.5)
         encoders = VGroup(text_encoder, image_encoder).arrange(DOWN, aligned_edge=LEFT, buff=0.3)
         brace_clip = Brace(encoders, direction=LEFT, buff=0.5)
-        VGroup(model_clip, brace_clip, encoders).arrange(RIGHT, buff=0.7)
+        VGroup(self.model_clip, brace_clip, encoders).arrange(RIGHT, buff=0.7)
 
-        self.play(FadeIn(model_clip))
+        self.play(FadeIn(self.model_clip))
         self.play(GrowFromCenter(brace_clip))
         self.play(
-            Indicate(model_clip[0][0]),
-            TransformFromCopy(model_clip[0][0], text_encoder, path_arc=30 * DEGREES)
+            Indicate(self.model_clip[0][0]),
+            TransformFromCopy(self.model_clip[0][0], text_encoder, path_arc=30 * DEGREES)
         )
         self.play(
-            Indicate(model_clip[0][1]),
-            TransformFromCopy(model_clip[0][1], image_encoder, path_arc=-30 * DEGREES)
+            Indicate(self.model_clip[0][1]),
+            TransformFromCopy(self.model_clip[0][1], image_encoder, path_arc=-30 * DEGREES)
         )
         self.play(FadeOut(brace_clip, encoders))
-        self.play(model_clip.animate.move_to(2 * LEFT))
+        self.play(self.model_clip.animate.move_to(2 * LEFT))
+
         self.wait()
 
+    def clip2(self):
         # 8. clip demo show 3D vector
+        # 清理干净
         input_pos = 5 * LEFT
         output_pos = 0.5 * RIGHT
         last_pos = 5 * RIGHT + 1.5 * UP
@@ -558,7 +626,8 @@ class Diffusion(ThreeDScene):
         self.play(
             LaggedStart(
                 AnimationGroup(
-                    Rotate(gears_clip[i], axis=IN if i == 0 else OUT, about_point=gears_clip[i].get_center())
+                    Rotate(self.gears_clip[i], axis=IN if i == 0 else OUT,
+                           about_point=self.gears_clip[i].get_center())
                     for i in range(2)
                 ), run_time=3, lag_ratio=0.0),
             LaggedStart(bake_mobject_into_vector_entries(text_cat, embedding_text_cat))
@@ -571,7 +640,8 @@ class Diffusion(ThreeDScene):
         self.play(
             LaggedStart(
                 AnimationGroup(
-                    Rotate(gears_clip[i], axis=IN if i == 0 else OUT, about_point=gears_clip[i].get_center())
+                    Rotate(self.gears_clip[i], axis=IN if i == 0 else OUT,
+                           about_point=self.gears_clip[i].get_center())
                     for i in range(2)
                 ), run_time=3, lag_ratio=0.0),
             LaggedStart(bake_mobject_into_vector_entries(image_cat, embedding_image_cat, path_arc=-30 * DEGREES))
@@ -584,7 +654,8 @@ class Diffusion(ThreeDScene):
         self.play(
             LaggedStart(
                 AnimationGroup(
-                    Rotate(gears_clip[i], axis=IN if i == 0 else OUT, about_point=gears_clip[i].get_center())
+                    Rotate(self.gears_clip[i], axis=IN if i == 0 else OUT,
+                           about_point=self.gears_clip[i].get_center())
                     for i in range(2)
                 ), run_time=3, lag_ratio=0.0),
             LaggedStart(bake_mobject_into_vector_entries(text_dog, embedding_text_dog)),
@@ -595,7 +666,8 @@ class Diffusion(ThreeDScene):
         self.play(
             LaggedStart(
                 AnimationGroup(
-                    Rotate(gears_clip[i], axis=IN if i == 0 else OUT, about_point=gears_clip[i].get_center())
+                    Rotate(self.gears_clip[i], axis=IN if i == 0 else OUT,
+                           about_point=self.gears_clip[i].get_center())
                     for i in range(2)
                 ), run_time=3, lag_ratio=0.0),
             LaggedStart(bake_mobject_into_vector_entries(image_dog, embedding_image_dog, path_arc=-30 * DEGREES))
@@ -639,12 +711,12 @@ class Diffusion(ThreeDScene):
             buff=0,
         )
 
-        self.play(FadeOut(model_clip))
+        self.play(FadeOut(self.model_clip))
         self.add_fixed_in_frame_mobjects(
             embedding_image_dog, image_dog,
             embedding_text_dog, text_dog,
             embedding_image_cat, image_cat,
-            embedding_text_cat, text_cat
+            embedding_text_cat, text_cat, self.logo, self.title_clip
         )
 
         self.set_camera_orientation(phi=75 * DEGREES, theta=-45 * DEGREES)
@@ -677,9 +749,12 @@ class Diffusion(ThreeDScene):
                           ))
         self.play(FadeOut(axes))
         self.set_camera_orientation(phi=0 * DEGREES, theta=-90 * DEGREES)
+
         self.wait()
 
+    def clip3(self):
         # 10. show text encoder
+        # 只剩model_clip
         phrase = "a cyberpunk with natural greys and whites and browns"
         words = list(filter(lambda s: s.strip(), phrase.split(" ")))
         text_words = VGroup(*[Text(word, font="Menlo").scale(0.4) for word in words])
@@ -737,9 +812,9 @@ class Diffusion(ThreeDScene):
         arrow_embed_out.target = Arrow(text_words.get_bottom(), embedding_out.get_top())
         brace_text = Brace(embedding_out, direction=RIGHT, buff=0.1)
         dim_text = Text("768-dimensional", font_size=24).set_color(YELLOW_E).next_to(brace_text, RIGHT)
-        model_clip.move_to(5 * LEFT)
+        self.model_clip.move_to(5 * LEFT)
 
-        self.play(FadeIn(model_clip))
+        self.play(FadeIn(self.model_clip))
         self.play(LaggedStartMap(FadeIn, text_words, shift=0.5 * UP, lag_ratio=0.25))
         self.play(LaggedStartMap(DrawBorderThenFill, rect_words))
         self.play(
@@ -789,9 +864,13 @@ class Diffusion(ThreeDScene):
         )
         self.play(GrowFromCenter(brace_text), Create(dim_text))
         self.play(FadeOut(brace_text, dim_text))
+        self.play(FadeOut(emb_sym_out, arrow_embed_out, text_words, rect_words))
+
         self.wait()
 
+    def clip4(self):
         # 11. show image encoder
+        # 只剩model_clip
         image_prompt = Image.open("assets/prompt.png")
         img_width, img_height = image_prompt.size
         num_width, num_height = 3, 3
@@ -818,7 +897,7 @@ class Diffusion(ThreeDScene):
                     for j in range(num_width)]).arrange(RIGHT, buff=0.12)
             for i in range(num_height)
         ]).arrange(DOWN, buff=0.12)
-        self.play(FadeOut(emb_sym_out, arrow_embed_out, text_words, rect_words))
+
         self.play(FadeIn(image_grid))
         self.play(MoveToTarget(image_grid))
         self.wait()
@@ -900,44 +979,19 @@ class Diffusion(ThreeDScene):
             FadeOut(attention_box, box_arrows_in, box_arrows_out, emb_sym_primes,
                     image_emb_syms, image_arrow_embeds, rect_out, image_embedding_words),
             MoveToTarget(emb_sym_out),
-            GrowArrow(arrow_embed_out))
+            GrowArrow(arrow_embed_out)
+        )
         self.play(
             Transform(emb_sym_out, embedding_out),
-            MoveToTarget(arrow_embed_out))
-        self.wait()
+            MoveToTarget(arrow_embed_out)
+        )
         self.play(FadeOut(emb_sym_out, arrow_embed_out, image_grid))
         self.wait()
 
-        # explain how CLIP works
-        gears_text_encoder = VGroup(gear.copy().scale(0.4).set_color(BLUE_C))
-        text_encoder = Text("Text Encoder",
-                            font="Menlo",
-                            font_size=14,
-                            color=GREY).next_to(gears_text_encoder, DOWN, SMALL_BUFF)
-        surrounding_text_encoder = SurroundingRectangle(
-            VGroup(gears_text_encoder, text_encoder),
-            buff=0.2,
-            color=GREY,
-            corner_radius=0.3,
-            stroke_width=2.0
-        )
-        model_text_encoder = VGroup(gears_text_encoder, text_encoder, surrounding_text_encoder)
-        model_text_encoder.move_to(2.5 * LEFT + 2.5 * UP)
-
-        gears_image_encoder = VGroup(gear.copy().scale(0.4).set_color(BLUE_E))
-        text_image_encoder = Text("Image Encoder",
-                                  font="Menlo",
-                                  font_size=14,
-                                  color=GREY).next_to(gears_image_encoder, DOWN, SMALL_BUFF)
-        surrounding_image_encoder = SurroundingRectangle(
-            VGroup(gears_image_encoder, text_image_encoder),
-            buff=0.2,
-            color=GREY,
-            corner_radius=0.3,
-            stroke_width=2.0
-        )
-        model_image_encoder = VGroup(gears_image_encoder, text_image_encoder, surrounding_image_encoder)
-        model_image_encoder.move_to(2.5 * LEFT + 1.5 * DOWN)
+    def clip5(self):
+        # 12. explain how CLIP works
+        self.model_text_encoder.move_to(2.5 * LEFT + 2.5 * UP)
+        self.model_image_encoder.move_to(2.5 * LEFT + 1.5 * DOWN)
 
         text_set = Group(
             Text("A CAT").set(width=2).set_opacity(1.0),
@@ -979,8 +1033,8 @@ class Diffusion(ThreeDScene):
         ).set_stroke(width=2.0, color=GREY).next_to(table, LEFT, buff=0.3)
         lines_out_image = VGroup(*[
             CubicBezier(
-                model_image_encoder.get_right(),
-                model_image_encoder.get_right() + 1.0 * RIGHT,
+                self.model_image_encoder.get_right(),
+                self.model_image_encoder.get_right() + 1.0 * RIGHT,
                 table_image.get_left() + (2.5 * UP + i * DOWN) * grid_size + 1.0 * LEFT,
                 table_image.get_left() + (2.5 * UP + i * DOWN) * grid_size,
                 stroke_width=2.0
@@ -989,7 +1043,7 @@ class Diffusion(ThreeDScene):
 
         lines_out_text = VGroup(*[
             CubicBezier(
-                model_text_encoder.get_right(),
+                self.model_text_encoder.get_right(),
                 table_text.get_top() + (2.5 * LEFT + i * RIGHT) * grid_size + 0.7 * UP,
                 table_text.get_top() + (2.5 * LEFT + i * RIGHT) * grid_size + 0.6 * UP,
                 table_text.get_top() + (2.5 * LEFT + i * RIGHT) * grid_size,
@@ -1069,14 +1123,14 @@ class Diffusion(ThreeDScene):
         )
 
         self.play(
-            Indicate(model_clip[0][0]),
-            TransformFromCopy(model_clip[0][0], model_text_encoder, path_arc=30 * DEGREES)
+            Indicate(self.model_clip[0][0]),
+            TransformFromCopy(self.model_clip[0][0], self.model_text_encoder, path_arc=30 * DEGREES)
         )
         self.play(
-            Indicate(model_clip[0][1]),
-            TransformFromCopy(model_clip[0][1], model_image_encoder, path_arc=-30 * DEGREES)
+            Indicate(self.model_clip[0][1]),
+            TransformFromCopy(self.model_clip[0][1], self.model_image_encoder, path_arc=-30 * DEGREES)
         )
-        self.play(FadeOut(model_clip, shift=LEFT))
+        self.play(FadeOut(self.model_clip, shift=LEFT))
         self.play(LaggedStartMap(FadeIn, text_set, shift=DOWN, path_arc=30 * DEGREES, lag_ratio=0.1))
         self.play(LaggedStartMap(FadeIn, image_set, shift=DOWN, path_arc=30 * DEGREES, lag_ratio=0.1))
         self.play(FadeIn(table_text), Create(lines_out_text))
@@ -1146,7 +1200,30 @@ class Diffusion(ThreeDScene):
         self.play(GrowArrow(arrow_1))
         self.play(Create(loss_func_box2), Create(table_box2))
         self.play(GrowArrow(arrow_2))
+        self.play(FadeOut(loss_func_box1, table_box1, arrow_1, loss_func_box2, table_box2, arrow_2,
+                          syms_image_text, table, table_text, syms_text, table_image, syms_image,
+                          lines_out_text, lines_out_image, circle_image_text, loss_func, text_set, image_set,
+                          self.model_image_encoder, self.model_text_encoder))
         self.wait()
+
+    def construct(self):
+        self.camera.background_color = "#1C1C1C"
+        # self.play(Write(self.title))
+        # self.play(Write(self.logo))
+        # self.play(
+        #     FadeOut(self.title),
+        #     self.logo.animate.scale(0.4).move_to(RIGHT * 5.5 + UP * 3.5)
+        # )
+        # self.wait()
+
+        # self.ddpm1()
+        # self.ddpm2()
+        # self.ddpm3()
+        # self.clip1()
+        # self.clip2()
+        # self.clip3()
+        # self.clip4()
+        self.ddpm3()
 
 
 if __name__ == "__main__":
