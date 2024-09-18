@@ -126,6 +126,7 @@ class DDPM1(Scene):
         arrow_images = Arrow(image_prompt.get_right(), image_rgb.get_left())
         self.play(FadeIn(image_prompt, shift=RIGHT), GrowArrow(arrow_images))
         self.play(LaggedStartMap(FadeIn, image_rgb, shift=DOWN, lag_ratio=1.0))
+        self.play(FadeOut(image_prompt, arrow_images))
 
         image_rgb.generate_target()
         image_rgb.target.arrange(RIGHT, buff=0.4).set(opacity=1.0)
@@ -156,7 +157,6 @@ class DDPM1(Scene):
         matrix_image_show.generate_target()
         matrix_image_show.target = matrix_image
 
-        self.play(FadeOut(image_prompt, arrow_images))
         self.play(MoveToTarget(image_rgb))
         self.play(FadeIn(lattices))
         self.play(
@@ -322,13 +322,13 @@ class DDPM2(Scene):
         self.play(GrowFromCenter(brace_images_and_lines), Write(text_images_and_lines))
         # 特殊处理，方便做transform
         image_cats_decode_15 = Group(*[i for group in image_cats_decode_15 for i in group])
-        image_cats_decode_5 = Group(*[i for i in image_cats_decode_5 if isinstance(i, ImageMobject)])
+        image_cats_decode_5_image = Group(*[i for i in image_cats_decode_5 if isinstance(i, ImageMobject)])
         image_cats_decode_5_text = Group(*[i for i in image_cats_decode_5 if isinstance(i, Text)])
         brace_images_and_lines.generate_target()
         brace_images_and_lines.target = Brace(image_cats_decode_5, direction=UP, buff=0.1)
         self.play(
             FadeOut(VGroup(*arrow_between_images)),
-            Transform(image_cats_decode_15, image_cats_decode_5, replace_mobject_with_target_in_scene=True),
+            Transform(image_cats_decode_15, image_cats_decode_5_image, replace_mobject_with_target_in_scene=True),
             FadeIn(image_cats_decode_5_text),
             MoveToTarget(brace_images_and_lines),
             text_images_and_lines.animate.next_to(brace_images_and_lines.target, UP)
@@ -368,16 +368,15 @@ class DDPM2(Scene):
         self.play(
             FadeTransform(brace_images_and_lines, brace_decode),
             text_images_and_lines.animate.next_to(brace_decode, UP),
-            FadeOut(image_cats_decode_5, image_cats_decode_5_text),
+            FadeOut(image_cats_decode_5_image, image_cats_decode_5_text),
             FadeIn(image_cats_encode_decode_5, shift=DOWN)
         )
         self.play(GrowFromCenter(brace_encode), Write(text_encode))
 
         self.play(FadeOut(brace_decode, text_images_and_lines))
         self.play(
-            Transform(image_cats_encode_decode_5, image_cats_encode_5,
-                      replace_mobject_with_target_in_scene=True,
-                      path_arc=90 * DEGREES),
+            FadeOut(image_cats_encode_decode_5),
+            FadeIn(image_cats_encode_5, shift=DOWN),
             FadeTransform(brace_encode, brace_encode_only)
         )
 
@@ -494,5 +493,5 @@ class DDPM2(Scene):
 
 
 if __name__ == "__main__":
-    scene = DDPM1()
+    scene = DDPM2()
     scene.render()
