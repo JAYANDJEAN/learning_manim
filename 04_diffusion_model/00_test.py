@@ -116,8 +116,8 @@ class DashTest(Scene):
 
         # 定义四个控制点
         start = LEFT
-        control1 = UP + LEFT*2
-        control2 = DOWN + RIGHT*2
+        control1 = UP + LEFT * 2
+        control2 = DOWN + RIGHT * 2
         end = RIGHT
 
         # 创建贝塞尔曲线
@@ -198,29 +198,15 @@ class MatrixMultiplication(Scene):
 
 class RotateImageAroundYAxis(ThreeDScene):
     def construct(self):
-        # 设置相机的初始视角
-        self.set_camera_orientation(phi=0 * DEGREES, theta=0 * DEGREES)
-
-        # 加载图片 (假设图片路径为 "example.png")
-        image = ImageMobject("assets/prompt.png")
-
-        # 将图片调整到合适的大小
-        image.scale(2)
-
-        # 添加图片到场景
-        self.add(image)
-
-        # 使图片在场景中心
-        image.move_to(ORIGIN)
-
-        # 绕 y 轴旋转图片 90 度 (3D变换)
-        self.play(Rotate(image, angle=PI / 4, axis=UP))
-
-        # 等待几秒展示最终效果
-        self.wait(2)
+        table_text = Rectangle(width=4.0, height=1.0, grid_xstep=1.0).move_to(3 * UP + 1 * LEFT)
+        print(table_text.width, table_text.height)
+        sour = SurroundingRectangle(table_text, buff=0.1)
+        top = Dot(table_text.get_top())
+        left = Dot(table_text.get_left())
+        self.add(table_text, sour, top, left)
 
 
 # 渲染场景
 if __name__ == "__main__":
-    scene = DashTest()
+    scene = RotateImageAroundYAxis()
     scene.render()
