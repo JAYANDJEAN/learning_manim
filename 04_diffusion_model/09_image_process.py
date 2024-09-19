@@ -14,7 +14,7 @@ def get_noise_image():
 
     img = Image.open('assets/cat_out_0000.jpg').convert('RGB')
     img = np.array(img) / 255.0
-    t_list = list(range(5, 250, 5)) + [999]
+    t_list = list(range(250, 260, 5))
     for t in t_list:
         epsilon = np.random.randn(*img.shape)
         x_t = sqrt_alphas_bar[t] * img + sqrt_one_minus_alphas_bar[t] * epsilon
