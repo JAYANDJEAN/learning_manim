@@ -508,47 +508,110 @@ class Diffusion(ThreeDScene):
         image_encode_set.generate_target()
         image_encode_set.target.scale(0.6).move_to(1.6 * UP)
         brace_image_set = Brace(image_encode_set.target, direction=DOWN)
-        formula_encode = MathTex(r"\nabla_\theta\|\boldsymbol{\epsilon}-",
-                                 r"\boldsymbol{\epsilon}_\theta",
-                                 r"(\mathbf{x}_t, t)\|^2").next_to(brace_image_set, DOWN)
-        formula_decode = MathTex(r"\mathbf{x}_{t-1}",
-                                 r"=",
-                                 r"\frac{1}{\sqrt{\alpha_t}}\left(",
-                                 r"\mathbf{x}_t-",
-                                 r"\frac{1-\alpha_t}{\sqrt{1-\bar{\alpha}_t}} ",
-                                 r"\boldsymbol{\epsilon}_\theta",
-                                 r"\left(\mathbf{x}_t, t\right)\right)+\sigma_t \mathbf{z}")
         self.model_diffusion.next_to(brace_image_set, DOWN)
-        frame_box_model = SurroundingRectangle(
+        formula_encode = MathTex(
+            r"\nabla_\theta\|\boldsymbol{\epsilon}-",
+            r"\boldsymbol{\epsilon}_\theta",
+            r"(\mathbf{x}_t, t)\|^2"
+        ).next_to(brace_image_set, DOWN)
+        formula_decode = MathTex(
+            r"\mathbf{x}_{t-1}",
+            r"=",
+            r"\frac{1}{\sqrt{\alpha_t}}\left(",
+            r"\mathbf{x}_t-",
+            r"\frac{1-\alpha_t}{\sqrt{1-\bar{\alpha}_t}} ",
+            r"\boldsymbol{\epsilon}_\theta",
+            r"\left(\mathbf{x}_t, t\right)\right)+\sigma_t \mathbf{z}"
+        ).scale(0.7).next_to(self.model_diffusion, UP)
+
+        box_encode = SurroundingRectangle(
             formula_encode[1], corner_radius=0.01
         ).set_stroke(YELLOW_E, 2.0)
+        box_decode_model = SurroundingRectangle(
+            formula_decode[5], corner_radius=0.01
+        ).set_stroke(YELLOW_E, 2.0)
         image_unet = ImageMobject("assets/unet.png").set(width=4).next_to(formula_encode, DOWN, buff=0.5)
+        image_path_list = [ImageMobject(f"assets/cat_out_0000.jpg").set(width=2)] + \
+                          [ImageMobject(f"assets/cat_out_{i:04}.png").set(width=2)
+                           for i in list(range(5, 250, 5))]
+        image_output_cats = Group(*image_path_list[::-1])
+        text_steps = VGroup(
+            *[
+                Text(
+                    f"Step {i + 1}", font="Menlo", font_size=35, color=GREY
+                ).next_to(formula_decode, UP, buff=1.0)
+                for i in range(len(image_output_cats) - 1)
+            ]
+        )
+
         image_input_noise = (ImageMobject("assets/cat_out_0999.png").set(width=2)
-                             .next_to(self.model_diffusion, LEFT, buff=1))
-        image_output_cat = (ImageMobject("assets/cat_out.jpg").set(width=2)
-                            .next_to(self.model_diffusion, RIGHT, buff=1))
+                             .next_to(self.model_diffusion, LEFT, buff=1.5))
         image_output_dog = (ImageMobject("assets/dog_out.jpg").set(width=2)
-                            .next_to(self.model_diffusion, RIGHT, buff=1))
+                            .next_to(self.model_diffusion, RIGHT, buff=1.5))
         text_question = Text("?").scale(3).next_to(image_output_dog, RIGHT)
         arrow_input_model = Arrow(image_input_noise.get_right(), self.model_diffusion.get_left())
-        arrow_model_output = Arrow(self.model_diffusion.get_right(), image_output_cat.get_left())
+        arrow_model_output = Arrow(self.model_diffusion.get_right(), image_output_dog.get_left())
+        line_circle = CubicBezier(
+            image_output_dog.get_center(),
+            image_output_dog.get_center() + 7 * RIGHT + 4 * UP,
+            self.model_diffusion.get_left() + 7 * LEFT + 4 * UP,
+            self.model_diffusion.get_center()
+        )
+        line_circle.z_index = -1
 
-        self.add(self.model_diffusion,
-                 image_input_noise, image_output_cat, arrow_input_model, arrow_model_output)
+        self.add(self.model_diffusion, formula_decode, line_circle,
+                 image_input_noise, arrow_input_model, arrow_model_output)
 
-        # self.model_diffusion.next_to(brace_image_set, DOWN)
-        # self.play(LaggedStartMap(FadeIn, image_encode_set, lag_ratio=1.0))
+        # self.play(LaggedStartMap(FadeIn, image_encode_set, lag_ratio=0.5))
         # self.play(MoveToTarget(image_encode_set), GrowFromCenter(brace_image_set))
-        # self.play(Write(formula_encode), Create(frame_box_model))
+        # self.play(Write(formula_encode), Create(box_encode))
         # self.play(FadeIn(image_unet))
-        # self.play(FadeOut(image_unet, frame_box_model))
-        # self.play(Transform(formula_encode, self.model_diffusion))
-        # self.play(FadeIn(image_input_noise), GrowArrow(arrow_input_model))
-        # self.play(GrowArrow(arrow_model_output), FadeIn(image_output_cat))
+        # self.play(FadeOut(image_unet, box_encode))
+        # self.play(FadeTransform(formula_encode, self.model_diffusion))
+        # self.play(FadeOut(image_encode_set, brace_image_set))
+        #
+        # for i in range(len(image_output_cats) - 1):
+        #     image_output_cats[i].next_to(self.model_diffusion, LEFT, buff=1.5)
+        #     image_output_cats[i + 1].next_to(self.model_diffusion, RIGHT, buff=1.5)
+        #     if i == 0:
+        #         self.play(FadeIn(image_output_cats[i], shift=DOWN), GrowArrow(arrow_input_model))
+        #         self.play(Write(formula_decode))
+        #         self.play(Create(box_decode_model))
+        #         self.play(GrowArrow(arrow_model_output), FadeIn(image_output_cats[i + 1]))
+        #         self.play(Write(text_steps[i]))
+        #         self.play(Create(line_circle))
+        #     elif i <= 3:
+        #         self.play(MoveAlongPath(image_output_cats[i].copy(), line_circle))
+        #         self.play(
+        #             FadeTransform(image_output_cats[i - 1], image_output_cats[i]),
+        #             FadeTransform(image_output_cats[i], image_output_cats[i + 1]),
+        #             FadeTransform(text_steps[i - 1], text_steps[i]),
+        #             run_time=0.2
+        #         )
+        #     elif i <= 10:
+        #         self.play(ShowPassingFlash(line_circle.copy().set_color(RED), run_time=0.5, time_width=1.0))
+        #         self.play(
+        #             FadeTransform(image_output_cats[i - 1], image_output_cats[i]),
+        #             FadeTransform(image_output_cats[i], image_output_cats[i + 1]),
+        #             FadeTransform(text_steps[i - 1], text_steps[i]),
+        #             run_time=0.2
+        #         )
+        #     else:
+        #         self.play(
+        #             FadeTransform(image_output_cats[i - 1], image_output_cats[i]),
+        #             FadeTransform(image_output_cats[i], image_output_cats[i + 1]),
+        #             FadeTransform(text_steps[i - 1], text_steps[i]),
+        #             run_time=0.2
+        #         )
+        # self.play(FadeOut(image_output_cats[48], image_output_cats[49]))
+        # self.wait()
+
+        #
+        #
         # self.play(Transform(image_output_cat, image_output_dog), Create(text_question))
         # self.play(FadeOut(image_output_cat, text_question, arrow_input_model,
         #                   arrow_model_output, image_input_noise,
-        #                   formula_encode, image_encode_set, brace_image_set))
+        #                   image_encode_set, brace_image_set))
         #
         # self.wait()
 
@@ -598,7 +661,7 @@ class Diffusion(ThreeDScene):
         text_cat.generate_target()
         text_cat.target.set(width=0.45).next_to(embedding_text_cat.target, 1.5 * UP)
 
-        image_cat = ImageMobject("assets/cat_out.jpg").set(height=2).move_to(input_pos)
+        image_cat = ImageMobject("assets/cat_out_0000.jpg").set(height=2).move_to(input_pos)
         embedding_image_cat = WeightMatrix(length=14).set(width=0.5).move_to(output_pos)
         embedding_image_cat.generate_target()
         embedding_image_cat.target.set(width=0.4).move_to(last_pos + 0.6 * LEFT)
@@ -1003,12 +1066,12 @@ class Diffusion(ThreeDScene):
         ).move_to(5.5 * LEFT + 2.5 * UP)
 
         image_set = Group(
-            ImageMobject("assets/cat_out.jpg").set(width=2).set_opacity(1.0),
-            ImageMobject("assets/cat_out.jpg").set(width=2).set_opacity(0.4).shift(0.1 * UP + 0.1 * RIGHT),
-            ImageMobject("assets/cat_out.jpg").set(width=2).set_opacity(0.3).shift(0.2 * UP + 0.2 * RIGHT),
-            ImageMobject("assets/cat_out.jpg").set(width=2).set_opacity(0.2).shift(0.3 * UP + 0.3 * RIGHT),
-            ImageMobject("assets/cat_out.jpg").set(width=2).set_opacity(0.1).shift(0.4 * UP + 0.4 * RIGHT),
-            ImageMobject("assets/cat_out.jpg").set(width=2).set_opacity(0.05).shift(0.5 * UP + 0.5 * RIGHT),
+            ImageMobject("assets/cat_out_0000.jpg").set(width=2).set_opacity(1.0),
+            ImageMobject("assets/cat_out_0000.jpg").set(width=2).set_opacity(0.4).shift(0.1 * UP + 0.1 * RIGHT),
+            ImageMobject("assets/cat_out_0000.jpg").set(width=2).set_opacity(0.3).shift(0.2 * UP + 0.2 * RIGHT),
+            ImageMobject("assets/cat_out_0000.jpg").set(width=2).set_opacity(0.2).shift(0.3 * UP + 0.3 * RIGHT),
+            ImageMobject("assets/cat_out_0000.jpg").set(width=2).set_opacity(0.1).shift(0.4 * UP + 0.4 * RIGHT),
+            ImageMobject("assets/cat_out_0000.jpg").set(width=2).set_opacity(0.05).shift(0.5 * UP + 0.5 * RIGHT),
         ).move_to(5.5 * LEFT + 1.5 * DOWN)
 
         # lines
@@ -1228,4 +1291,3 @@ class Diffusion(ThreeDScene):
 
 if __name__ == "__main__":
     Diffusion().render()
-
