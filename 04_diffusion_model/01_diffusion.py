@@ -12,9 +12,9 @@ class Diffusion(ThreeDScene):
         # models
         # -----------------------------
         self.gears_diffusion = VGroup(
-            self.gear.copy().scale(0.5).shift(0.78 * UP).set_color(YELLOW),
+            self.gear.copy().scale(0.5).shift(0.78 * UP).set_color(YELLOW_E),
             self.gear.copy().scale(0.5).shift(0.57 * LEFT).set_color(ORANGE),
-            self.gear.copy().scale(0.5).shift(0.57 * RIGHT)
+            self.gear.copy().scale(0.5).shift(0.57 * RIGHT).set_color(BLUE_D)
         )
         text_diffusion = Text(
             "Diffusion Model", font="Menlo", font_size=20, color=GREY
@@ -64,6 +64,30 @@ class Diffusion(ThreeDScene):
                 VGroup(self.gears_image_encoder, text_image_encoder),
                 buff=0.2, color=GREY, corner_radius=0.3, stroke_width=2.0
             )
+        )
+
+        # -----------------------------
+        trapezoid_right = Polygon(
+            (0.04, 0.4, 0), (1.0, 0.9, 0), (1.0, -0.9, 0), (0.04, -0.4, 0),
+            stroke_color=GREY, stroke_width=2.0
+        )
+        trapezoid_left = Polygon(
+            (-0.04, 0.4, 0), (-1.0, 0.9, 0), (-1.0, -0.9, 0), (-0.04, -0.4, 0),
+            stroke_color=GREY, stroke_width=2.0
+        )
+        self.gears_vqvae = VGroup(
+            self.gear.copy().scale(0.4).shift(0.52 * RIGHT).set_color(GREEN_C),
+            self.gear.copy().scale(0.4).shift(0.52 * LEFT).set_color(GOLD_C)
+        )
+        text_vqvae = Text(
+            "VQVAE", font="Menlo", font_size=20, color=GREY
+        ).shift(0.8 * DOWN)
+        self.model_vqvae = VGroup(
+            trapezoid_right, trapezoid_left, self.gears_vqvae, text_vqvae,
+            # SurroundingRectangle(
+            #     VGroup(trapezoid_right, trapezoid_left, text_vqvae),
+            #     buff=0.15, color=GREY, corner_radius=0.3, stroke_width=2.0
+            # )
         )
 
         # ==============================================================
@@ -1275,24 +1299,34 @@ class Diffusion(ThreeDScene):
                           self.model_image_encoder, self.model_text_encoder))
         self.wait()
 
+    def latent1(self):
+        pass
+
+
     def construct(self):
         self.camera.background_color = "#1C1C1C"
-        self.play(Write(self.title))
-        self.play(Write(self.logo))
-        self.play(
-            FadeOut(self.title),
-            self.logo.animate.scale(0.4).move_to(RIGHT * 5.5 + UP * 3.5)
-        )
-        self.wait()
+        # self.play(Write(self.title))
+        # self.play(Write(self.logo))
+        # self.play(
+        #     FadeOut(self.title),
+        #     self.logo.animate.scale(0.4).move_to(RIGHT * 5.5 + UP * 3.5)
+        # )
+        # self.wait()
+        #
+        # self.ddpm1()
+        # self.ddpm2()
+        # self.ddpm3()
+        # self.clip1()
+        # self.clip2()
+        # self.clip3()
+        # self.clip4()
+        # self.clip5()
+        # self.latent1()
 
-        self.ddpm1()
-        self.ddpm2()
-        self.ddpm3()
-        self.clip1()
-        self.clip2()
-        self.clip3()
-        self.clip4()
-        self.clip5()
+        self.model_diffusion.move_to(ORIGIN)
+        self.model_clip.move_to(4 * LEFT + 2 * DOWN)
+        self.model_vqvae.move_to(4 * LEFT + 2 * UP)
+        self.add(self.model_diffusion, self.model_clip, self.model_vqvae)
 
 
 if __name__ == "__main__":
