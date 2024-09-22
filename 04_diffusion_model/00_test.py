@@ -208,5 +208,6 @@ class RotateImageAroundYAxis(ThreeDScene):
 
 # 渲染场景
 if __name__ == "__main__":
-    scene = RotateImageAroundYAxis()
-    scene.render()
+    path_cats = ([f"cat_with_noise/cat_{i:03}.jpg" for i in range(0, 150, 10)])
+    print(path_cats)
+    print(len(path_cats))

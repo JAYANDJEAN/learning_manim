@@ -99,18 +99,29 @@ class Diffusion(ThreeDScene):
         self.title_clip = Text("CLIP", font="Menlo").to_edge(UL, buff=0.5).scale(0.7)
         self.title_ddpm = Text("DDPM", font="Menlo").to_edge(UL, buff=0.5).scale(0.7)
 
-    def ddpm1(self):
+    def ddpm0(self):
         # 2. show diffusion products
         # 清理干净
-        mid = ImageMobject("assets/mid.jpg").set(height=2)
-        sd3 = ImageMobject("assets/sd3.png").set(height=2)
-        flux = ImageMobject("assets/flux.png").set(height=2)
-        models = Group(mid, sd3, flux).arrange(RIGHT, buff=0.2).align_to(LEFT)
+        # mid_feed = ImageMobject("assets/Midjourney-Feed.png").set(width=12).to_edge(UP)
+        # mid_feed.generate_target()
+        # mid_feed.target.to_edge(DOWN)
+        # mid = ImageMobject("assets/product_mid.jpg").set(height=2)
+        # sd3 = ImageMobject("assets/product_sd3.png").set(height=2)
+        # flux = ImageMobject("assets/product_flux.png").set(height=2)
+        # models = Group(mid, sd3, flux).arrange(RIGHT, buff=0.2).align_to(LEFT)
         # todo: 需要补充内容
-        self.play(LaggedStartMap(FadeIn, models, lag_ratio=0.5))
-        self.play(FadeOut(models))
-        self.wait()
+        # self.play(LaggedStartMap(FadeIn, models, lag_ratio=0.5))
+        # self.play(FadeOut(models))
+        # self.wait()
+        # self.add(mid_feed)
+        # self.play(MoveToTarget(mid_feed, run_time=13, rate_func=linear))
 
+        # FLux
+        text1 = Text("cybotix style, a close-up of a robotic bee hovering in the air")
+        text2 = Text(
+            "Create an image of a surreal and fantastical creature inspired by Salvador Dalí's style. The creature should have a blend of dreamlike and bizarre elements, combining various animal forms with unexpected, imaginative features. Incorporate melting or distorted shapes, unusual textures, and an overall ethereal and otherworldly atmosphere. Use vivid, contrasting colors and play with perspective to evoke a sense of the uncanny and the extraordinary.")
+
+    def ddpm1(self):
         # 3. show generating images
         image_prompt = ImageMobject("assets/prompt.png").set(width=4.2)
 
@@ -283,9 +294,9 @@ class Diffusion(ThreeDScene):
                                                       buff=0.1, color=WHITE, corner_radius=0.1).set_stroke(width=0.5)
         prompt_cat = VGroup(text_prompt_cat, surrounding_prompt_cat).move_to(3 * UP)
         arrow_prompt_model = Arrow(prompt_cat.get_bottom(), self.model_diffusion.get_top())
-        image_noise = ImageMobject("assets/cat_0_0999.png").set(width=4).move_to(4.5 * LEFT)
-        image_cat_35 = ImageMobject("assets/cat_0_0035.png").set(width=4).move_to(4.5 * LEFT)
-        image_cat = ImageMobject("assets/cat_0.jpg").set(width=4).move_to(4.5 * RIGHT)
+        image_noise = ImageMobject("cat_with_noise/cat_140.jpg").set(width=4).move_to(4.5 * LEFT)
+        image_cat_35 = ImageMobject("cat_with_noise/cat_020.jpg").set(width=4).move_to(4.5 * LEFT)
+        image_cat = ImageMobject("cat_with_noise/cat_000.jpg").set(width=4).move_to(4.5 * RIGHT)
         arrow_noise_model = Arrow(image_noise.get_right(), self.model_diffusion.get_left())
         arrow_model_cat = Arrow(self.model_diffusion.get_right(), image_cat.get_left())
         hard = Text("Hard!").scale(0.9).move_to(3 * RIGHT + 2.5 * UP)
@@ -315,22 +326,20 @@ class Diffusion(ThreeDScene):
         self.wait()
 
         # 5.1 Decode
-        path_cats = (["assets/cat_0.jpg"] +
-                     [f"assets/cat_0_00{i}.png" for i in range(35, 96, 5)] +
-                     ["assets/cat_0_0999.png"])
+        path_cats = ([f"cat_with_noise/cat_{i:03}.jpg" for i in range(0, 150, 10)])
         image_cats_decode_15 = Group(
             *[Group(
                 *[ImageMobject(path_cats[j]) for j in range(i * 5, (i + 1) * 5)]
-            ).set(height=1.8).arrange(LEFT if i != 1 else RIGHT, buff=0.3) for i in range(3)]
-        ).arrange(DOWN, buff=0.3).shift(0.5 * DOWN)
+            ).set(height=1.8).arrange(LEFT if i != 1 else RIGHT, buff=0.4) for i in range(3)]
+        ).arrange(DOWN, buff=0.4).shift(0.5 * DOWN)
 
         image_cats_decode_5 = Group(
-            *([ele for i in [f"assets/{f}" for f in ['cat_0_0999.png', 'cat_0_0095.png',
-                                                     'cat_0_0065.png', 'cat_0_0035.png']]
-               for ele in [ImageMobject(i).set(height=1.4), Text("···").scale(0.7)]] +
-              [ImageMobject("assets/cat_0.jpg").set(height=1.4)]
+            *([ele for i in [f"cat_with_noise/{f}" for f in ['cat_140.jpg', 'cat_100.jpg',
+                                                             'cat_060.jpg', 'cat_020.jpg']]
+               for ele in [ImageMobject(i).set(height=1.9), Text("···").scale(0.7)]] +
+              [ImageMobject("cat_with_noise/cat_000.jpg").set(height=1.9)]
               )
-        ).arrange(RIGHT, buff=0.3)
+        ).arrange(RIGHT, buff=0.35)
 
         self.play(
             FadeTransform(image_cat_35, image_cats_decode_15[0][1]),
@@ -378,7 +387,7 @@ class Diffusion(ThreeDScene):
 
         images_and_lines = Group(image_cats_decode_15, Group(*arrow_between_images))
         images_and_lines.generate_target()
-        images_and_lines.target.scale(0.7).to_edge(RIGHT)
+        images_and_lines.target.scale(0.8).to_edge(RIGHT)
         brace_images_and_lines = Brace(images_and_lines.target, direction=LEFT, buff=0.1)
         brace_images_and_lines.generate_target()
         brace_images_and_lines.target = Brace(image_cats_decode_5, direction=UP, buff=0.1)
@@ -403,18 +412,20 @@ class Diffusion(ThreeDScene):
 
         # 5.2 Encode
         image_cats_encode_decode_5 = Group(
-            *([ele for i in [f"assets/{f}" for f in ['cat_0.jpg', 'cat_0_0065.png', 'cat_0_0999.png', 'cat_0_0065.png']]
-               for ele in [ImageMobject(i).set(height=1.4), Text("···").scale(0.7)]] +
-              [ImageMobject("assets/cat_0.jpg").set(height=1.4)]
+            *([ele for i in [f"cat_with_noise/{f}" for f in
+                             ['cat_000.jpg', 'cat_040.jpg', 'cat_150.jpg', 'cat_040.jpg']]
+               for ele in [ImageMobject(i).set(height=1.9), Text("···").scale(0.7)]] +
+              [ImageMobject("cat_with_noise/cat_000.jpg").set(height=1.9)]
               )
-        ).arrange(RIGHT, buff=0.3)
+        ).arrange(RIGHT, buff=0.35)
 
         image_cats_encode_5 = Group(
-            *([ele for i in [f"assets/{f}" for f in ['cat_0.jpg', 'cat_0_0040.png', 'cat_0_0060.png', 'cat_0_0080.png']]
-               for ele in (ImageMobject(i).set(height=1.4), Text("···").scale(0.7))] +
-              [ImageMobject("assets/cat_0_0999.png").set(height=1.4)]
+            *([ele for i in [f"cat_with_noise/{f}" for f in
+                             ['cat_000.jpg', 'cat_030.jpg', 'cat_060.jpg', 'cat_090.jpg']]
+               for ele in (ImageMobject(i).set(height=1.9), Text("···").scale(0.7))] +
+              [ImageMobject("cat_with_noise/cat_150.jpg").set(height=1.9)]
               )
-        ).arrange(RIGHT, buff=0.3)
+        ).arrange(RIGHT, buff=0.35)
 
         formula_xt = MathTex(r"\mathbf{x}_t=\sqrt{\bar{\alpha}_t} ",
                              r"\mathbf{x}_0",
@@ -498,8 +509,8 @@ class Diffusion(ThreeDScene):
 
         alpha_label = MathTex(r"\sqrt{\bar{\alpha}_t}", color=BLUE).move_to(4.5 * RIGHT + 2 * DOWN)
         one_minus_alpha_label = MathTex(r"\sqrt{1 - \bar{\alpha}_t}", color=RED).move_to(4.5 * RIGHT + 2 * UP)
-        image_cat_50 = ImageMobject("assets/cat_0_0050.png").set(height=2).next_to(line_50, RIGHT)
-        image_cat_800 = ImageMobject("assets/cat_0_0999.png").set(height=2).next_to(line_800, LEFT)
+        image_cat_50 = ImageMobject("cat_with_noise/cat_040.jpg").set(height=2).next_to(line_50, RIGHT)
+        image_cat_800 = ImageMobject("cat_with_noise/cat_200.jpg").set(height=2).next_to(line_800, LEFT)
 
         self.play(formula_xt.animate.to_edge(UP).scale(0.8))
 
@@ -509,12 +520,11 @@ class Diffusion(ThreeDScene):
         self.play(Create(line_50), Create(dot_alpha_50), Create(dot_one_minus_alpha_50))
         self.play(Create(line_800), Create(dot_alpha_800), Create(dot_one_minus_alpha_800))
         self.play(FadeIn(image_cat_50), FadeIn(image_cat_800))
-        self.play(FadeOut(image_cat_50, image_cat_800,
-                          line_800, dot_alpha_800, dot_one_minus_alpha_800,
+        self.play(FadeOut(line_800, dot_alpha_800, dot_one_minus_alpha_800,
                           line_50, dot_alpha_50, dot_one_minus_alpha_50,
                           one_minus_alpha_curve, one_minus_alpha_label,
                           alpha_curve, alpha_label, axes, formula_xt))
-
+        self.play(FadeOut(image_cat_50, image_cat_800))
         self.wait()
 
     def ddpm3(self):
@@ -534,7 +544,7 @@ class Diffusion(ThreeDScene):
         brace_image_set = Brace(image_encode_set.target, direction=DOWN)
         self.model_diffusion.next_to(brace_image_set, DOWN)
         formula_encode = MathTex(
-            r"\nabla_\theta\|\boldsymbol{\epsilon}-",
+            r"\operatorname{loss}=|\boldsymbol{\epsilon}-",
             r"\boldsymbol{\epsilon}_\theta",
             r"(\mathbf{x}_t, t)\|^2"
         ).next_to(brace_image_set, DOWN)
@@ -1302,7 +1312,6 @@ class Diffusion(ThreeDScene):
     def latent1(self):
         pass
 
-
     def construct(self):
         self.camera.background_color = "#1C1C1C"
         # self.play(Write(self.title))
@@ -1312,7 +1321,7 @@ class Diffusion(ThreeDScene):
         #     self.logo.animate.scale(0.4).move_to(RIGHT * 5.5 + UP * 3.5)
         # )
         # self.wait()
-        #
+        self.ddpm2()
         # self.ddpm1()
         # self.ddpm2()
         # self.ddpm3()
@@ -1323,10 +1332,10 @@ class Diffusion(ThreeDScene):
         # self.clip5()
         # self.latent1()
 
-        self.model_diffusion.move_to(ORIGIN)
-        self.model_clip.move_to(4 * LEFT + 2 * DOWN)
-        self.model_vqvae.move_to(4 * LEFT + 2 * UP)
-        self.add(self.model_diffusion, self.model_clip, self.model_vqvae)
+        # self.model_diffusion.move_to(ORIGIN)
+        # self.model_clip.move_to(4 * LEFT + 2 * DOWN)
+        # self.model_vqvae.move_to(4 * LEFT + 2 * UP)
+        # self.add(self.model_diffusion, self.model_clip, self.model_vqvae)
 
 
 if __name__ == "__main__":
