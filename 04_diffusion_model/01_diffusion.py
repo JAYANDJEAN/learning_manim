@@ -118,8 +118,9 @@ class Diffusion(ThreeDScene):
 
         # FLux
         text1 = Text("cybotix style, a close-up of a robotic bee hovering in the air")
-        text2 = Text(
-            "Create an image of a surreal and fantastical creature inspired by Salvador Dalí's style. The creature should have a blend of dreamlike and bizarre elements, combining various animal forms with unexpected, imaginative features. Incorporate melting or distorted shapes, unusual textures, and an overall ethereal and otherworldly atmosphere. Use vivid, contrasting colors and play with perspective to evoke a sense of the uncanny and the extraordinary.")
+
+        # mid
+        text2 = Text("the worst and best of September translucent sapphire eagle flying")
 
     def ddpm1(self):
         # 3. show generating images
@@ -530,14 +531,7 @@ class Diffusion(ThreeDScene):
     def ddpm3(self):
         # 5.4 train model
         # 清理干净
-        image_encode_set = Group(
-            *[Group(*([ele for j in [f"assets/cat_{i}{f}" for f in ('.jpg', '_0040.png', '_0060.png', '_0080.png')]
-                       for ele in [ImageMobject(j).set(width=2), Text("···").scale(0.5)]] +
-                      [ImageMobject(f"assets/cat_{i}_0999.png").set(width=2)]
-                      )
-                    ).arrange(RIGHT, buff=0.3)
-              for i in range(3)]
-        ).arrange(DOWN, buff=0.3).move_to(DOWN)
+        image_encode_set = ImageMobject("assets/dog.jpg").set(width=5)
 
         image_encode_set.generate_target()
         image_encode_set.target.scale(0.6).move_to(1.6 * UP)
@@ -565,13 +559,13 @@ class Diffusion(ThreeDScene):
             formula_decode[5], corner_radius=0.01
         ).set_stroke(YELLOW_E, 2.0)
         image_unet = ImageMobject("assets/unet.png").set(width=4).next_to(formula_encode, DOWN, buff=0.5)
-        image_path_list = [ImageMobject(f"assets/cat_out_0000.jpg").set(width=2)] + \
-                          [ImageMobject(f"assets/cat_out_{i:04}.png").set(width=2)
-                           for i in list(range(5, 255, 5))]
+
+        image_path_list = ([ImageMobject(f"cat_with_noise/cat_{i:03}.jpg").set(width=2)
+                            for i in range(0, 255, 5)])
         image_output_cats = Group(*image_path_list[::-1])
-        image_input_noise = (ImageMobject("assets/cat_out_0999.png").set(width=2)
+        image_input_noise = (ImageMobject("cat_with_noise/cat_250.jpg").set(width=2)
                              .next_to(self.model_diffusion, LEFT, buff=1.5))
-        image_output_dog = (ImageMobject("assets/dog_out.jpg").set(width=2)
+        image_output_dog = (ImageMobject("assets/dog.jpg").set(width=2)
                             .next_to(self.model_diffusion, RIGHT, buff=1.5))
 
         arrow_input_model = Arrow(image_input_noise.get_right(), self.model_diffusion.get_left())
@@ -638,9 +632,7 @@ class Diffusion(ThreeDScene):
                     run_time=0.1
                 )
         self.wait()
-        self.play(
-            FadeOut(formula_decode, line_circle, text_steps[49], box_decode_model)
-        )
+        self.play(FadeOut(formula_decode, line_circle, text_steps[49], box_decode_model))
         self.play(Group(self.model_diffusion, arrow_model_output,
                         image_output_cats[1:51]).animate.shift(LEFT + 2 * UP))
 
@@ -701,7 +693,7 @@ class Diffusion(ThreeDScene):
         text_cat.generate_target()
         text_cat.target.set(width=0.45).next_to(embedding_text_cat.target, 1.5 * UP)
 
-        image_cat = ImageMobject("assets/cat_out_0000.jpg").set(height=2).move_to(input_pos)
+        image_cat = ImageMobject("assets/cat.jpg").set(height=2).move_to(input_pos)
         embedding_image_cat = WeightMatrix(length=14).set(width=0.5).move_to(output_pos)
         embedding_image_cat.generate_target()
         embedding_image_cat.target.set(width=0.4).move_to(last_pos + 0.6 * LEFT)
@@ -718,7 +710,7 @@ class Diffusion(ThreeDScene):
         text_dog.generate_target()
         text_dog.target.set(width=0.45).next_to(embedding_text_dog.target, 1.5 * UP)
 
-        image_dog = ImageMobject("assets/dog_out.jpg").set(height=2).move_to(input_pos)
+        image_dog = ImageMobject("assets/dog.jpg").set(height=2).move_to(input_pos)
         embedding_image_dog = WeightMatrix(length=14).set(width=0.5).move_to(output_pos)
         embedding_image_dog.generate_target()
         embedding_image_dog.target.set(width=0.4).move_to(last_pos + 1.8 * LEFT)
@@ -1106,12 +1098,12 @@ class Diffusion(ThreeDScene):
         ).move_to(5.5 * LEFT + 2.5 * UP)
 
         image_set = Group(
-            ImageMobject("assets/cat_out_0000.jpg").set(width=2).set_opacity(1.0),
-            ImageMobject("assets/cat_out_0000.jpg").set(width=2).set_opacity(0.4).shift(0.1 * UP + 0.1 * RIGHT),
-            ImageMobject("assets/cat_out_0000.jpg").set(width=2).set_opacity(0.3).shift(0.2 * UP + 0.2 * RIGHT),
-            ImageMobject("assets/cat_out_0000.jpg").set(width=2).set_opacity(0.2).shift(0.3 * UP + 0.3 * RIGHT),
-            ImageMobject("assets/cat_out_0000.jpg").set(width=2).set_opacity(0.1).shift(0.4 * UP + 0.4 * RIGHT),
-            ImageMobject("assets/cat_out_0000.jpg").set(width=2).set_opacity(0.05).shift(0.5 * UP + 0.5 * RIGHT),
+            ImageMobject("assets/cat.jpg").set(width=2).set_opacity(1.0),
+            ImageMobject("assets/cat.jpg").set(width=2).set_opacity(0.4).shift(0.1 * UP + 0.1 * RIGHT),
+            ImageMobject("assets/cat.jpg").set(width=2).set_opacity(0.3).shift(0.2 * UP + 0.2 * RIGHT),
+            ImageMobject("assets/cat.jpg").set(width=2).set_opacity(0.2).shift(0.3 * UP + 0.3 * RIGHT),
+            ImageMobject("assets/cat.jpg").set(width=2).set_opacity(0.1).shift(0.4 * UP + 0.4 * RIGHT),
+            ImageMobject("assets/cat.jpg").set(width=2).set_opacity(0.05).shift(0.5 * UP + 0.5 * RIGHT),
         ).move_to(5.5 * LEFT + 1.5 * DOWN)
 
         # lines
@@ -1314,22 +1306,22 @@ class Diffusion(ThreeDScene):
 
     def construct(self):
         self.camera.background_color = "#1C1C1C"
-        # self.play(Write(self.title))
-        # self.play(Write(self.logo))
-        # self.play(
-        #     FadeOut(self.title),
-        #     self.logo.animate.scale(0.4).move_to(RIGHT * 5.5 + UP * 3.5)
-        # )
-        # self.wait()
+        self.play(Write(self.title))
+        self.play(Write(self.logo))
+        self.play(
+            FadeOut(self.title),
+            self.logo.animate.scale(0.4).move_to(RIGHT * 5.5 + UP * 3.5)
+        )
+        self.wait()
+
+        self.ddpm1()
         self.ddpm2()
-        # self.ddpm1()
-        # self.ddpm2()
-        # self.ddpm3()
-        # self.clip1()
-        # self.clip2()
-        # self.clip3()
-        # self.clip4()
-        # self.clip5()
+        self.ddpm3()
+        self.clip1()
+        self.clip2()
+        self.clip3()
+        self.clip4()
+        self.clip5()
         # self.latent1()
 
         # self.model_diffusion.move_to(ORIGIN)
