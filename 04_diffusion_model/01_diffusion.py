@@ -84,10 +84,10 @@ class Diffusion(ThreeDScene):
         ).shift(0.8 * DOWN)
         self.model_vqvae = VGroup(
             trapezoid_right, trapezoid_left, self.gears_vqvae, text_vqvae,
-            # SurroundingRectangle(
-            #     VGroup(trapezoid_right, trapezoid_left, text_vqvae),
-            #     buff=0.15, color=GREY, corner_radius=0.3, stroke_width=2.0
-            # )
+            SurroundingRectangle(
+                VGroup(trapezoid_right, trapezoid_left, text_vqvae),
+                buff=0.15, color=GREY, corner_radius=0.3, stroke_width=2.0
+            )
         )
 
         # ==============================================================
@@ -1302,27 +1302,43 @@ class Diffusion(ThreeDScene):
         self.wait()
 
     def latent1(self):
-        pass
+        image_cat = ImageMobject("assets/cat.jpg").set(width=3)
+        text_cat = Text("a photo of a cat", font='Menlo', font_size=16).next_to(image_cat, DOWN, buff=0.2)
+        image_dog = ImageMobject("assets/dog.jpg").set(width=3)
+        text_dog = Text("a photo of a dog", font='Menlo', font_size=16).next_to(image_dog, DOWN, buff=0.2)
+        text_left = Text("···")
+        data = Group(Group(image_cat, text_cat), Group(image_dog, text_dog), text_left).arrange(RIGHT, buff=0.5)
+        image_cat.generate_target()
+        image_cat.target.set(width=4.5).move_to(ORIGIN)
+        brace_image_up = Brace(image_cat.target, UP, buff=0.2)
+        text_pixel1 = Text("1024 pixels", font_size=36).next_to(brace_image_up, UP)
+        brace_image_right = Brace(image_cat.target, RIGHT, buff=0.2)
+        text_pixel2 = Text("1024 pixels", font_size=36).next_to(brace_image_right, RIGHT)
+        self.play(FadeIn(data))
+        self.play(FadeOut(text_cat, image_dog, text_dog, text_left), MoveToTarget(image_cat))
+        self.play(GrowFromCenter(brace_image_up), Write(text_pixel1))
+        self.play(GrowFromCenter(brace_image_right), Write(text_pixel2))
+        self.wait()
 
     def construct(self):
         self.camera.background_color = "#1C1C1C"
-        self.play(Write(self.title))
-        self.play(Write(self.logo))
-        self.play(
-            FadeOut(self.title),
-            self.logo.animate.scale(0.4).move_to(RIGHT * 5.5 + UP * 3.5)
-        )
-        self.wait()
+        # self.play(Write(self.title))
+        # self.play(Write(self.logo))
+        # self.play(
+        #     FadeOut(self.title),
+        #     self.logo.animate.scale(0.4).move_to(RIGHT * 5.5 + UP * 3.5)
+        # )
+        # self.wait()
 
-        self.ddpm1()
-        self.ddpm2()
-        self.ddpm3()
-        self.clip1()
-        self.clip2()
-        self.clip3()
-        self.clip4()
-        self.clip5()
-        # self.latent1()
+        # self.ddpm1()
+        # self.ddpm2()
+        # self.ddpm3()
+        # self.clip1()
+        # self.clip2()
+        # self.clip3()
+        # self.clip4()
+        # self.clip5()
+        self.latent1()
 
         # self.model_diffusion.move_to(ORIGIN)
         # self.model_clip.move_to(4 * LEFT + 2 * DOWN)

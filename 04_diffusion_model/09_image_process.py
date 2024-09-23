@@ -1,5 +1,19 @@
 import numpy as np
 from PIL import Image
+import torch
+import torch.nn.functional as F
+
+
+def get_pool_image():
+    img = Image.open('assets/cat.jpg')
+    img = img.convert('RGB')  # 转换为 RGB 格式
+    img_np = np.array(img)  # 将PIL图像转换为NumPy数组
+    img_tensor = torch.tensor(img_np).permute(2, 0, 1).unsqueeze(0).float()  # 转换为形状 [1, 3, H, W]
+    pool_size = (16, 16)
+    pooled_img_tensor = F.avg_pool2d(img_tensor, kernel_size=pool_size)
+    pooled_img_np = pooled_img_tensor.squeeze(0).permute(1, 2, 0).byte().numpy()
+    pooled_img = Image.fromarray(pooled_img_np)
+    pooled_img.save('assets/cat_blurred.jpg')
 
 
 def get_noise_image():
@@ -35,4 +49,4 @@ def get_rgb_image():
     blue.save('assets/prompt_b.png')
 
 
-get_noise_image()
+get_pool_image()
