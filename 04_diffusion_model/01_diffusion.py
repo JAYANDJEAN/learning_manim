@@ -116,11 +116,20 @@ class Diffusion(ThreeDScene):
         # self.add(mid_feed)
         # self.play(MoveToTarget(mid_feed, run_time=13, rate_func=linear))
 
-        # FLux
-        text1 = Text("cybotix style, a close-up of a robotic bee hovering in the air")
-
-        # mid
-        text2 = Text("the worst and best of September translucent sapphire eagle flying")
+        images = Group(*[ImageMobject(f"images/show_00{i}.jpg").set(height=6) for i in range(1, 5)])
+        texts = VGroup(
+            Text("cybotix style, a close-up of a robotic bee hovering in the air"),
+            Text("the worst and best of September translucent sapphire eagle flying"),
+            Text("Beautiful bright lizard, bright colors, long tail, bright shining eyes, "
+                 "standing upright full length, no background"),
+            Text("cybotix style, a close-up of a robotic bee hovering in the air")
+        )
+        for i in range(len(images)):
+            tx = texts[i].next_to(images[i], DOWN, buff=0.3).scale(0.4)
+            self.play(FadeIn(images[i], shift=LEFT), Write(tx))
+            self.wait(0.5)
+            self.play(FadeOut(images[i], tx, shift=LEFT))
+        self.wait()
 
     def ddpm1(self):
         # 3. show generating images
@@ -1338,7 +1347,7 @@ class Diffusion(ThreeDScene):
         # self.clip3()
         # self.clip4()
         # self.clip5()
-        self.latent1()
+        self.ddpm0()
 
         # self.model_diffusion.move_to(ORIGIN)
         # self.model_clip.move_to(4 * LEFT + 2 * DOWN)
