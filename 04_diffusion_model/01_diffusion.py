@@ -90,6 +90,34 @@ class Diffusion(ThreeDScene):
             )
         )
 
+        self.gears_vae_encoder = VGroup(
+            self.gear.copy().scale(0.4).set_color(GOLD_C).shift(0.52 * LEFT)
+        )
+        text_vae_encoder = Text(
+            "Encoder", font="Menlo", font_size=14, color=GREY
+        ).next_to(trapezoid_left.copy(), DOWN, SMALL_BUFF)
+        self.model_vae_encoder = VGroup(
+            self.gears_vae_encoder, text_vae_encoder, trapezoid_left.copy(),
+            SurroundingRectangle(
+                VGroup(self.gears_vae_encoder, text_vae_encoder),
+                buff=0.2, color=GREY, corner_radius=0.3, stroke_width=2.0
+            )
+        )
+
+        self.gears_vae_decoder = VGroup(
+            self.gear.copy().scale(0.4).set_color(GREEN_C).shift(0.52 * RIGHT)
+        )
+        text_vae_decoder = Text(
+            "Decoder", font="Menlo", font_size=14, color=GREY
+        ).next_to(trapezoid_right.copy(), DOWN, SMALL_BUFF)
+        self.model_vae_decoder = VGroup(
+            self.gears_vae_decoder, text_vae_decoder, trapezoid_right.copy(),
+            SurroundingRectangle(
+                VGroup(self.gears_vae_decoder, text_vae_decoder, trapezoid_right.copy()),
+                buff=0.2, color=GREY, corner_radius=0.3, stroke_width=2.0
+            )
+        )
+
         # ==============================================================
         # title
         self.title = Text("How does diffusion model work")
@@ -98,6 +126,14 @@ class Diffusion(ThreeDScene):
         ).next_to(self.title, DOWN, buff=0.5).scale(1.2)
         self.title_clip = Text("CLIP", font="Menlo").to_edge(UL, buff=0.5).scale(0.7)
         self.title_ddpm = Text("DDPM", font="Menlo").to_edge(UL, buff=0.5).scale(0.7)
+
+        text_prompt = Paragraph("a cyberpunk with ",
+                                "natural greys and ",
+                                "whites and browns.",
+                                line_spacing=1.0, font="Menlo").scale(0.4)
+        surrounding_prompt = SurroundingRectangle(
+            text_prompt, buff=0.2, color=WHITE, corner_radius=0.3, stroke_width=0.5)
+        self.prompt = VGroup(surrounding_prompt, text_prompt)
 
     def ddpm0(self):
         # 2. show diffusion products
@@ -142,21 +178,14 @@ class Diffusion(ThreeDScene):
             WeightMatrix(shape=(14, 8)).set(width=4),
         )
 
-        text_prompt = Paragraph("a cyberpunk with ",
-                                "natural greys and ",
-                                "whites and browns.",
-                                line_spacing=1.0, font="Menlo").scale(0.4)
-        surrounding_prompt = SurroundingRectangle(
-            text_prompt, buff=0.2, color=WHITE, corner_radius=0.3, stroke_width=0.5)
-        prompt = VGroup(surrounding_prompt, text_prompt)
-        Group(prompt, embedding_prompt, self.model_diffusion, matrix_image).arrange(RIGHT, buff=1.0)
-        arrow_prompt_embedding = Arrow(prompt.get_right(), embedding_prompt.get_left())
+        Group(self.prompt, embedding_prompt, self.model_diffusion, matrix_image).arrange(RIGHT, buff=1.0)
+        arrow_prompt_embedding = Arrow(self.prompt.get_right(), embedding_prompt.get_left())
         arrow_embedding_model = Arrow(embedding_prompt.get_right(), self.model_diffusion.get_left())
         arrow_model_matrix = Arrow(self.model_diffusion.get_right(), matrix_image.get_left())
         image_prompt.move_to(matrix_image.get_center())
 
         self.play(FadeIn(self.model_diffusion))
-        self.play(Create(prompt))
+        self.play(Create(self.prompt))
         self.play(
             GrowArrow(arrow_prompt_embedding),
             Indicate(embedding_prompt)
@@ -1329,6 +1358,70 @@ class Diffusion(ThreeDScene):
         self.play(GrowFromCenter(brace_image_right), Write(text_pixel2))
         self.wait()
 
+    def latent2(self):
+        # def dash_updater(mob):
+        #     offset = vt.get_value()
+        #     mob['dashes'].become(mob.dash_objects(num_dashes, dash_ratio=0.5, offset=offset))
+
+        self.model_diffusion.move_to(ORIGIN)
+
+        text_scheduler = VGroup(
+            Text("Scheduler", color=GREY, font_size=30, font='Menlo'),
+            SurroundingRectangle(
+                Text("Scheduler", color=GREY, font_size=30, font='Menlo'),
+                buff=0.2, color=GREY, corner_radius=0.3, stroke_width=2.0
+            )
+        ).move_to(3 * UP)
+        image_prompt = ImageMobject("assets/prompt.png").set(width=2).move_to(2 * DOWN + 5 * RIGHT)
+        embedding_prompt = WeightMatrix(length=15).set(width=0.4)
+        prompts = Group(
+            self.prompt.scale(0.6), self.model_clip.scale(0.6), embedding_prompt
+        ).arrange(RIGHT, buff=0.5)
+        prompts.move_to(2 * DOWN + 4.5 * LEFT)
+        noise = Prism(dimensions=(1, 1, 0.3)).rotate(-PI / 2).move_to(2 * UP + 5 * LEFT)
+        self.model_vae_decoder.scale(0.7).move_to(2 * DOWN + 3 * RIGHT)
+
+        curve = VMobject()
+        curve.start_new_path(self.model_diffusion.get_right())
+        curve.add_line_to(self.model_diffusion.get_right() + 2.0 * RIGHT)
+        curve.add_cubic_bezier_curve_to(
+            self.model_diffusion.get_right() + 2.5 * RIGHT,
+            self.model_diffusion.get_right() + 2.5 * RIGHT,
+            self.model_diffusion.get_right() + 2.5 * RIGHT + 0.5 * UP,
+        )
+        curve.add_line_to(self.model_diffusion.get_right() + 2.5 * RIGHT + 2 * UP)
+        curve.add_cubic_bezier_curve_to(
+            self.model_diffusion.get_right() + 2.5 * RIGHT + 2.5 * UP,
+            self.model_diffusion.get_right() + 2.5 * RIGHT + 2.5 * UP,
+            self.model_diffusion.get_right() + 2.0 * RIGHT + 2.5 * UP,
+        )
+        curve.add_line_to(self.model_diffusion.get_left() + 2.0 * LEFT + 2.5 * UP)
+        curve.add_cubic_bezier_curve_to(
+            self.model_diffusion.get_left() + 2.5 * LEFT + 2.5 * UP,
+            self.model_diffusion.get_left() + 2.5 * LEFT + 2.5 * UP,
+            self.model_diffusion.get_left() + 2.5 * LEFT + 2.0 * UP,
+        )
+        curve.add_line_to(self.model_diffusion.get_left() + 2.5 * LEFT + 0.5 * UP)
+        curve.add_cubic_bezier_curve_to(
+            self.model_diffusion.get_left() + 2.5 * LEFT,
+            self.model_diffusion.get_left() + 2.5 * LEFT,
+            self.model_diffusion.get_left() + 2.0 * LEFT,
+        )
+        curve.add_line_to(self.model_diffusion.get_left())
+        self.add(self.model_diffusion, image_prompt, prompts, noise,
+                 self.model_vae_decoder, text_scheduler, curve)
+
+        # vt = ValueTracker(0)
+        # num_dashes = 50
+        # speed = 7
+        #
+        # dash1 = DashedMObject(curve, num_dashes=num_dashes, dashed_ratio=0.5, dash_offset=0)
+        # dash1.add_updater(dash_updater)
+        #
+        #
+        # self.play(vt.animate.set_value(speed), run_time=5, rate_func=linear)
+        # self.wait()
+
     def construct(self):
         self.camera.background_color = "#1C1C1C"
         # self.play(Write(self.title))
@@ -1339,20 +1432,12 @@ class Diffusion(ThreeDScene):
         # )
         # self.wait()
 
-        # self.ddpm1()
-        # self.ddpm2()
-        # self.ddpm3()
-        # self.clip1()
-        # self.clip2()
-        # self.clip3()
-        # self.clip4()
-        # self.clip5()
-        self.ddpm0()
-
         # self.model_diffusion.move_to(ORIGIN)
         # self.model_clip.move_to(4 * LEFT + 2 * DOWN)
         # self.model_vqvae.move_to(4 * LEFT + 2 * UP)
         # self.add(self.model_diffusion, self.model_clip, self.model_vqvae)
+
+        self.latent2()
 
 
 if __name__ == "__main__":
