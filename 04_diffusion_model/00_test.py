@@ -134,39 +134,39 @@ class DashTest(Scene):
         arrow_tip.rotate(angle_of_vector(direction))
 
         self.add(model_diffusion, arrow_tip)
-        # for n in range(4):
-        #     self.play(
-        #         ShowPassingFlash(curve, time_width=1.5, run_time=4),
-        #         LaggedStart(
-        #             AnimationGroup(
-        #                 Rotate(gears[i],
-        #                        axis=IN if i == 0 else OUT,
-        #                        about_point=gears[i].get_center()
-        #                        )
-        #                 for i in range(3)
-        #             ), lag_ratio=0.0, run_time=4)
-        #     )
-        # vt = ValueTracker(0)
-        # num_dashes = 50
-        # speed = 7
-        #
-        # dash1 = DashedMObject(curve, num_dashes=num_dashes, dashed_ratio=0.5, dash_offset=0)
-        # dash1.add_updater(dash_updater)
-        #
-        # self.add(model_diffusion, dash1)
-        # self.play(
-        #     vt.animate.set_value(speed),
-        #     LaggedStart(
-        #         AnimationGroup(
-        #             Rotate(gears[i],
-        #                    axis=IN if i == 0 else OUT,
-        #                    about_point=gears[i].get_center()
-        #                    )
-        #             for i in range(3)
-        #         ), lag_ratio=0.0)
-        #     , run_time=5, rate_func=linear
-        # )
-        # self.wait()
+        for n in range(4):
+            self.play(
+                ShowPassingFlash(curve, time_width=1.5, run_time=4),
+                LaggedStart(
+                    AnimationGroup(
+                        Rotate(gears[i],
+                               axis=IN if i == 0 else OUT,
+                               about_point=gears[i].get_center()
+                               )
+                        for i in range(3)
+                    ), lag_ratio=0.0, run_time=4)
+            )
+        vt = ValueTracker(0)
+        num_dashes = 50
+        speed = 7
+
+        dash1 = DashedMObject(curve, num_dashes=num_dashes, dashed_ratio=0.5, dash_offset=0)
+        dash1.add_updater(dash_updater)
+
+        self.add(model_diffusion, dash1)
+        self.play(
+            vt.animate.set_value(speed),
+            LaggedStart(
+                AnimationGroup(
+                    Rotate(gears[i],
+                           axis=IN if i == 0 else OUT,
+                           about_point=gears[i].get_center()
+                           )
+                    for i in range(3)
+                ), lag_ratio=0.0)
+            , run_time=5, rate_func=linear
+        )
+        self.wait()
 
 
 class MatrixMultiplication(Scene):
@@ -206,8 +206,28 @@ class RotateImageAroundYAxis(ThreeDScene):
         self.add(table_text, sour, top, left)
 
 
-# 渲染场景
+class PrismGroup(Scene):
+    def construct(self):
+        self.camera.background_color = "#1C1C1C"
+        prism1 = Group(*[SVGMobject("assets/prism1.svg").scale(2.0) for i in range(3)])
+        prism1.arrange(RIGHT, buff=-0.6).move_to(5.5 * LEFT)
+        prism2 = Group(*[SVGMobject("assets/prism2.svg").scale(1.2) for i in range(2)])
+        prism2.arrange(RIGHT, buff=-0.3).next_to(prism1, RIGHT, buff=-0.6).align_to(prism1, DOWN)
+        prism3 = Group(*[SVGMobject("assets/prism3.svg").scale(0.7) for i in range(2)])
+        prism3.arrange(RIGHT, buff=-0.1).next_to(prism2, RIGHT, buff=-0.3).align_to(prism1, DOWN)
+        prism4 = Group(*[SVGMobject("assets/prism4.svg").scale(0.3) for i in range(4)])
+        prism4[2].set_color(BLUE_E)
+        prism4.arrange(RIGHT, buff=-0.01).next_to(prism3, RIGHT, buff=-0.1).align_to(prism1, DOWN)
+        prism5 = prism3.copy()
+        prism5.next_to(prism4, RIGHT, buff=0.0).align_to(prism1, DOWN)
+        prism6 = prism2.copy()
+        prism6.next_to(prism5, RIGHT, buff=-0.1).align_to(prism1, DOWN)
+        prism7 = prism1.copy()
+        prism7.next_to(prism6, RIGHT, buff=-0.3).align_to(prism1, DOWN)
+        prisms = Group(prism1, prism2, prism3, prism4, prism5, prism6, prism7)
+
+        self.add(prisms)
+
+
 if __name__ == "__main__":
-    path_cats = ([f"cat_with_noise/cat_{i:03}.jpg" for i in range(0, 150, 10)])
-    print(path_cats)
-    print(len(path_cats))
+    PrismGroup().render()

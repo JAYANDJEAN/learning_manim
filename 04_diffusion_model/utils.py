@@ -1,4 +1,6 @@
+import random
 from typing import Optional, Tuple
+
 from manim import *
 
 
@@ -32,6 +34,78 @@ def value_to_color(value, min_value=0.0, max_value=10.0):
     else:
         colors = (low_negative_color, high_negative_color)
     return interpolate_color(*colors, alpha)
+
+
+class MultiLayerPerceptron(MovingCameraScene):
+    def construct(self):
+        def create_composed_shape(radius):
+            circle = Circle(radius=radius, color=WHITE).set_stroke(width=1.5)
+            line1 = Line(circle.get_center(), circle.point_at_angle(PI / 3), color=BLUE_B).set_stroke(width=2)
+            line2 = Line(circle.get_center(), circle.point_at_angle(PI), color=BLUE_B).set_stroke(width=2)
+            return VGroup(circle, line1, line2)
+
+        def create_connections(nodes_in, nodes_out):
+            full_connections = VGroup()
+            combinations = [(x, y) for x in range(len(nodes_in)) for y in range(len(nodes_out))]
+            random_choices = random.sample(combinations, 5)
+            for i, node1 in enumerate(nodes_in):
+                for j, node2 in enumerate(nodes_out):
+                    if node2.get_color() != ORANGE:
+                        line = Line(node1.get_right(), node2.get_left(), buff=SMALL_BUFF)
+                        line.set_stroke(GREY_B, width=random.random() ** 2, opacity=random.random() ** 0.25)
+                        if (i, j) in random_choices:
+                            line.set_stroke(WHITE, width=0.5 + random.random(), opacity=1)
+                        full_connections.add(line)
+            return full_connections
+
+        self.camera.background_color = "#1C1C1C"
+        num_layers = 7
+        random_integers = [random.randint(5, 7) for _ in range(num_layers)]
+        dict_layer_nodes = dict()
+        for i, num_nodes in enumerate(random_integers):
+            if i == 0:
+                circles = ([Circle(radius=0.2, color=ORANGE).set_stroke(width=1.5)] +
+                           [Circle(radius=0.2, color=WHITE).set_stroke(width=1.5) for _ in range(num_nodes)])
+            elif i == len(random_integers) - 1:
+                circles = [Circle(radius=0.2, color=WHITE).set_stroke(width=1.5) for _ in range(num_nodes)]
+            else:
+                circles = ([Circle(radius=0.2, color=ORANGE).set_stroke(width=1.5)] +
+                           [create_composed_shape(0.2) for _ in range(num_nodes)])
+            dict_layer_nodes[i] = VGroup(*circles).arrange(UP, buff=0.3)
+
+        node01 = VGroup(dict_layer_nodes[0], dict_layer_nodes[1]).arrange(RIGHT, buff=3)
+        connections01 = create_connections(dict_layer_nodes[0], dict_layer_nodes[1])
+        brace_in = Brace(node01[0], direction=LEFT)
+        brace_in_text = Text("Input", font_size=24, color=YELLOW).next_to(brace_in, LEFT, SMALL_BUFF)
+        brace_out = Brace(node01[1], direction=RIGHT)
+        brace_out_text = Text("Output", font_size=24, color=YELLOW).next_to(brace_out, RIGHT, SMALL_BUFF)
+        brace_01 = Brace(node01, direction=UP)
+        brace_01_text = Text("Parameters", font_size=24, color=YELLOW).next_to(brace_01, UP, SMALL_BUFF)
+        node01_copy = node01.copy()
+        nodes = VGroup(*dict_layer_nodes.values()).arrange(RIGHT, buff=1.3)
+        connections = VGroup(*[create_connections(dict_layer_nodes[i], dict_layer_nodes[i + 1])
+                               for i in range(num_layers - 1)])
+        brace_mlp = Brace(nodes, direction=UP)
+        brace_mlp_text = Text("MultiLayerPerceptron", font_size=24, color=YELLOW).next_to(brace_mlp, UP, SMALL_BUFF)
+
+        self.play(Create(node01_copy[0]))
+        self.play(Create(brace_in))
+        self.play(Create(brace_in_text))
+        self.play(Create(node01_copy[1]))
+        self.play(Create(brace_out))
+        self.play(Create(brace_out_text))
+        self.play(Create(connections01))
+        self.play(Create(brace_01))
+        self.play(Create(brace_01_text))
+        self.play(FadeOut(brace_in, brace_in_text, brace_out, brace_out_text, brace_01, brace_01_text),
+                  FadeOut(connections01))
+
+        self.wait()
+        self.play(Transform(node01_copy, nodes))
+        self.wait()
+        self.play(Create(connections))
+        self.play(Create(brace_mlp), Create(brace_mlp_text))
+
 
 
 class ArrowWithLabel(Arrow):
@@ -371,3 +445,152 @@ class ContextAnimation(LaggedStart):
             run_time=run_time,
             **kwargs,
         )
+
+
+class Diffusion(ThreeDScene):
+    def __init__(self):
+        super().__init__()
+        self.gear = SVGMobject("assets/wheel.svg")
+        # models
+        # -----------------------------
+        self.gears_diffusion = VGroup(
+            self.gear.copy().scale(0.5).shift(0.78 * UP).set_color(YELLOW_E),
+            self.gear.copy().scale(0.5).shift(0.57 * LEFT).set_color(ORANGE),
+            self.gear.copy().scale(0.5).shift(0.57 * RIGHT).set_color(BLUE_D)
+        )
+        text_diffusion = Text(
+            "Diffusion Model", font="Menlo", font_size=20, color=GREY
+        ).next_to(self.gears_diffusion, DOWN, SMALL_BUFF)
+        self.model_diffusion = VGroup(
+            self.gears_diffusion, text_diffusion,
+            SurroundingRectangle(
+                VGroup(self.gears_diffusion, text_diffusion),
+                buff=0.2, color=GREY, corner_radius=0.3, stroke_width=2.0
+            )
+        )
+        # -----------------------------
+        self.gears_clip = VGroup(
+            self.gear.copy().scale(0.5).shift(0.8 * UP).rotate(10 * DEGREES).set_color(BLUE_C),
+            self.gear.copy().scale(0.5).shift(0.55 * RIGHT).rotate(-8 * DEGREES).set_color(BLUE_E)
+        )
+        text_clip = Text(
+            "CLIP Model", font="Menlo", font_size=20, color=GREY
+        ).next_to(self.gears_clip, DOWN, SMALL_BUFF)
+        self.model_clip = VGroup(
+            self.gears_clip, text_clip,
+            SurroundingRectangle(
+                VGroup(self.gears_clip, text_clip),
+                buff=0.2, color=GREY, corner_radius=0.3, stroke_width=2.0
+            )
+        )
+        # -----------------------------
+        self.gears_text_encoder = VGroup(self.gear.copy().scale(0.4).set_color(BLUE_C))
+        text_text_encoder = Text(
+            "Text Encoder", font="Menlo", font_size=14, color=GREY
+        ).next_to(self.gears_text_encoder, DOWN, SMALL_BUFF)
+        self.model_text_encoder = VGroup(
+            self.gears_text_encoder, text_text_encoder,
+            SurroundingRectangle(
+                VGroup(self.gears_text_encoder, text_text_encoder),
+                buff=0.2, color=GREY, corner_radius=0.3, stroke_width=2.0
+            )
+        )
+
+        self.gears_image_encoder = VGroup(self.gear.copy().scale(0.4).set_color(BLUE_E))
+        text_image_encoder = Text(
+            "Image Encoder", font="Menlo", font_size=14, color=GREY
+        ).next_to(self.gears_image_encoder, DOWN, SMALL_BUFF)
+        self.model_image_encoder = VGroup(
+            self.gears_image_encoder, text_image_encoder,
+            SurroundingRectangle(
+                VGroup(self.gears_image_encoder, text_image_encoder),
+                buff=0.2, color=GREY, corner_radius=0.3, stroke_width=2.0
+            )
+        )
+
+        # -----------------------------
+        trapezoid_right = Polygon(
+            (0.04, 0.4, 0), (1.0, 0.9, 0), (1.0, -0.9, 0), (0.04, -0.4, 0),
+            stroke_color=GREY, stroke_width=2.0
+        )
+        trapezoid_left = Polygon(
+            (-0.04, 0.4, 0), (-1.0, 0.9, 0), (-1.0, -0.9, 0), (-0.04, -0.4, 0),
+            stroke_color=GREY, stroke_width=2.0
+        )
+        self.gears_vqvae = VGroup(
+            self.gear.copy().scale(0.4).shift(0.52 * RIGHT).set_color(GREEN_C),
+            self.gear.copy().scale(0.4).shift(0.52 * LEFT).set_color(GOLD_C)
+        )
+        text_vqvae = Text(
+            "VQVAE", font="Menlo", font_size=20, color=GREY
+        ).shift(0.8 * DOWN)
+        self.model_vqvae = VGroup(
+            trapezoid_right, trapezoid_left, self.gears_vqvae, text_vqvae,
+            SurroundingRectangle(
+                VGroup(trapezoid_right, trapezoid_left, text_vqvae),
+                buff=0.15, color=GREY, corner_radius=0.3, stroke_width=2.0
+            )
+        )
+
+        self.gears_vae_encoder = VGroup(
+            self.gear.copy().scale(0.4).set_color(GOLD_C).shift(0.52 * LEFT)
+        )
+        text_vae_encoder = Text(
+            "Encoder", font="Menlo", font_size=14, color=GREY
+        ).next_to(trapezoid_left.copy(), DOWN, SMALL_BUFF)
+        self.model_vae_encoder = VGroup(
+            self.gears_vae_encoder, text_vae_encoder, trapezoid_left.copy(),
+            SurroundingRectangle(
+                VGroup(self.gears_vae_encoder, text_vae_encoder),
+                buff=0.2, color=GREY, corner_radius=0.3, stroke_width=2.0
+            )
+        )
+
+        self.gears_vae_decoder = VGroup(
+            self.gear.copy().scale(0.4).set_color(GREEN_C).shift(0.52 * RIGHT)
+        )
+        text_vae_decoder = Text(
+            "Decoder", font="Menlo", font_size=14, color=GREY
+        ).next_to(trapezoid_right.copy(), DOWN, SMALL_BUFF)
+        self.model_vae_decoder = VGroup(
+            self.gears_vae_decoder, text_vae_decoder, trapezoid_right.copy(),
+            SurroundingRectangle(
+                VGroup(self.gears_vae_decoder, text_vae_decoder, trapezoid_right.copy()),
+                buff=0.2, color=GREY, corner_radius=0.3, stroke_width=2.0
+            )
+        )
+
+        # ==============================================================
+        # title
+        self.title = Text("How does diffusion model work")
+        self.logo = MathTex(
+            r"\mathbb{JAYANDJEAN}", fill_color="#ece6e2"
+        ).next_to(self.title, DOWN, buff=0.5).scale(1.2)
+        self.title_clip = Text("CLIP", font="Menlo").to_edge(UL, buff=0.5).scale(0.7)
+        self.title_ddpm = Text("DDPM", font="Menlo").to_edge(UL, buff=0.5).scale(0.7)
+
+        text_prompt = Paragraph("a cyberpunk with ",
+                                "natural greys and ",
+                                "whites and browns.",
+                                line_spacing=1.0, font="Menlo").scale(0.4)
+        surrounding_prompt = SurroundingRectangle(
+            text_prompt, buff=0.2, color=WHITE, corner_radius=0.3, stroke_width=0.5)
+        self.prompt = VGroup(surrounding_prompt, text_prompt)
+
+        # ==============================================================
+        prism1 = Group(*[SVGMobject("assets/prism1.svg").scale(2.0) for i in range(3)])
+        prism1.arrange(RIGHT, buff=-0.6).move_to(5.5 * LEFT)
+        prism2 = Group(*[SVGMobject("assets/prism2.svg").scale(1.2) for i in range(2)])
+        prism2.arrange(RIGHT, buff=-0.3).next_to(prism1, RIGHT, buff=-0.6).align_to(prism1, DOWN)
+        prism3 = Group(*[SVGMobject("assets/prism3.svg").scale(0.7) for i in range(2)])
+        prism3.arrange(RIGHT, buff=-0.1).next_to(prism2, RIGHT, buff=-0.3).align_to(prism1, DOWN)
+        prism4 = Group(*[SVGMobject("assets/prism4.svg").scale(0.3) for i in range(4)])
+        prism4[2].set_color(BLUE_E)
+        prism4.arrange(RIGHT, buff=-0.01).next_to(prism3, RIGHT, buff=-0.1).align_to(prism1, DOWN)
+        prism5 = prism3.copy()
+        prism5.next_to(prism4, RIGHT, buff=0.0).align_to(prism1, DOWN)
+        prism6 = prism2.copy()
+        prism6.next_to(prism5, RIGHT, buff=-0.1).align_to(prism1, DOWN)
+        prism7 = prism1.copy()
+        prism7.next_to(prism6, RIGHT, buff=-0.3).align_to(prism1, DOWN)
+        self.unet = Group(prism1, prism2, prism3, prism4, prism5, prism6, prism7)
