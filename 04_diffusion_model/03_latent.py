@@ -52,8 +52,8 @@ class LATENT(Diffusion):
         image_cat.set(width=3)
         image_cat_copy = image_cat.copy()
         all = Group(
-            image_cat, self.model_vgvae_encoder,
-            matrix_image, self.model_vgvae_decoder, image_cat_copy
+            image_cat, self.model_vae_encoder,
+            matrix_image, self.model_vae_decoder, image_cat_copy
         ).arrange(RIGHT, buff=0.5).shift(DOWN)
         self.play(FadeIn(self.model_vqvae))
         self.play(FadeIn(all))
@@ -126,7 +126,7 @@ class LATENT(Diffusion):
 
     def construct(self):
         self.camera.background_color = "#1C1C1C"
-        self.latent1()
+        # self.latent1()
         self.latent2()
 
 
