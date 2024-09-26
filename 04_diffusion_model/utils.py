@@ -107,7 +107,6 @@ class MultiLayerPerceptron(MovingCameraScene):
         self.play(Create(brace_mlp), Create(brace_mlp_text))
 
 
-
 class ArrowWithLabel(Arrow):
     def __init__(self,
                  *args,
@@ -492,7 +491,7 @@ class Diffusion(ThreeDScene):
             self.gears_text_encoder, text_text_encoder,
             SurroundingRectangle(
                 VGroup(self.gears_text_encoder, text_text_encoder),
-                buff=0.2, color=GREY, corner_radius=0.3, stroke_width=2.0
+                buff=0.1, color=GREY, corner_radius=0.15, stroke_width=2.0
             )
         )
 
@@ -504,7 +503,7 @@ class Diffusion(ThreeDScene):
             self.gears_image_encoder, text_image_encoder,
             SurroundingRectangle(
                 VGroup(self.gears_image_encoder, text_image_encoder),
-                buff=0.2, color=GREY, corner_radius=0.3, stroke_width=2.0
+                buff=0.1, color=GREY, corner_radius=0.15, stroke_width=2.0
             )
         )
 
@@ -533,30 +532,30 @@ class Diffusion(ThreeDScene):
         )
 
         self.gears_vae_encoder = VGroup(
-            self.gear.copy().scale(0.4).set_color(GOLD_C).shift(0.52 * LEFT)
+            self.gear.copy().scale(0.4).set_color(GOLD_C)
         )
         text_vae_encoder = Text(
-            "Encoder", font="Menlo", font_size=14, color=GREY
-        ).next_to(trapezoid_left.copy(), DOWN, SMALL_BUFF)
+            "VQVAE \nEncoder", font="Menlo", color=GREY
+        ).scale(0.3).next_to(self.gears_vae_encoder, DOWN, SMALL_BUFF)
         self.model_vae_encoder = VGroup(
-            self.gears_vae_encoder, text_vae_encoder, trapezoid_left.copy(),
+            self.gears_vae_encoder, text_vae_encoder,
             SurroundingRectangle(
                 VGroup(self.gears_vae_encoder, text_vae_encoder),
-                buff=0.2, color=GREY, corner_radius=0.3, stroke_width=2.0
+                buff=0.1, color=GREY, corner_radius=0.15, stroke_width=2.0
             )
         )
 
         self.gears_vae_decoder = VGroup(
-            self.gear.copy().scale(0.4).set_color(GREEN_C).shift(0.52 * RIGHT)
+            self.gear.copy().scale(0.4).set_color(GREEN_C)
         )
         text_vae_decoder = Text(
-            "Decoder", font="Menlo", font_size=14, color=GREY
-        ).next_to(trapezoid_right.copy(), DOWN, SMALL_BUFF)
+            "VQVAE \nDecoder", font="Menlo", color=GREY
+        ).scale(0.3).next_to(self.gears_vae_decoder, DOWN, SMALL_BUFF)
         self.model_vae_decoder = VGroup(
-            self.gears_vae_decoder, text_vae_decoder, trapezoid_right.copy(),
+            self.gears_vae_decoder, text_vae_decoder,
             SurroundingRectangle(
-                VGroup(self.gears_vae_decoder, text_vae_decoder, trapezoid_right.copy()),
-                buff=0.2, color=GREY, corner_radius=0.3, stroke_width=2.0
+                VGroup(self.gears_vae_decoder, text_vae_decoder),
+                buff=0.1, color=GREY, corner_radius=0.15, stroke_width=2.0
             )
         )
 
@@ -568,6 +567,7 @@ class Diffusion(ThreeDScene):
         ).next_to(self.title, DOWN, buff=0.5).scale(1.2)
         self.title_clip = Text("CLIP", font="Menlo").to_edge(UL, buff=0.5).scale(0.7)
         self.title_ddpm = Text("DDPM", font="Menlo").to_edge(UL, buff=0.5).scale(0.7)
+        self.title_latent = Text("Latent", font="Menlo").to_edge(UL, buff=0.5).scale(0.7)
 
         text_prompt = Paragraph("a cyberpunk with ",
                                 "natural greys and ",
@@ -578,6 +578,7 @@ class Diffusion(ThreeDScene):
         self.prompt = VGroup(surrounding_prompt, text_prompt)
 
         # ==============================================================
+
         prism1 = Group(*[SVGMobject("assets/prism1.svg").scale(2.0) for i in range(3)])
         prism1.arrange(RIGHT, buff=-0.6).move_to(5.5 * LEFT)
         prism2 = Group(*[SVGMobject("assets/prism2.svg").scale(1.2) for i in range(2)])
@@ -585,12 +586,33 @@ class Diffusion(ThreeDScene):
         prism3 = Group(*[SVGMobject("assets/prism3.svg").scale(0.7) for i in range(2)])
         prism3.arrange(RIGHT, buff=-0.1).next_to(prism2, RIGHT, buff=-0.3).align_to(prism1, DOWN)
         prism4 = Group(*[SVGMobject("assets/prism4.svg").scale(0.3) for i in range(4)])
-        prism4[2].set_color(BLUE_E)
+        prism4[2].set_color(GOLD_A)
         prism4.arrange(RIGHT, buff=-0.01).next_to(prism3, RIGHT, buff=-0.1).align_to(prism1, DOWN)
-        prism5 = prism3.copy()
-        prism5.next_to(prism4, RIGHT, buff=0.0).align_to(prism1, DOWN)
-        prism6 = prism2.copy()
-        prism6.next_to(prism5, RIGHT, buff=-0.1).align_to(prism1, DOWN)
-        prism7 = prism1.copy()
-        prism7.next_to(prism6, RIGHT, buff=-0.3).align_to(prism1, DOWN)
-        self.unet = Group(prism1, prism2, prism3, prism4, prism5, prism6, prism7)
+        prism5 = Group(*[SVGMobject("assets/prism3.svg").scale(0.7) for i in range(2)])
+        prism5.arrange(RIGHT, buff=-0.1).next_to(prism4, RIGHT, buff=0.0).align_to(prism1, DOWN)
+        prism6 = Group(*[SVGMobject("assets/prism2.svg").scale(1.2) for i in range(2)])
+        prism6.arrange(RIGHT, buff=-0.3).next_to(prism5, RIGHT, buff=-0.1).align_to(prism1, DOWN)
+        prism7 = Group(*[SVGMobject("assets/prism1.svg").scale(2.0) for i in range(4)])
+        prism7.arrange(RIGHT, buff=-0.6).next_to(prism6, RIGHT, buff=-0.3).align_to(prism1, DOWN)
+
+        delta_x = 0.3
+        delta_y = 0.5
+        lines_concat = VGroup()
+        for rate, p1, p2 in [(0.75, prism1, prism7), (0.5, prism2, prism6), (0.3, prism3, prism5)]:
+            p10_start = (p1[-1].get_right() - p1[-1].get_center()) * rate + p1[-1].get_top()
+            p10_end = p10_start + delta_x * RIGHT + delta_y * UP
+            p11_start = (p2[0].get_right() - p2[0].get_center()) * rate + p2[0].get_top()
+            p11_end = p11_start + delta_x * RIGHT + delta_y * UP
+            lines_concat.add(Line(p10_start, p10_end, color=GREY, stroke_width=2.0))
+            lines_concat.add(Line(p10_end, p11_end, color=GREY, stroke_width=2.0))
+            lines_concat.add(Line(p11_start, p11_end, color=GREY, stroke_width=2.0))
+        text_concat1 = Text("Concatenate", font="Menlo", color=GREY).scale(0.3).next_to(lines_concat[1], DOWN)
+        text_concat2 = Text("···", font="Menlo", color=GREY).scale(0.3).next_to(lines_concat[4], UP)
+        text_unet = Text("UNet", font="Menlo", color=GREY).scale(0.6).next_to(prism4, UP)
+
+        self.unet = Group(
+            Group(prism1, prism2, prism3, prism4, prism5, prism6, prism7),
+            lines_concat,
+            text_concat1, text_concat2,
+            # text_unet
+        )
