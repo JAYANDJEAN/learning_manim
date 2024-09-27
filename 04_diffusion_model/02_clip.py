@@ -81,13 +81,13 @@ class CLIP(Diffusion):
 
         self.play(Create(text_cat))
         self.play(
-            LaggedStart(
-                AnimationGroup(
-                    Rotate(self.gears_clip[i], axis=IN if i == 0 else OUT,
-                           about_point=self.gears_clip[i].get_center())
-                    for i in range(2)
-                ), run_time=3, lag_ratio=0.0),
-            LaggedStart(bake_mobject_into_vector_entries(text_cat, embedding_text_cat))
+            AnimationGroup(
+                Rotate(self.gears_clip[i], axis=IN if i == 0 else OUT,
+                       about_point=self.gears_clip[i].get_center())
+                for i in range(2)
+            ),
+            LaggedStart(bake_mobject_into_vector_entries(text_cat, embedding_text_cat)),
+            run_time=3
         )
         self.play(GrowFromCenter(brace_text), Create(dim_text))
         self.play(FadeOut(brace_text, dim_text))
@@ -95,13 +95,13 @@ class CLIP(Diffusion):
 
         self.play(FadeIn(image_cat))
         self.play(
-            LaggedStart(
-                AnimationGroup(
-                    Rotate(self.gears_clip[i], axis=IN if i == 0 else OUT,
-                           about_point=self.gears_clip[i].get_center())
-                    for i in range(2)
-                ), run_time=3, lag_ratio=0.0),
-            LaggedStart(bake_mobject_into_vector_entries(image_cat, embedding_image_cat, path_arc=-30 * DEGREES))
+            AnimationGroup(
+                Rotate(self.gears_clip[i], axis=IN if i == 0 else OUT,
+                       about_point=self.gears_clip[i].get_center())
+                for i in range(2)
+            ),
+            LaggedStart(bake_mobject_into_vector_entries(image_cat, embedding_image_cat, path_arc=-30 * DEGREES)),
+            run_time=3
         )
         self.play(GrowFromCenter(brace_text), Create(dim_text))
         self.play(FadeOut(brace_text, dim_text))
@@ -109,25 +109,24 @@ class CLIP(Diffusion):
 
         self.play(Create(text_dog))
         self.play(
-            LaggedStart(
-                AnimationGroup(
-                    Rotate(self.gears_clip[i], axis=IN if i == 0 else OUT,
-                           about_point=self.gears_clip[i].get_center())
-                    for i in range(2)
-                ), run_time=3, lag_ratio=0.0),
-            LaggedStart(bake_mobject_into_vector_entries(text_dog, embedding_text_dog)),
+            AnimationGroup(
+                Rotate(self.gears_clip[i], axis=IN if i == 0 else OUT,
+                       about_point=self.gears_clip[i].get_center())
+                for i in range(2)
+            ),
+            LaggedStart(bake_mobject_into_vector_entries(text_dog, embedding_text_dog)), run_time=3
         )
         self.play(MoveToTarget(embedding_text_dog), MoveToTarget(text_dog))
 
         self.play(FadeIn(image_dog))
         self.play(
-            LaggedStart(
-                AnimationGroup(
-                    Rotate(self.gears_clip[i], axis=IN if i == 0 else OUT,
-                           about_point=self.gears_clip[i].get_center())
-                    for i in range(2)
-                ), run_time=3, lag_ratio=0.0),
-            LaggedStart(bake_mobject_into_vector_entries(image_dog, embedding_image_dog, path_arc=-30 * DEGREES))
+            AnimationGroup(
+                Rotate(self.gears_clip[i], axis=IN if i == 0 else OUT,
+                       about_point=self.gears_clip[i].get_center())
+                for i in range(2)
+            ),
+            LaggedStart(bake_mobject_into_vector_entries(image_dog, embedding_image_dog, path_arc=-30 * DEGREES)),
+            run_time=3
         )
         self.play(MoveToTarget(embedding_image_dog), MoveToTarget(image_dog))
         self.wait()

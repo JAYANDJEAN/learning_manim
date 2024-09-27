@@ -26,15 +26,16 @@ def get_noise_image():
     sqrt_alphas_bar = np.sqrt(alphas_bar)
     sqrt_one_minus_alphas_bar = np.sqrt(1 - alphas_bar)
 
-    img = Image.open('cat_with_noise/cat_000.jpg').convert('RGB')
-    img = np.array(img) / 255.0
-    t_list = list(range(5, 260, 5))
-    for t in t_list:
-        epsilon = np.random.randn(*img.shape)
-        x_t = sqrt_alphas_bar[t] * img + sqrt_one_minus_alphas_bar[t] * epsilon
-        img_t = (x_t * 255).astype(np.uint8)
-        img_t = Image.fromarray(img_t)
-        img_t.save(f'cat_with_noise/cat_{t:03}.jpg')
+    for i in range(1, 5):
+        img = Image.open(f'cats/cat_{i}_000.jpg').convert('RGB')
+        img = np.array(img) / 255.0
+        t_list = list(range(30, 160, 30))
+        for t in t_list:
+            epsilon = np.random.randn(*img.shape)
+            x_t = sqrt_alphas_bar[t] * img + sqrt_one_minus_alphas_bar[t] * epsilon
+            img_t = (x_t * 255).astype(np.uint8)
+            img_t = Image.fromarray(img_t)
+            img_t.save(f'cats/cat_{i}_{t:03}.jpg')
 
 
 def get_rgb_image():
@@ -49,4 +50,5 @@ def get_rgb_image():
     blue.save('assets/prompt_b.png')
 
 
-get_pool_image()
+if __name__ == "__main__":
+    get_noise_image()

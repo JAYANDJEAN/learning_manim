@@ -1,88 +1,6 @@
 from utils import *
 
 
-# class RotateCamera(ThreeDCamera):
-#     def construct(self):
-#         self.set_floor_plane("xz")
-#         self.play(frame.animate.reorient(-47, -7, 0, (-2.48, -5.84, -1.09), 20))
-#         self.wait()
-
-
-class RotateCameraExample(ThreeDScene):
-    def construct(self):
-        # image_prompt = ImageMobject("assets/prompt.png").set(height=4)
-        # rect = SurroundingRectangle(image_prompt, buff=0.0)
-        # image = Group(image_prompt, rect)
-        # 是image太大了，所以效果不好
-        lattice = NumberPlane(
-            x_range=(-14, 14, 1),
-            y_range=(-17, 17, 1),
-            background_line_style={
-                "stroke_color": GRAY,
-                "stroke_width": 1,
-                "stroke_opacity": 1.0,
-            },
-            axis_config={
-                "stroke_color": GRAY,
-                "stroke_width": 1,
-                "include_numbers": False,
-            },
-            faded_line_ratio=0,
-        ).set(width=4.0)
-        angle_text = always_redraw(
-            lambda: Text(
-                f"phi: {self.camera.get_phi() / PI * 180:.2f}, theta: {self.camera.get_theta() / PI * 180:.2f}, gamma: {self.camera.get_gamma() / PI * 180:.2f}",
-                font_size=12).to_edge(UP + LEFT)
-        )
-        self.add_fixed_in_frame_mobjects(angle_text)
-
-        self.add(lattice)
-        self.move_camera(phi=15 * DEGREES, run_time=3)
-        self.wait()
-        self.move_camera(theta=-45 * DEGREES, run_time=3)
-        self.wait()
-        self.move_camera(gamma=30 * DEGREES, run_time=3)
-
-
-class CameraAnglesAnimation(ThreeDScene):
-    def construct(self):
-        axes = ThreeDAxes(
-            x_range=(-6, 6, 1),
-            y_range=(-6, 6, 1),
-            z_range=(-6, 6, 1),
-            x_length=6,
-            y_length=6,
-            z_length=6,
-            axis_config={
-                "include_tip": True,
-                "numbers_to_include": np.arange(-5, 6, 2),
-                "font_size": 24,
-            },
-        )
-        x_label = Text("X", font_size=24).next_to(axes.x_axis.get_end(), RIGHT)
-        y_label = Text("Y", font_size=24).next_to(axes.y_axis.get_end(), UP)
-        z_label = Text("Z", font_size=24).next_to(axes.z_axis.get_end(), OUT)
-
-        angle_text = always_redraw(
-            lambda: Text(f"phi: {self.camera.get_phi() / PI * 180:.2f}, "
-                         f"theta: {self.camera.get_theta() / PI * 180:.2f}, "
-                         f"gamma: {self.camera.get_gamma() / PI * 180:.2f}").scale(0.3).to_edge(UP + LEFT)
-        )
-
-        gap = 10
-        self.add_fixed_in_frame_mobjects(angle_text)
-        self.set_camera_orientation(phi=75 * DEGREES, theta=-45 * DEGREES)
-        self.add(axes, x_label, y_label, z_label)
-        self.begin_ambient_camera_rotation(rate=-0.1, about='phi')
-        self.wait(gap)
-        self.begin_ambient_camera_rotation(rate=0.1, about='theta')
-        self.wait(gap)
-        self.begin_ambient_camera_rotation(rate=0.1, about='gamma')
-        self.wait(gap)
-        self.stop_ambient_camera_rotation()
-        self.wait()
-
-
 class DashTest(Scene):
     def construct(self):
         def dash_updater(mob):
@@ -196,37 +114,17 @@ class MatrixMultiplication(Scene):
                           entry.animate.set_opacity(1))
 
 
-class RotateImageAroundYAxis(ThreeDScene):
+class PrismGroup(Diffusion):
     def construct(self):
-        table_text = Rectangle(width=4.0, height=1.0, grid_xstep=1.0).move_to(3 * UP + 1 * LEFT)
-        print(table_text.width, table_text.height)
-        sour = SurroundingRectangle(table_text, buff=0.1)
-        top = Dot(table_text.get_top())
-        left = Dot(table_text.get_left())
-        self.add(table_text, sour, top, left)
-
-
-class PrismGroup(Scene):
-    def construct(self):
-        self.camera.background_color = "#1C1C1C"
-        prism1 = Group(*[SVGMobject("assets/prism1.svg").scale(2.0) for i in range(3)])
-        prism1.arrange(RIGHT, buff=-0.6).move_to(5.5 * LEFT)
-        prism2 = Group(*[SVGMobject("assets/prism2.svg").scale(1.2) for i in range(2)])
-        prism2.arrange(RIGHT, buff=-0.3).next_to(prism1, RIGHT, buff=-0.6).align_to(prism1, DOWN)
-        prism3 = Group(*[SVGMobject("assets/prism3.svg").scale(0.7) for i in range(2)])
-        prism3.arrange(RIGHT, buff=-0.1).next_to(prism2, RIGHT, buff=-0.3).align_to(prism1, DOWN)
-        prism4 = Group(*[SVGMobject("assets/prism4.svg").scale(0.3) for i in range(4)])
-        prism4[2].set_color(BLUE_E)
-        prism4.arrange(RIGHT, buff=-0.01).next_to(prism3, RIGHT, buff=-0.1).align_to(prism1, DOWN)
-        prism5 = prism3.copy()
-        prism5.next_to(prism4, RIGHT, buff=0.0).align_to(prism1, DOWN)
-        prism6 = prism2.copy()
-        prism6.next_to(prism5, RIGHT, buff=-0.1).align_to(prism1, DOWN)
-        prism7 = prism1.copy()
-        prism7.next_to(prism6, RIGHT, buff=-0.3).align_to(prism1, DOWN)
-        prisms = Group(prism1, prism2, prism3, prism4, prism5, prism6, prism7)
-
-        self.add(prisms)
+        self.add(self.unet)
+        self.play(
+            LaggedStart(
+                *[p.animate(rate_func=there_and_back).set_color(TEAL)
+                  for prism in self.unet[0] for p in prism],
+                lag_ratio=0.1, run_time=1.5
+            )
+        )
+        self.wait()
 
 
 if __name__ == "__main__":
