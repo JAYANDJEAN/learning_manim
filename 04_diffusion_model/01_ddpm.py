@@ -427,11 +427,11 @@ class DDPM(Diffusion):
         self.play(Create(line_50), Create(dot_alpha_50), Create(dot_one_minus_alpha_50))
         self.play(Create(line_800), Create(dot_alpha_800), Create(dot_one_minus_alpha_800))
         self.play(FadeIn(image_cat_50), FadeIn(image_cat_800))
+        self.play(FadeOut(image_cat_50, image_cat_800))
         self.play(FadeOut(line_800, dot_alpha_800, dot_one_minus_alpha_800,
                           line_50, dot_alpha_50, dot_one_minus_alpha_50,
                           one_minus_alpha_curve, one_minus_alpha_label,
                           alpha_curve, alpha_label, axes, formula_xt))
-        self.play(FadeOut(image_cat_50, image_cat_800))
         self.wait()
 
     def ddpm3(self):
@@ -584,12 +584,11 @@ class DDPM(Diffusion):
         text_question = Text("?").scale(3).next_to(image_output_dog, RIGHT)
         self.play(
             FadeIn(image_output_dog, shift=DOWN),
-            FadeOut(image_output_cats[3:50]),
-            image_output_cats[50].animate.next_to(image_output_dog, DOWN),
+            image_output_cats[3:51].animate.next_to(image_output_dog, DOWN),
             Create(text_question)
         )
         self.play(FadeOut(image_output_dog, self.unet,
-                          arrow_model_output, text_question, image_output_cats[50]))
+                          arrow_model_output, text_question, image_output_cats[3:51]))
         self.wait()
 
     def construct(self):
