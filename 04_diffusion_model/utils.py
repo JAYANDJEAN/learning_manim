@@ -517,14 +517,14 @@ class Diffusion(ThreeDScene):
             stroke_color=GREY, stroke_width=2.0
         )
         self.gears_vqvae = VGroup(
-            self.gear.copy().scale(0.4).shift(0.52 * RIGHT).set_color(GREEN_C),
-            self.gear.copy().scale(0.4).shift(0.52 * LEFT).set_color(GOLD_C)
+            self.gear.copy().scale(0.4).shift(0.52 * LEFT).set_color(GOLD_C),
+            self.gear.copy().scale(0.4).shift(0.52 * RIGHT).set_color(GREEN_C)
         )
         text_vqvae = Text(
             "VQVAE", font="Menlo", font_size=20, color=GREY
         ).shift(0.8 * DOWN)
         self.model_vqvae = VGroup(
-            trapezoid_right, trapezoid_left, self.gears_vqvae, text_vqvae,
+            self.gears_vqvae, trapezoid_right, trapezoid_left, text_vqvae,
             SurroundingRectangle(
                 VGroup(trapezoid_right, trapezoid_left, text_vqvae),
                 buff=0.15, color=GREY, corner_radius=0.3, stroke_width=2.0

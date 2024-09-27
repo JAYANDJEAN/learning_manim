@@ -1,5 +1,3 @@
-import random
-
 from PIL import Image
 
 from utils import *
@@ -172,7 +170,7 @@ class CLIP(Diffusion):
             embedding_image_dog, image_dog,
             embedding_text_dog, text_dog,
             embedding_image_cat, image_cat,
-            embedding_text_cat, text_cat, self.logo, self.title_clip
+            embedding_text_cat, text_cat, self.title_clip
         )
 
         self.set_camera_orientation(phi=75 * DEGREES, theta=-45 * DEGREES)

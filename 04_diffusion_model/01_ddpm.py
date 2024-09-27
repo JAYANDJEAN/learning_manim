@@ -5,39 +5,26 @@ class DDPM(Diffusion):
     def __init__(self):
         super().__init__()
 
-    def ddpm0(self):
-        # 2. show diffusion products
-        # 清理干净
-        # mid_feed = ImageMobject("assets/Midjourney-Feed.png").set(width=12).to_edge(UP)
-        # mid_feed.generate_target()
-        # mid_feed.target.to_edge(DOWN)
-        # mid = ImageMobject("assets/product_mid.jpg").set(height=2)
-        # sd3 = ImageMobject("assets/product_sd3.png").set(height=2)
-        # flux = ImageMobject("assets/product_flux.png").set(height=2)
-        # models = Group(mid, sd3, flux).arrange(RIGHT, buff=0.2).align_to(LEFT)
-        # todo: 需要补充内容
-        # self.play(LaggedStartMap(FadeIn, models, lag_ratio=0.5))
-        # self.play(FadeOut(models))
-        # self.wait()
-        # self.add(mid_feed)
-        # self.play(MoveToTarget(mid_feed, run_time=13, rate_func=linear))
-
-        images = Group(*[ImageMobject(f"images/show_00{i}.jpg").set(height=6) for i in range(1, 5)])
-        texts = VGroup(
-            Text("cybotix style, a close-up of a robotic bee hovering in the air"),
-            Text("the worst and best of September translucent sapphire eagle flying"),
-            Text("Beautiful bright lizard, bright colors, long tail, bright shining eyes, "
-                 "standing upright full length, no background"),
-            Text("cybotix style, a close-up of a robotic bee hovering in the air")
-        )
-        for i in range(len(images)):
-            tx = texts[i].next_to(images[i], DOWN, buff=0.3).scale(0.4)
-            self.play(FadeIn(images[i], shift=LEFT), Write(tx))
-            self.wait(0.5)
-            self.play(FadeOut(images[i], tx, shift=LEFT))
-        self.wait()
-
     def ddpm1(self):
+        # show demo
+        image_text_pair1 = Group(
+            ImageMobject(f"images/show_001.jpg").set(height=4),
+            ImageMobject(f"images/show_002.jpg").set(height=4)
+        ).arrange(RIGHT, buff=0.01)
+        image_text_pair2 = Group(
+            ImageMobject(f"images/show_003.jpg").set(height=4),
+            ImageMobject(f"images/show_004.jpg").set(height=4)
+        ).arrange(RIGHT, buff=0.01)
+        image_text_pair = Group(image_text_pair1, image_text_pair2).arrange(DOWN, buff=0.03)
+        self.play(
+            FadeIn(image_text_pair1[0], shift=RIGHT),
+            FadeIn(image_text_pair1[1], shift=DOWN),
+            FadeIn(image_text_pair2[1], shift=LEFT),
+            FadeIn(image_text_pair2[0], shift=UP),
+            run_time=2
+        )
+        self.play(FadeOut(image_text_pair, shift=LEFT))
+
         # 3. show generating images
         image_prompt = ImageMobject("assets/prompt.png").set(width=4.2)
 
@@ -66,7 +53,7 @@ class DDPM(Diffusion):
                 Rotate(self.gears_diffusion[i], axis=IN if i == 0 else OUT,
                        about_point=self.gears_diffusion[i].get_center())
                 for i in range(3)
-            ), run_time=4
+            ), run_time=3
         )
         self.play(GrowArrow(arrow_model_matrix), Create(matrix_image))
         self.play(FadeIn(image_prompt), FadeOut(matrix_image))
@@ -593,9 +580,9 @@ class DDPM(Diffusion):
 
     def construct(self):
         self.camera.background_color = "#1C1C1C"
-        # self.ddpm0()
-        # self.ddpm1()
-        # self.ddpm2()
+
+        self.ddpm1()
+        self.ddpm2()
         self.ddpm3()
 
 
