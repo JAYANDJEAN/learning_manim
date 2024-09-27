@@ -479,12 +479,13 @@ class DDPM(Diffusion):
             r"\boldsymbol{\epsilon}_\theta",
             r"\left(\mathbf{x}_t, t\right)\right)+\sigma_t \mathbf{z}"
         ).scale(0.6).next_to(self.unet.target, DOWN, buff=0.5)
-        box_decode_model = SurroundingRectangle(
+        box_decode = SurroundingRectangle(
             formula_decode[5], corner_radius=0.01
         ).set_stroke(YELLOW_E, 2.0)
 
         image_path_list = ([ImageMobject(f"cat_with_noise/cat_{i:03}.jpg").set(width=2)
                             for i in range(0, 255, 5)])
+        print(len(image_path_list))
         image_output_cats = Group(*image_path_list[::-1])
         image_input_noise = (ImageMobject("cat_with_noise/cat_250.jpg").set(width=2)
                              .next_to(self.unet.target, LEFT, buff=1.0))
@@ -508,68 +509,88 @@ class DDPM(Diffusion):
 
         # self.add(self.title_ddpm, image_encode_set.target,
         #          brace_image_set, formula_encode, box_encode, self.unet)
-
         # self.add(self.title_ddpm, self.unet.target, formula_decode, box_decode_model,
         #          image_input_noise, image_output_dog, arrow_input_model, arrow_model_output,
         #          text_steps[0], line_circle)
 
-        # self.play(LaggedStartMap(FadeIn, image_encode_set, lag_ratio=0.5))
-        # self.play(MoveToTarget(image_encode_set), GrowFromCenter(brace_image_set))
-        # self.play(Write(formula_encode), Create(box_encode))
-        # self.play(FadeIn(image_unet))
-        # self.play(FadeOut(image_unet, box_encode))
-        # self.play(FadeTransform(formula_encode, self.model_diffusion))
-        # self.play(FadeOut(image_encode_set, brace_image_set))
-        #
-        # for i in range(len(image_output_cats) - 1):
-        #     image_output_cats[i + 1].next_to(self.model_diffusion, RIGHT, buff=1.5)
-        #     if i == 0:
-        #         image_output_cats[i].next_to(self.model_diffusion, LEFT, buff=1.5)
-        #         self.play(FadeIn(image_output_cats[i], shift=DOWN), GrowArrow(arrow_input_model))
-        #         self.play(Write(formula_decode))
-        #         self.play(Create(box_decode_model))
-        #         self.play(GrowArrow(arrow_model_output), FadeIn(image_output_cats[i + 1]))
-        #         self.play(Write(text_steps[i]))
-        #         self.play(Create(line_circle))
-        #     elif i <= 2:
-        #         if i == 1:
-        #             self.play(FadeOut(image_output_cats[0], arrow_input_model))
-        #         im = image_output_cats[i].copy()
-        #         self.play(MoveAlongPath(im, line_circle, run_time=1.5))
-        #         self.play(
-        #             FadeOut(im, target_position=image_output_dog),
-        #             FadeIn(image_output_cats[i + 1]),
-        #             FadeTransform(text_steps[i - 1], text_steps[i]),
-        #             run_time=0.5
-        #         )
-        #     elif i <= 7:
-        #         self.play(ShowPassingFlash(line_circle.copy().set_color(RED), run_time=0.5, time_width=1.0))
-        #         self.play(
-        #             FadeIn(image_output_cats[i + 1]),
-        #             FadeTransform(text_steps[i - 1], text_steps[i]),
-        #             run_time=0.2
-        #         )
-        #     else:
-        #         self.play(
-        #             FadeIn(image_output_cats[i + 1]),
-        #             FadeTransform(text_steps[i - 1], text_steps[i]),
-        #             run_time=0.1
-        #         )
-        # self.wait()
-        # self.play(FadeOut(formula_decode, line_circle, text_steps[49], box_decode_model))
-        # self.play(Group(self.model_diffusion, arrow_model_output,
-        #                 image_output_cats[1:51]).animate.shift(LEFT + 2 * UP))
-        #
-        # image_output_dog.next_to(self.model_diffusion, RIGHT, buff=1.5)
-        # text_question = Text("?").scale(3).next_to(image_output_dog, RIGHT)
-        # self.play(
-        #     FadeIn(image_output_dog, shift=DOWN),
-        #     image_output_cats[1:51].animate.next_to(image_output_dog, DOWN),
-        #     Create(text_question)
-        # )
-        # self.play(FadeOut(image_output_dog, self.model_diffusion,
-        #                   arrow_model_output, text_question, image_output_cats[1:51]))
-        # self.wait()
+        self.play(LaggedStartMap(FadeIn, Group(*[i[0] for i in image_encode_set]), lag_ratio=0.5, shift=RIGHT))
+        self.play(
+            LaggedStart(
+                *[
+                    LaggedStartMap(FadeIn, Group(*[i for i in sub_set[1:]]), lag_ratio=0.1, shift=DOWN)
+                    for sub_set in image_encode_set
+                ]
+            ),
+            lag_ratio=0.5
+        )
+        self.play(MoveToTarget(image_encode_set), GrowFromCenter(brace_image_set))
+        self.play(Write(formula_encode), Create(box_encode))
+        self.play(FadeIn(self.unet))
+        self.play(
+            FadeOut(image_encode_set, box_encode, formula_encode, brace_image_set),
+            MoveToTarget(self.unet)
+        )
+        self.play(Write(formula_decode), Create(box_decode))
+        self.wait()
+
+        for i in range(len(image_output_cats) - 1):
+            image_output_cats[i + 1].next_to(self.unet, RIGHT, buff=1.0)
+            if i == 0:
+                image_output_cats[i].next_to(self.unet, LEFT, buff=1.0)
+                self.play(FadeIn(image_output_cats[i], shift=DOWN), GrowArrow(arrow_input_model))
+                self.play(
+                    FadeOut(image_output_cats[i], scale=0.1, target_position=self.unet.get_left()),
+                    LaggedStart(
+                        *[p.animate(rate_func=there_and_back).set_color(TEAL)
+                          for prism in self.unet[0] for p in prism],
+                        lag_ratio=0.1, run_time=1.5
+                    )
+                )
+                self.play(
+                    GrowArrow(arrow_model_output),
+                    FadeIn(image_output_cats[i + 1], shift=RIGHT)
+                )
+                self.play(Write(text_steps[i]))
+            elif i <= 2:
+                self.play(MoveAlongPath(image_output_cats[i], line_circle, run_time=3))
+                self.play(
+                    FadeOut(image_output_cats[i], scale=0.1, target_position=self.unet.get_left()),
+                    LaggedStart(
+                        *[p.animate(rate_func=there_and_back).set_color(TEAL)
+                          for prism in self.unet[0] for p in prism],
+                        lag_ratio=0.1, run_time=1.5
+                    ),
+                    FadeTransform(text_steps[i - 1], text_steps[i])
+                )
+                self.play(FadeIn(image_output_cats[i + 1], shift=RIGHT))
+            elif i <= 10:
+                self.play(ShowPassingFlash(line_circle.copy().set_color(RED), run_time=0.5, time_width=1.0))
+                self.play(
+                    FadeIn(image_output_cats[i + 1]),
+                    FadeTransform(text_steps[i - 1], text_steps[i]),
+                    run_time=0.2
+                )
+            else:
+                self.play(
+                    FadeIn(image_output_cats[i + 1]),
+                    FadeTransform(text_steps[i - 1], text_steps[i]),
+                    run_time=0.1
+                )
+        self.wait()
+        self.play(FadeOut(formula_decode, box_decode, arrow_input_model, text_steps[49]))
+        self.play(Group(self.unet, arrow_model_output, image_output_cats[3:51]).animate.shift(2 * LEFT))
+
+        image_output_dog.next_to(self.unet, RIGHT, buff=1.0)
+        text_question = Text("?").scale(3).next_to(image_output_dog, RIGHT)
+        self.play(
+            FadeIn(image_output_dog, shift=DOWN),
+            FadeOut(image_output_cats[3:50]),
+            image_output_cats[50].animate.next_to(image_output_dog, DOWN),
+            Create(text_question)
+        )
+        self.play(FadeOut(image_output_dog, self.unet,
+                          arrow_model_output, text_question, image_output_cats[50]))
+        self.wait()
 
     def construct(self):
         self.camera.background_color = "#1C1C1C"
