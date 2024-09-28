@@ -155,7 +155,7 @@ class LATENT(Diffusion):
             r"\boldsymbol{\epsilon}_\theta",
             r"(\mathbf{x}_t, t)\|^2"
         ).scale(0.7).next_to(brace_embedding, DOWN, buff=0.2)
-        self.unet.scale(0.5).next_to(formula_encode, DOWN, buff=0.5)
+        self.unet.next_to(formula_encode, DOWN, buff=0.5)
         self.play(GrowFromCenter(brace_embedding), Write(formula_encode))
         self.play(FadeIn(self.unet, shift=RIGHT))
         self.play(
@@ -165,15 +165,19 @@ class LATENT(Diffusion):
         self.wait()
 
     def latent2(self):
-        self.unet.scale(0.5).move_to(ORIGIN)
+        self.unet.move_to(ORIGIN)
         noise = SVGMobject("assets/prism0.svg").move_to(3.8 * LEFT + 0.7 * UP)
         noise_out = SVGMobject("assets/prism0.svg").move_to(3.8 * RIGHT + 0.7 * UP)
         self.model_text_encoder.move_to(5.5 * LEFT + 1.5 * DOWN)
         self.model_vae_decoder.move_to(5.3 * RIGHT + 0.7 * UP)
-        self.prompt.scale(0.7).next_to(self.model_text_encoder, DOWN, buff=0.5)
+        self.prompt.scale(0.6).next_to(self.model_text_encoder, DOWN, buff=0.5)
         embedding_prompt = WeightMatrix(length=15).set(width=0.3).next_to(self.model_text_encoder, RIGHT, buff=0.5)
         image_prompt = ImageMobject("assets/prompt.png").set(width=2.0).next_to(self.model_vae_decoder, DOWN, buff=0.5)
-        text_scheduler = Text("Step 7", color=GREY, font='Menlo').scale(0.5).move_to(self.unet.get_center() + 2.0 * UP)
+        text_steps = VGroup(
+            *[Text(f"Step {i + 1}", color=GREY).scale(0.6).next_to(self.unet, UP, buff=1.0)
+              for i in range(50)
+              ]
+        )
         text_dim1 = Text("4 * 64 * 64", color=GREY, font='Menlo').scale(0.3).next_to(noise, LEFT)
         text_dim2 = Text("4 * 64 * 64", color=GREY, font='Menlo').scale(0.3).next_to(noise_out, UP)
         arrow_out_decode = Arrow(noise_out.get_center(),
@@ -185,6 +189,8 @@ class LATENT(Diffusion):
         arrow_embedding = Arrow(embedding_prompt.get_right() + 0.2 * LEFT,
                                 embedding_prompt.get_right() + 7.5 * RIGHT,
                                 color=GREY, stroke_width=2.0, tip_length=0.2)
+        line_embedding = Line(embedding_prompt.get_right() + 0.2 * LEFT,
+                              embedding_prompt.get_right() + 7 * RIGHT).set_stroke(RED, 5.0)
         arrow_prompt_encode = Arrow(self.prompt.get_top(),
                                     self.model_text_encoder.get_bottom(),
                                     color=GREY, stroke_width=2.0, tip_length=0.2, buff=0.05)
@@ -207,17 +213,103 @@ class LATENT(Diffusion):
                 p_start = (p_end[0] - delta) * RIGHT + arrow_embedding.get_right()[1] * UP
                 line_embedding_unet.add(Line(p_start, p_end, color=GREY, stroke_width=2.0))
 
-        self.add(
-            self.unet, self.prompt, self.model_text_encoder, self.model_vae_decoder,
-            embedding_prompt, arrow_embedding, line_embedding_unet, text_scheduler, image_prompt,
-            noise, noise_out, arrow_out_decode, arrow_decode_image,
-            arrow_prompt_encode, arrow_encode_embed, arrow_prompt_encode, arrow_encode_embed,
-            line_circle, text_dim1, text_dim2
+        # self.add(
+        #     self.unet, self.prompt, self.model_text_encoder, self.model_vae_decoder,
+        #     embedding_prompt, arrow_embedding, line_embedding_unet, text_scheduler, image_prompt,
+        #     noise, noise_out, arrow_out_decode, arrow_decode_image,
+        #     arrow_prompt_encode, arrow_encode_embed, arrow_prompt_encode, arrow_encode_embed,
+        #     line_circle, text_dim1, text_dim2
+        # )
+        self.add(self.unet)
+        self.play(Create(self.prompt), GrowArrow(arrow_prompt_encode), GrowFromCenter(self.model_text_encoder))
+        self.play(
+            Rotate(self.gears_text_encoder[0], axis=IN,
+                   about_point=self.gears_text_encoder[0].get_center()),
+            GrowArrow(arrow_encode_embed),
+            Create(embedding_prompt)
         )
+        self.play(FadeIn(noise, shift=DOWN), Write(text_dim1))
+        self.play(
+            GrowArrow(arrow_embedding),
+            LaggedStartMap(Create, line_embedding_unet, lag_ratio=0.01)
+        )
+        self.play(
+            FadeOut(noise, scale=0.1, target_position=self.unet.get_left()),
+            FadeOut(text_dim1),
+            LaggedStart(
+                *[p.animate(rate_func=there_and_back).set_color(TEAL)
+                  for prism in self.unet[0] for p in prism],
+                lag_ratio=0.1, run_time=3
+            ),
+            ShowPassingFlash(line_embedding, time_width=0.2, run_time=3),
+            LaggedStartMap(
+                ShowPassingFlash, line_embedding_unet.copy().set_stroke(RED, 5.0),
+                time_width=0.3,
+                lag_ratio=0.1,
+                run_time=3
+            )
+        )
+        self.play(
+            FadeIn(noise_out, scale=0.1, target_position=self.unet.get_right()),
+            Write(text_steps[0]),
+            Write(text_dim2)
+        )
+        self.wait()
+        self.play(
+            FadeOut(text_dim2),
+            MoveAlongPath(noise_out, line_circle, run_time=2),
+        )
+        self.play(
+            FadeOut(noise_out, scale=0.1, target_position=self.unet.get_left()),
+            LaggedStart(
+                *[p.animate(rate_func=there_and_back).set_color(TEAL)
+                  for prism in self.unet[0] for p in prism],
+                lag_ratio=0.1, run_time=2
+            ),
+            ShowPassingFlash(line_embedding, time_width=0.2, run_time=2),
+            LaggedStartMap(
+                ShowPassingFlash, line_embedding_unet.copy().set_stroke(RED, 5.0),
+                time_width=0.3,
+                lag_ratio=0.1,
+                run_time=2
+            )
+        )
+        noise_out.move_to(3.8 * RIGHT + 0.7 * UP)
+        self.play(
+            FadeIn(noise_out, scale=0.1, target_position=self.unet.get_right()),
+            FadeTransform(text_steps[0], text_steps[1])
+        )
+        for i in range(1, 7):
+            self.play(
+                FadeTransform(text_steps[i], text_steps[i + 1]),
+                ShowPassingFlash(line_circle.copy().set_stroke(RED, 3.0), time_width=0.5, run_time=0.3),
+                LaggedStart(
+                    *[p.animate(rate_func=there_and_back).set_color(TEAL)
+                      for prism in self.unet[0] for p in prism],
+                    lag_ratio=0.1, run_time=0.3
+                )
+            )
+        for i in range(7, len(text_steps) - 1):
+            self.play(
+                FadeTransform(text_steps[i], text_steps[i + 1], run_time=0.09),
+                LaggedStart(
+                    *[p.animate(rate_func=there_and_back).set_color(TEAL)
+                      for prism in self.unet[0] for p in prism],
+                    lag_ratio=0.1, run_time=0.09
+                )
+            )
+        self.play(GrowArrow(arrow_out_decode), GrowFromCenter(self.model_vae_decoder))
+        self.play(
+            GrowArrow(arrow_decode_image),
+            Rotate(self.gears_vae_decoder[0], axis=IN,
+                   about_point=self.gears_vae_decoder[0].get_center()),
+            FadeIn(image_prompt, shift=DOWN))
+
+        self.wait()
 
     def construct(self):
         self.camera.background_color = "#1C1C1C"
-        # self.latent1()
+        self.latent1()
         self.latent2()
 
 

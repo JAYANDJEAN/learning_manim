@@ -460,7 +460,7 @@ class DDPM(Diffusion):
         box_encode = SurroundingRectangle(
             formula_encode[1], corner_radius=0.01
         ).set_stroke(YELLOW_E, 2.0)
-        self.unet.scale(0.5).next_to(formula_encode, DOWN, buff=0.5)
+        self.unet.next_to(formula_encode, DOWN, buff=0.5)
         self.unet.generate_target()
         self.unet.target.move_to(ORIGIN)
 

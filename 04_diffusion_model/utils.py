@@ -615,4 +615,4 @@ class Diffusion(ThreeDScene):
             lines_concat,
             text_concat1, text_concat2,
             # text_unet
-        )
+        ).scale(0.5)
