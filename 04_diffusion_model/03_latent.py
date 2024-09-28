@@ -165,66 +165,54 @@ class LATENT(Diffusion):
         self.wait()
 
     def latent2(self):
-        self.model_text_encoder.move_to(5.5 * LEFT + 1.5 * DOWN)
-        self.model_vae_decoder.move_to(4.2 * RIGHT + 1.5 * DOWN)
-        embedding_prompt = WeightMatrix(length=15).set(width=0.3).next_to(self.model_text_encoder, RIGHT, buff=0.5)
-        image_prompt = ImageMobject("assets/prompt.png").set(width=1.7).next_to(self.model_vae_decoder, RIGHT)
-        self.prompt.scale(0.7).next_to(self.model_text_encoder, DOWN, buff=0.5)
         self.unet.scale(0.5).move_to(ORIGIN)
-        line_embedding = Arrow(
-            embedding_prompt.get_right() + 0.2 * LEFT, embedding_prompt.get_right() + 7.5 * RIGHT,
-            color=GREY, stroke_width=2.0, tip_length=0.2,
-            max_tip_length_to_length_ratio=1.0,
-            max_stroke_width_to_length_ratio=20
-        )
+        noise = SVGMobject("assets/prism0.svg").move_to(3.8 * LEFT + 0.7 * UP)
+        noise_out = SVGMobject("assets/prism0.svg").move_to(3.8 * RIGHT + 0.7 * UP)
+        self.model_text_encoder.move_to(5.5 * LEFT + 1.5 * DOWN)
+        self.model_vae_decoder.move_to(5.3 * RIGHT + 0.7 * UP)
+        self.prompt.scale(0.7).next_to(self.model_text_encoder, DOWN, buff=0.5)
+        embedding_prompt = WeightMatrix(length=15).set(width=0.3).next_to(self.model_text_encoder, RIGHT, buff=0.5)
+        image_prompt = ImageMobject("assets/prompt.png").set(width=2.0).next_to(self.model_vae_decoder, DOWN, buff=0.5)
+        text_scheduler = Text("Step 7", color=GREY, font='Menlo').scale(0.5).move_to(self.unet.get_center() + 2.0 * UP)
+        text_dim1 = Text("4 * 64 * 64", color=GREY, font='Menlo').scale(0.3).next_to(noise, LEFT)
+        text_dim2 = Text("4 * 64 * 64", color=GREY, font='Menlo').scale(0.3).next_to(noise_out, UP)
+        arrow_out_decode = Arrow(noise_out.get_center(),
+                                 self.model_vae_decoder.get_left(),
+                                 stroke_width=2.0, tip_length=0.15, color=GREY, buff=0.05)
+        arrow_decode_image = Arrow(self.model_vae_decoder.get_bottom(),
+                                   image_prompt.get_top(),
+                                   stroke_width=2.0, tip_length=0.15, color=GREY, buff=0.05)
+        arrow_embedding = Arrow(embedding_prompt.get_right() + 0.2 * LEFT,
+                                embedding_prompt.get_right() + 7.5 * RIGHT,
+                                color=GREY, stroke_width=2.0, tip_length=0.2)
+        arrow_prompt_encode = Arrow(self.prompt.get_top(),
+                                    self.model_text_encoder.get_bottom(),
+                                    color=GREY, stroke_width=2.0, tip_length=0.2, buff=0.05)
+        arrow_encode_embed = Arrow(self.model_text_encoder.get_right(),
+                                   embedding_prompt.get_left(),
+                                   color=GREY, stroke_width=2.0, tip_length=0.2, buff=0.05)
+        line_circle = CubicBezier(
+            noise_out.get_center(),
+            noise_out.get_center() + 2.5 * UP,
+            noise.get_center() + 2.5 * UP,
+            noise.get_center()
+        ).set_stroke(GREY, 2.0)
+
         rate_list = [0.75, 0.5, 0.3, 1 / 9, 0.3, 0.5, 0.75]
         delta = 0.1
         line_embedding_unet = VGroup()
         for i, prisms in enumerate(self.unet[0]):
             for p in prisms:
                 p_end = (p.get_left() - p.get_center()) * rate_list[i] + p.get_bottom()
-                p_start = (p_end[0] - delta) * RIGHT + line_embedding.get_right()[1] * UP
+                p_start = (p_end[0] - delta) * RIGHT + arrow_embedding.get_right()[1] * UP
                 line_embedding_unet.add(Line(p_start, p_end, color=GREY, stroke_width=2.0))
-
-        line_vae_decode = CubicBezier(
-            self.unet.get_right() + 0.2 * LEFT + 0.1 * DOWN,
-            self.unet.get_right() + 0.2 * LEFT + 1.0 * DOWN,
-            self.unet.get_right() + 0.2 * LEFT + 1.4 * DOWN,
-            self.model_vae_decoder.get_left()
-        ).set_stroke(GREY, 2.0)
-
-        prism_start = self.unet[0][-1][-1]
-        point_start = (prism_start.get_right() - prism_start.get_center()) * 0.75 + prism_start.get_top()
-        prism_end = self.unet[0][0][0]
-        point_end = (prism_end.get_right() - prism_end.get_center()) * 0.75 + prism_end.get_top()
-
-        text_scheduler = VGroup(
-            Text("Scheduler", color=GREY, font='Menlo').scale(0.3),
-            SurroundingRectangle(
-                Text("Scheduler", color=GREY, font='Menlo').scale(0.3),
-                buff=0.07, color=GREY, corner_radius=0.05, stroke_width=2.0
-            )
-        ).move_to((point_start + point_end) / 2 + 1.5 * UP)
-
-        line_back1 = CubicBezier(
-            point_start,
-            point_start[0] * RIGHT + 1 * RIGHT + text_scheduler.get_right()[1] * UP + 0.5 * DOWN,
-            point_start[0] * RIGHT + 0.5 * RIGHT + text_scheduler.get_right()[1] * UP + 0.1 * DOWN,
-            text_scheduler.get_right()
-        ).set_stroke(GREY, 2.0)
-
-        line_back2 = CubicBezier(
-            point_end,
-            point_end[0] * RIGHT + 1 * LEFT + text_scheduler.get_right()[1] * UP + 0.5 * DOWN,
-            point_end[0] * RIGHT + 0.5 * LEFT + text_scheduler.get_right()[1] * UP + 0.1 * DOWN,
-            text_scheduler.get_left()
-        ).set_stroke(GREY, 2.0)
 
         self.add(
             self.unet, self.prompt, self.model_text_encoder, self.model_vae_decoder,
-            embedding_prompt, line_embedding, line_embedding_unet, text_scheduler, image_prompt,
-            line_vae_decode, line_back1, line_back2
-
+            embedding_prompt, arrow_embedding, line_embedding_unet, text_scheduler, image_prompt,
+            noise, noise_out, arrow_out_decode, arrow_decode_image,
+            arrow_prompt_encode, arrow_encode_embed, arrow_prompt_encode, arrow_encode_embed,
+            line_circle, text_dim1, text_dim2
         )
 
     def construct(self):

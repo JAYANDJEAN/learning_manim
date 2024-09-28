@@ -16,6 +16,11 @@ class DDPM(Diffusion):
             ImageMobject(f"images/show_004.jpg").set(height=4)
         ).arrange(RIGHT, buff=0.01)
         image_text_pair = Group(image_text_pair1, image_text_pair2).arrange(DOWN, buff=0.03)
+        products = Group(
+            ImageMobject(f"assets/product_mid.jpg").set(height=2.2),
+            ImageMobject(f"assets/product_sd3.png").set(height=2.2),
+            ImageMobject(f"assets/product_flux.png").set(height=2.2)
+        ).arrange(RIGHT, buff=0.3)
         self.play(
             FadeIn(image_text_pair1[0], shift=RIGHT),
             FadeIn(image_text_pair1[1], shift=DOWN),
@@ -24,6 +29,8 @@ class DDPM(Diffusion):
             run_time=2
         )
         self.play(FadeOut(image_text_pair, shift=LEFT))
+        self.play(LaggedStartMap(SpinInFromNothing, products, lag_ratio=0.5))
+        self.play(FadeOut(products, shift=LEFT))
 
         # 3. show generating images
         image_prompt = ImageMobject("assets/prompt.png").set(width=4.2)
@@ -41,7 +48,7 @@ class DDPM(Diffusion):
         arrow_model_matrix = Arrow(self.model_diffusion.get_right(), matrix_image.get_left())
         image_prompt.move_to(matrix_image.get_center())
 
-        self.play(FadeIn(self.model_diffusion))
+        self.play(GrowFromCenter(self.model_diffusion))
         self.play(Create(self.prompt))
         self.play(
             GrowArrow(arrow_prompt_embedding),
@@ -56,7 +63,7 @@ class DDPM(Diffusion):
             ), run_time=3
         )
         self.play(GrowArrow(arrow_model_matrix), Create(matrix_image))
-        self.play(FadeIn(image_prompt), FadeOut(matrix_image))
+        self.play(FadeIn(image_prompt, shift=DOWN), FadeOut(matrix_image))
         self.play(FadeOut(image_prompt, arrow_prompt_embedding, arrow_embedding_model, arrow_model_matrix, self.prompt))
         self.wait()
 
@@ -84,7 +91,7 @@ class DDPM(Diffusion):
         mul = Tex('*')
         all_matrix = VGroup(matrix1, mul, matrix2, eq, matrix3).arrange(RIGHT, buff=0.1).move_to(box.get_center())
         self.play(LaggedStartMap(FadeIn, VGroup(matrix1, mul, matrix2, eq, matrix3), lag_ratio=0.01, run_time=0.5))
-        for i in range(4):
+        for i in range(3):
             self.play(
                 LaggedStartMap(RandomizeMatrixEntries, VGroup(matrix1[0], matrix2[0], matrix3[0]), lag_ratio=0.1),
                 AnimationGroup(
@@ -183,7 +190,7 @@ class DDPM(Diffusion):
         # 5. DDPM
         self.model_diffusion.move_to(ORIGIN)
 
-        text_prompt_cat = Text("a photo of a cat", font="Menlo").scale(0.4)
+        text_prompt_cat = Text("a photo of a cat").scale(0.4)
         surrounding_prompt_cat = SurroundingRectangle(text_prompt_cat,
                                                       buff=0.1, color=WHITE, corner_radius=0.1).set_stroke(width=0.5)
         prompt_cat = VGroup(text_prompt_cat, surrounding_prompt_cat).move_to(3 * UP)
@@ -469,10 +476,10 @@ class DDPM(Diffusion):
         box_decode = SurroundingRectangle(
             formula_decode[5], corner_radius=0.01
         ).set_stroke(YELLOW_E, 2.0)
+        no_prompt = Text("No Prompt!").scale(0.5).next_to(formula_decode, DOWN)
 
         image_path_list = ([ImageMobject(f"cat_with_noise/cat_{i:03}.jpg").set(width=2)
                             for i in range(0, 255, 5)])
-        print(len(image_path_list))
         image_output_cats = Group(*image_path_list[::-1])
         image_input_noise = (ImageMobject("cat_with_noise/cat_250.jpg").set(width=2)
                              .next_to(self.unet.target, LEFT, buff=1.0))
@@ -482,7 +489,7 @@ class DDPM(Diffusion):
         arrow_input_model = Arrow(image_input_noise.get_right(), self.unet.target.get_left())
         arrow_model_output = Arrow(self.unet.target.get_right(), image_output_dog.get_left())
         text_steps = VGroup(
-            *[Text(f"Step {i + 1}", font="Menlo", color=GREY).scale(0.6).next_to(self.unet.target, UP)
+            *[Text(f"Step {i + 1}", color=GREY).scale(0.6).next_to(self.unet.target, UP)
               for i in range(len(image_output_cats))
               ]
         )
@@ -518,6 +525,7 @@ class DDPM(Diffusion):
             MoveToTarget(self.unet)
         )
         self.play(Write(formula_decode), Create(box_decode))
+        self.play(Write(no_prompt))
         self.wait()
 
         for i in range(len(image_output_cats) - 1):
@@ -535,11 +543,11 @@ class DDPM(Diffusion):
                 )
                 self.play(
                     GrowArrow(arrow_model_output),
-                    FadeIn(image_output_cats[i + 1], shift=RIGHT)
+                    FadeIn(image_output_cats[i + 1], scale=0.1, target_position=self.unet.get_right())
                 )
                 self.play(Write(text_steps[i]))
             elif i <= 2:
-                self.play(MoveAlongPath(image_output_cats[i], line_circle, run_time=3))
+                self.play(MoveAlongPath(image_output_cats[i], line_circle, run_time=2))
                 self.play(
                     FadeOut(image_output_cats[i], scale=0.1, target_position=self.unet.get_left()),
                     LaggedStart(
@@ -549,9 +557,16 @@ class DDPM(Diffusion):
                     ),
                     FadeTransform(text_steps[i - 1], text_steps[i])
                 )
-                self.play(FadeIn(image_output_cats[i + 1], shift=RIGHT))
-            elif i <= 10:
-                self.play(ShowPassingFlash(line_circle.copy().set_color(RED), run_time=0.5, time_width=1.0))
+                self.play(FadeIn(image_output_cats[i + 1], scale=0.1, target_position=self.unet.get_right()))
+            elif i <= 6:
+                self.play(ShowPassingFlash(line_circle.copy().set_color(RED), time_width=1.0, run_time=0.5))
+                self.play(
+                    LaggedStart(
+                        *[p.animate(rate_func=there_and_back).set_color(TEAL)
+                          for prism in self.unet[0] for p in prism],
+                        lag_ratio=0.1, run_time=0.7
+                    ),
+                )
                 self.play(
                     FadeIn(image_output_cats[i + 1]),
                     FadeTransform(text_steps[i - 1], text_steps[i]),
@@ -564,23 +579,25 @@ class DDPM(Diffusion):
                     run_time=0.1
                 )
         self.wait()
-        self.play(FadeOut(formula_decode, box_decode, arrow_input_model, text_steps[49]))
-        self.play(Group(self.unet, arrow_model_output, image_output_cats[3:51]).animate.shift(2 * LEFT))
+        self.play(FadeOut(formula_decode, box_decode, arrow_input_model, text_steps[49], no_prompt))
+        self.play(Group(self.unet, arrow_model_output, image_output_cats[3:51]).animate.shift(2 * LEFT + 1 * UP))
 
         image_output_dog.next_to(self.unet, RIGHT, buff=1.0)
         text_question = Text("?").scale(3).next_to(image_output_dog, RIGHT)
+        brace_image_set2 = Brace(image_encode_set, direction=UP)
+        Group(brace_image_set2, image_encode_set).next_to(self.unet, DOWN)
         self.play(
             FadeIn(image_output_dog, shift=DOWN),
             image_output_cats[3:51].animate.next_to(image_output_dog, DOWN),
             Create(text_question)
         )
-        self.play(FadeOut(image_output_dog, self.unet,
+        self.play(GrowFromCenter(brace_image_set2), FadeIn(image_encode_set, shift=UP))
+        self.play(FadeOut(image_output_dog, self.unet, image_encode_set, brace_image_set2,
                           arrow_model_output, text_question, image_output_cats[3:51]))
         self.wait()
 
     def construct(self):
         self.camera.background_color = "#1C1C1C"
-
         self.ddpm1()
         self.ddpm2()
         self.ddpm3()
