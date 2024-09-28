@@ -190,7 +190,7 @@ class DDPM(Diffusion):
         # 5. DDPM
         self.model_diffusion.move_to(ORIGIN)
 
-        text_prompt_cat = Text("a photo of a cat").scale(0.4)
+        text_prompt_cat = Text("a photo of a cat", font="Menlo").scale(0.4)
         surrounding_prompt_cat = SurroundingRectangle(text_prompt_cat,
                                                       buff=0.1, color=WHITE, corner_radius=0.1).set_stroke(width=0.5)
         prompt_cat = VGroup(text_prompt_cat, surrounding_prompt_cat).move_to(3 * UP)

@@ -69,11 +69,11 @@ class LATENT(Diffusion):
         ).arrange(RIGHT, buff=0.6).shift(DOWN)
 
         brace_matrix1 = BraceBetweenPoints(matrix_image[3].get_corner(UL),
-                                           matrix_image[0].get_corner(UL), buff=0.1)
+                                           matrix_image[0].get_corner(UL), buff=0.1, color=GREY)
         text_dim1 = Text("4").scale(0.4).next_to(brace_matrix1, LEFT)
-        brace_matrix2 = Brace(matrix_image[0], direction=RIGHT, buff=0.1)
+        brace_matrix2 = Brace(matrix_image[0], direction=RIGHT, buff=0.1, color=GREY)
         text_dim2 = Text("64").scale(0.4).next_to(brace_matrix2, RIGHT, buff=0.1)
-        brace_matrix3 = Brace(matrix_image[0], direction=DOWN, buff=0.1)
+        brace_matrix3 = Brace(matrix_image[0], direction=DOWN, buff=0.1, color=GREY)
         text_dim3 = Text("64").scale(0.4).next_to(brace_matrix3, DOWN, buff=0.1)
 
         self.play(FadeIn(self.model_vqvae, shift=DOWN))
@@ -279,6 +279,7 @@ class LATENT(Diffusion):
             FadeIn(noise_out, scale=0.1, target_position=self.unet.get_right()),
             FadeTransform(text_steps[0], text_steps[1])
         )
+        self.wait()
         for i in range(1, 7):
             self.play(
                 FadeTransform(text_steps[i], text_steps[i + 1]),
