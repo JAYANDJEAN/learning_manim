@@ -12,14 +12,14 @@ class CLIP(Diffusion):
         # 还有model_clip
         self.play(FadeTransform(self.title_ddpm, self.title_clip))
         text_encoder = VGroup(self.gear.copy().scale(0.4).set_color(BLUE_C),
-                              Text("Text Encoder", font="Menlo", font_size=30)).arrange(RIGHT, buff=0.5)
+                              Text("Text Encoder").scale(0.7)).arrange(RIGHT, buff=0.5)
         image_encoder = VGroup(self.gear.copy().scale(0.4).set_color(BLUE_E),
-                               Text("Image Encoder", font="Menlo", font_size=30)).arrange(RIGHT, buff=0.5)
+                               Text("Image Encoder").scale(0.7)).arrange(RIGHT, buff=0.5)
         encoders = VGroup(text_encoder, image_encoder).arrange(DOWN, aligned_edge=LEFT, buff=0.3)
         brace_clip = Brace(encoders, direction=LEFT, buff=0.5)
         VGroup(self.model_clip, brace_clip, encoders).arrange(RIGHT, buff=0.7)
 
-        self.play(FadeIn(self.model_clip))
+        self.play(GrowFromCenter(self.model_clip))
         self.play(GrowFromCenter(brace_clip))
         self.play(
             Indicate(self.model_clip[0][0]),
@@ -39,7 +39,7 @@ class CLIP(Diffusion):
         # 清理干净
         input_pos = 5 * LEFT
         output_pos = 0.5 * RIGHT
-        last_pos = 5 * RIGHT + 1.5 * UP
+        last_pos = 5 * RIGHT + 1.3 * UP
 
         text_cat = Text("A CAT").scale(0.9)
         surrounding_text_cat = SurroundingRectangle(
@@ -211,7 +211,7 @@ class CLIP(Diffusion):
         # 只剩model_clip
         phrase = "a cyberpunk with natural greys and whites and browns"
         words = list(filter(lambda s: s.strip(), phrase.split(" ")))
-        text_words = VGroup(*[Text(word, font="Menlo").scale(0.4) for word in words])
+        text_words = VGroup(*[Text(word).scale(0.4) for word in words])
         text_words.arrange(RIGHT, buff=0.15).move_to(RIGHT + 3 * UP)
         rect_words = VGroup()
         for word in text_words:
@@ -227,14 +227,14 @@ class CLIP(Diffusion):
         arrow_numbers = VGroup(*[Arrow(rect_words[i].get_bottom(), text_numbers[i].get_top())
                                  for i in range(len(rect_words))])
         brace_numbers = Brace(VGroup(text_words, text_numbers), direction=LEFT)
-        text_tokenizer = Text("Tokenizer", font_size=24).set_color(YELLOW_E).next_to(brace_numbers, LEFT)
+        text_tokenizer = Text("Tokenizer").scale(0.5).set_color(YELLOW_E).next_to(brace_numbers, LEFT)
 
         embedding_words = VGroup(*[WeightMatrix(length=10).set(width=0.5).next_to(rect, DOWN, buff=2.0)
                                    for rect in rect_words])
         arrow_embeds = VGroup(*[Arrow(text_numbers[i].get_bottom(), embedding_words[i].get_top())
                                 for i in range(len(rect_words))])
 
-        emb_syms = VGroup(*[MathTex(f"\\vec{{E}}_{{{n}}}").next_to(rect, DOWN, buff=0.75).set_color(GREY_A)
+        emb_syms = VGroup(*[MathTex(f"\\vec{{E}}_{{{n}}}").scale(0.9).next_to(rect, DOWN, buff=0.75).set_color(GREY_A)
                             for n, rect in enumerate(rect_words, start=1)])
         arrow_embeds.target = arrow_embeds.generate_target()
         for rect, arrow, sym in zip(rect_words, arrow_embeds.target, emb_syms):
@@ -251,7 +251,7 @@ class CLIP(Diffusion):
         box_arrows_in = VGroup(*[Arrow(sym.get_bottom(), np.array([sym.get_bottom()[0], box.get_top()[1], 0]))
                                  for sym in emb_syms])
         emb_syms_copy = emb_syms.copy().move_to(box.get_center() + DOWN)
-        emb_sym_primes = VGroup(*[MathTex(f"\\vec{{E}}_{{{n}}}^{{'}}").move_to(sym.get_center() + 4 * DOWN)
+        emb_sym_primes = VGroup(*[MathTex(f"\\vec{{E}}_{{{n}}}^{{'}}").scale(0.9).move_to(sym.get_center() + 4 * DOWN)
                                   for n, sym in enumerate(emb_syms, start=1)])
         box_arrows_out = VGroup(*[Arrow(np.array([sym.get_bottom()[0], box.get_bottom()[1], 0]),
                                         np.array([sym.get_bottom()[0], emb_sym_primes[i].get_top()[1], 0]))
@@ -265,10 +265,10 @@ class CLIP(Diffusion):
         arrow_embed_out.generate_target()
         arrow_embed_out.target = Arrow(text_words.get_bottom(), embedding_out.get_top())
         brace_text = Brace(embedding_out, direction=RIGHT, buff=0.1)
-        dim_text = Text("768-dimensional", font_size=24).set_color(YELLOW_E).next_to(brace_text, RIGHT)
+        dim_text = Text("768-dimensional").scale(0.5).set_color(YELLOW_E).next_to(brace_text, RIGHT)
         self.model_clip.move_to(5 * LEFT)
 
-        self.play(FadeIn(self.model_clip))
+        self.play(GrowFromCenter(self.model_clip))
         self.play(LaggedStartMap(FadeIn, text_words, shift=0.5 * UP, lag_ratio=0.25))
         self.play(LaggedStartMap(DrawBorderThenFill, rect_words))
         self.play(
@@ -371,7 +371,8 @@ class CLIP(Diffusion):
         image_arrow_embeds = VGroup(*[Arrow(image_grid[i].get_bottom(), image_embedding_words[i].get_top())
                                       for i in range(len(image_grid))])
 
-        image_emb_syms = VGroup(*[MathTex(f"\\vec{{E}}_{{{n}}}").next_to(im, DOWN, buff=0.75).set_color(GREY_A)
+        image_emb_syms = VGroup(*[MathTex(f"\\vec{{E}}_{{{n}}}").scale(0.9)
+                                .next_to(im, DOWN, buff=0.75).set_color(GREY_A)
                                   for n, im in enumerate(image_grid, start=1)])
         image_arrow_embeds.generate_target()
         for i, arrow in enumerate(image_arrow_embeds.target):
@@ -385,7 +386,7 @@ class CLIP(Diffusion):
         box_arrows_in = VGroup(*[Arrow(sym.get_bottom(), np.array([sym.get_bottom()[0], box.get_top()[1], 0]))
                                  for sym in image_emb_syms])
         emb_syms_copy = image_emb_syms.copy().move_to(box.get_center() + DOWN)
-        emb_sym_primes = VGroup(*[MathTex(f"\\vec{{E}}_{{{n}}}^{{'}}").move_to(sym.get_center() + 4 * DOWN)
+        emb_sym_primes = VGroup(*[MathTex(f"\\vec{{E}}_{{{n}}}^{{'}}").scale(0.9).move_to(sym.get_center() + 4 * DOWN)
                                   for n, sym in enumerate(image_emb_syms, start=1)])
         box_arrows_out = VGroup(*[Arrow(np.array([sym.get_bottom()[0], box.get_bottom()[1], 0]),
                                         np.array([sym.get_bottom()[0], emb_sym_primes[i].get_top()[1], 0]))
@@ -660,6 +661,17 @@ class CLIP(Diffusion):
                           self.model_image_encoder, self.model_text_encoder))
         self.wait()
 
+    def clip6(self):
+        bert = ImageMobject("assets/bert.png").set(width=2.5).move_to(5 * LEFT)
+        text_bert = Text("Does Bert work?").scale(1.1).move_to(2.5 * UP)
+        image_cat_glasses = ImageMobject("assets/cat_glasses.jpg").set(width=4.0).next_to(text_bert, DOWN, buff=0.7)
+        text_cat_glasses = Text("a cat with glasses").scale(0.5).next_to(image_cat_glasses, DOWN, buff=0.2)
+        text_answer = Text("No!").next_to(text_bert, RIGHT, buff=1.0)
+        box = SurroundingRectangle(text_cat_glasses[8:],
+                                   color=YELLOW_E, buff=0.05, corner_radius=0.05, stroke_width=1.5)
+
+        self.add(bert, text_bert, image_cat_glasses, text_cat_glasses, text_answer, box)
+
     def construct(self):
         self.camera.background_color = "#1C1C1C"
         self.clip1()
@@ -667,6 +679,7 @@ class CLIP(Diffusion):
         self.clip3()
         self.clip4()
         self.clip5()
+        # self.clip6()
 
 
 if __name__ == "__main__":

@@ -206,7 +206,7 @@ class DDPM(Diffusion):
             FadeOut(image_papers),
             FadeTransform(VGroup(title_papers, arrow_history, dot_papers), self.title_ddpm)
         )
-        self.play(FadeIn(self.model_diffusion, shift=DOWN))
+        self.play(GrowFromCenter(self.model_diffusion))
         self.play(FadeIn(image_noise, shift=DOWN), Write(prompt_cat))
         self.play(
             GrowArrow(arrow_noise_model),
