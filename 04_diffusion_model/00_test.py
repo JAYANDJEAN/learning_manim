@@ -127,5 +127,12 @@ class PrismGroup(Diffusion):
         self.wait()
 
 
+class MathExpressionExample(Scene):
+    def construct(self):
+        math_expression = Tex("1")
+        self.add(math_expression)
+        self.wait()
+
+
 if __name__ == "__main__":
-    PrismGroup().render()
+    MathExpressionExample().render()
