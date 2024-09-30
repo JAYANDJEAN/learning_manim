@@ -46,8 +46,8 @@ class CLIP(Diffusion):
             text_cat, buff=0.1, color=WHITE, corner_radius=0.1, stroke_width=0.7)
         text_cat = VGroup(text_cat, surrounding_text_cat).move_to(input_pos)  #
         embedding_text_cat = WeightMatrix(length=14).set(width=0.5).move_to(output_pos)  #
-        brace_text = Brace(embedding_text_cat, direction=RIGHT, buff=0.1)
-        dim_text = Text("768-dimensional", font_size=24).set_color(YELLOW_E).next_to(brace_text, RIGHT)
+        brace_text = BraceLabel(embedding_text_cat, "768-dimensional", RIGHT, Text, 20)
+        brace_text.label.scale(0.5).set_color(YELLOW_E)
         embedding_text_cat.generate_target()
         embedding_text_cat.target.set(width=0.4).move_to(last_pos)  #
         text_cat.generate_target()
@@ -87,8 +87,8 @@ class CLIP(Diffusion):
             LaggedStart(bake_mobject_into_vector_entries(text_cat, embedding_text_cat)),
             run_time=3
         )
-        self.play(GrowFromCenter(brace_text), Create(dim_text))
-        self.play(FadeOut(brace_text, dim_text))
+        self.play(GrowFromCenter(brace_text))
+        self.play(FadeOut(brace_text))
         self.play(MoveToTarget(embedding_text_cat), MoveToTarget(text_cat))
 
         self.play(FadeIn(image_cat))
@@ -101,8 +101,8 @@ class CLIP(Diffusion):
             LaggedStart(bake_mobject_into_vector_entries(image_cat, embedding_image_cat, path_arc=-30 * DEGREES)),
             run_time=3
         )
-        self.play(GrowFromCenter(brace_text), Create(dim_text))
-        self.play(FadeOut(brace_text, dim_text))
+        self.play(GrowFromCenter(brace_text))
+        self.play(FadeOut(brace_text))
         self.play(MoveToTarget(embedding_image_cat), MoveToTarget(image_cat))
 
         self.play(Create(text_dog))
@@ -226,8 +226,8 @@ class CLIP(Diffusion):
                                 for i, n in enumerate([4, 14323, 237, 673, 554, 28, 489, 28, 1921])])
         arrow_numbers = VGroup(*[Arrow(rect_words[i].get_bottom(), text_numbers[i].get_top())
                                  for i in range(len(rect_words))])
-        brace_numbers = Brace(VGroup(text_words, text_numbers), direction=LEFT)
-        text_tokenizer = Text("Tokenizer").scale(0.5).set_color(YELLOW_E).next_to(brace_numbers, LEFT)
+        brace_numbers = BraceLabel(VGroup(text_words, text_numbers), "Tokenizer", LEFT, Text, 20)
+        brace_numbers.label.set_color(YELLOW_E).scale(0.5)
 
         embedding_words = VGroup(*[WeightMatrix(length=10).set(width=0.5).next_to(rect, DOWN, buff=2.0)
                                    for rect in rect_words])
@@ -264,8 +264,8 @@ class CLIP(Diffusion):
         embedding_out = WeightMatrix(length=14).set(width=0.5).move_to(emb_sym_out.target)
         arrow_embed_out.generate_target()
         arrow_embed_out.target = Arrow(text_words.get_bottom(), embedding_out.get_top())
-        brace_text = Brace(embedding_out, direction=RIGHT, buff=0.1)
-        dim_text = Text("768-dimensional").scale(0.5).set_color(YELLOW_E).next_to(brace_text, RIGHT)
+        brace_text = BraceLabel(embedding_out, "768-dimensional", RIGHT, Text, 20)
+        brace_text.label.scale(0.5).set_color(YELLOW_E)
         self.model_clip.move_to(5 * LEFT)
 
         self.play(GrowFromCenter(self.model_clip))
@@ -275,13 +275,13 @@ class CLIP(Diffusion):
             LaggedStartMap(GrowArrow, arrow_numbers),
             LaggedStartMap(Create, text_numbers)
         )
-        self.play(GrowFromCenter(brace_numbers), Write(text_tokenizer))
+        self.play(GrowFromCenter(brace_numbers))
         self.play(
             LaggedStartMap(GrowArrow, arrow_embeds),
             LaggedStartMap(FadeIn, embedding_words, shift=0.5 * DOWN)
         )
         self.play(
-            FadeOut(arrow_numbers, text_numbers, brace_numbers, text_tokenizer),
+            FadeOut(arrow_numbers, text_numbers, brace_numbers),
             LaggedStart(*[Transform(embed, sym)
                           for sym, embed in zip(emb_syms, embedding_words)],
                         group_type=Group,
@@ -316,8 +316,8 @@ class CLIP(Diffusion):
             Transform(emb_sym_out, embedding_out),
             MoveToTarget(arrow_embed_out)
         )
-        self.play(GrowFromCenter(brace_text), Create(dim_text))
-        self.play(FadeOut(brace_text, dim_text))
+        self.play(GrowFromCenter(brace_text))
+        self.play(FadeOut(brace_text))
         self.play(FadeOut(emb_sym_out, arrow_embed_out, text_words, rect_words))
 
         self.wait()

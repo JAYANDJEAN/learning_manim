@@ -78,7 +78,7 @@ class Scene2_4(VoiceoverScene, MovingCameraScene):
         )
         lattice_blur_img_obj = VGroup(lattice_blur_img, lattice_blur_img_rectangle)
 
-        # Display the images
+        # Display the shows
 
         self.play(FadeIn(img), FadeIn(lattice_img_obj))
 

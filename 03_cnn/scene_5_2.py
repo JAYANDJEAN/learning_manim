@@ -125,7 +125,7 @@ class Scene5_2(VoiceoverScene, MovingCameraScene):
             lattice_img_pool, lattice_img_pool_rectangle
         ).shift(4 * RIGHT)
 
-        # Display the images
+        # Display the shows
 
         self.play(
             FadeIn(img),

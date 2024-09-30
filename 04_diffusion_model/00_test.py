@@ -129,8 +129,11 @@ class PrismGroup(Diffusion):
 
 class MathExpressionExample(Scene):
     def construct(self):
-        math_expression = Tex("1")
+        math_expression = Tex("12121212121")
+        label = BraceLabel(math_expression, "number", label_constructor=Text)
+        label.label.set_color(YELLOW_E)
         self.add(math_expression)
+        self.play(GrowFromCenter(label))
         self.wait()
 
 

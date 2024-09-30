@@ -8,12 +8,12 @@ class DDPM(Diffusion):
     def ddpm1(self):
         # show demo
         image_text_pair1 = Group(
-            ImageMobject(f"images/show_001.jpg").set(height=4),
-            ImageMobject(f"images/show_002.jpg").set(height=4)
+            ImageMobject(f"shows/show_001.jpg").set(height=4),
+            ImageMobject(f"shows/show_002.jpg").set(height=4)
         ).arrange(RIGHT, buff=0.01)
         image_text_pair2 = Group(
-            ImageMobject(f"images/show_003.jpg").set(height=4),
-            ImageMobject(f"images/show_004.jpg").set(height=4)
+            ImageMobject(f"shows/show_003.jpg").set(height=4),
+            ImageMobject(f"shows/show_004.jpg").set(height=4)
         ).arrange(RIGHT, buff=0.01)
         image_text_pair = Group(image_text_pair1, image_text_pair2).arrange(DOWN, buff=0.03)
         products = Group(
@@ -32,7 +32,7 @@ class DDPM(Diffusion):
         self.play(LaggedStartMap(SpinInFromNothing, products, lag_ratio=0.5))
         self.play(FadeOut(products, shift=LEFT))
 
-        # 3. show generating images
+        # 3. show generating shows
         image_prompt = ImageMobject("assets/prompt.png").set(width=4.2)
 
         embedding_prompt = WeightMatrix(length=15).set(width=0.5)
@@ -289,25 +289,21 @@ class DDPM(Diffusion):
         images_and_lines = Group(image_cats_decode_15, Group(*arrow_between_images))
         images_and_lines.generate_target()
         images_and_lines.target.scale(0.8).to_edge(RIGHT)
-        brace_images_and_lines = Brace(images_and_lines.target, direction=LEFT, buff=0.1)
-        brace_images_and_lines.generate_target()
-        brace_images_and_lines.target = Brace(image_cats_decode_5, direction=UP, buff=0.1)
-        text_images_and_lines = Text("Decode").next_to(brace_images_and_lines, LEFT)
+        brace_images_and_lines = BraceLabel(images_and_lines.target, "Decode", LEFT, Text)
 
         self.play(MoveToTarget(images_and_lines))
-        self.play(GrowFromCenter(brace_images_and_lines), Write(text_images_and_lines))
+        self.play(GrowFromCenter(brace_images_and_lines))
         # 特殊处理，方便做transform
         image_cats_decode_15 = Group(*[i for group in image_cats_decode_15 for i in group])
         image_cats_decode_5_image = Group(*[i for i in image_cats_decode_5 if isinstance(i, ImageMobject)])
         image_cats_decode_5_text = Group(*[i for i in image_cats_decode_5 if isinstance(i, Text)])
         brace_images_and_lines.generate_target()
-        brace_images_and_lines.target = Brace(image_cats_decode_5, direction=UP, buff=0.1)
+        brace_images_and_lines.target = BraceLabel(images_and_lines.target, "Decode", UP, Text)
         self.play(
             FadeOut(VGroup(*arrow_between_images)),
             Transform(image_cats_decode_15, image_cats_decode_5_image, replace_mobject_with_target_in_scene=True),
             FadeIn(image_cats_decode_5_text),
-            MoveToTarget(brace_images_and_lines),
-            text_images_and_lines.animate.next_to(brace_images_and_lines.target, UP)
+            MoveToTarget(brace_images_and_lines)
         )
         self.wait()
 
@@ -332,12 +328,10 @@ class DDPM(Diffusion):
                              r"\mathbf{x}_0",
                              r"+\sqrt{1-\bar{\alpha}_t} ",
                              r"\boldsymbol{\epsilon}")
-        brace_decode = Brace(image_cats_encode_decode_5[4:], direction=UP, buff=0.1)
-        brace_encode = Brace(image_cats_encode_decode_5[:5], direction=DOWN, buff=0.1)
-        text_encode = Text("Encode").next_to(brace_encode, DOWN)
-        brace_encode_only = Brace(image_cats_encode_5, direction=DOWN, buff=0.1)
-        text_encode_steps = Text("1000 Steps").next_to(brace_encode_only, DOWN)
-        formula_xt.next_to(text_encode_steps, DOWN)
+        brace_decode = BraceLabel(image_cats_encode_decode_5[4:], "Decode", UP, Text)
+        brace_encode = BraceLabel(image_cats_encode_decode_5[:5], "Encode", DOWN, Text)
+        brace_encode_only = BraceLabel(image_cats_encode_5, "1000 Steps", DOWN, Text)
+        formula_xt.next_to(brace_encode_only, DOWN)
         frame_box_xt = SurroundingRectangle(formula_xt[1], corner_radius=0.01).set_stroke(width=2.0)
         frame_box_noise = SurroundingRectangle(formula_xt[3], corner_radius=0.01).set_stroke(width=2.0)
         arrow_xt_image = Arrow(frame_box_xt.get_bottom(), image_cats_encode_5[0].get_bottom(),
@@ -345,25 +339,23 @@ class DDPM(Diffusion):
 
         self.play(
             FadeTransform(brace_images_and_lines, brace_decode),
-            text_images_and_lines.animate.next_to(brace_decode, UP),
             FadeOut(image_cats_decode_5_image, image_cats_decode_5_text),
             FadeIn(image_cats_encode_decode_5, shift=DOWN)
         )
-        self.play(GrowFromCenter(brace_encode), Write(text_encode))
+        self.play(GrowFromCenter(brace_encode))
 
-        self.play(FadeOut(brace_decode, text_images_and_lines))
+        self.play(FadeOut(brace_decode))
         self.play(
             FadeOut(image_cats_encode_decode_5),
             FadeIn(image_cats_encode_5, shift=DOWN),
             FadeTransform(brace_encode, brace_encode_only)
         )
 
-        self.play(FadeTransform(text_encode, text_encode_steps))
         self.play(Write(formula_xt))
         self.play(Create(frame_box_xt), GrowArrow(arrow_xt_image))
         self.play(Create(frame_box_noise))
         self.play(FadeOut(frame_box_xt, frame_box_noise, arrow_xt_image,
-                          text_encode_steps, brace_encode_only, image_cats_encode_5))
+                          brace_encode_only, image_cats_encode_5))
         self.wait()
 
         # 5.3 encode x_t
@@ -394,10 +386,8 @@ class DDPM(Diffusion):
             stroke_width=4,
             add_vertex_dots=False
         )
-        line_50 = axes.get_vertical_line(axes.c2p(50, 1),
-                                         line_config={"color": YELLOW_E, "dashed_ratio": 0.85})
-        line_800 = axes.get_vertical_line(axes.c2p(800, 1),
-                                          line_config={"color": YELLOW_E, "dashed_ratio": 0.85})
+        line_50 = axes.get_vertical_line(axes.c2p(50, 1), line_config={"color": YELLOW_E, "dashed_ratio": 0.85})
+        line_800 = axes.get_vertical_line(axes.c2p(800, 1), line_config={"color": YELLOW_E, "dashed_ratio": 0.85})
 
         alpha_50 = sqrt_alpha_bar[50]
         alpha_800 = sqrt_alpha_bar[800]

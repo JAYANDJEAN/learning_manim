@@ -44,7 +44,7 @@ class Scene3_2(VoiceoverScene, MovingCameraScene):
         return VGroup(matrix_grid, rectangle, filter_text)
 
     def construct(self):
-        # Display the images
+        # Display the shows
 
         image1 = (
             ImageMobject("images/mnist_conv1")
@@ -107,7 +107,7 @@ class Scene3_2(VoiceoverScene, MovingCameraScene):
 
         self.wait(0.5)
 
-        # Send the filters next to the images
+        # Send the filters next to the shows
 
         self.play(
             Rotate(

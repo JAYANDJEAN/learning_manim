@@ -24,30 +24,25 @@ class LATENT(Diffusion):
         image_cat = training_data[0][0].copy()
         image_cat.generate_target()
         image_cat.target.set(width=4.5).move_to(ORIGIN)
-        brace_image_up = Brace(image_cat.target, UP, buff=0.2)
-        text_pixel1 = Text("1024 pixels", font_size=36).next_to(brace_image_up, UP)
-        brace_image_right = Brace(image_cat.target, RIGHT, buff=0.2)
-        text_pixel2 = Text("1024 pixels", font_size=36).next_to(brace_image_right, RIGHT)
+        brace_image_up = BraceLabel(image_cat.target, "1024 pixels", UP, Text)
+        brace_image_right = BraceLabel(image_cat.target, "1024 pixels", RIGHT, Text)
 
         self.play(LaggedStartMap(FadeIn, training_data, lag_ratio=0.5, shift=DOWN))
         self.play(FadeOut(training_data), MoveToTarget(image_cat))
-        self.play(GrowFromCenter(brace_image_up), Write(text_pixel1))
-        self.play(GrowFromCenter(brace_image_right), Write(text_pixel2))
+        self.play(GrowFromCenter(brace_image_up))
+        self.play(GrowFromCenter(brace_image_right))
 
         # --------------------------------------------------
-        image_big = Group(image_cat, brace_image_up, text_pixel1)
+        image_big = Group(image_cat, brace_image_up)
         image_big.generate_target()
         image_cat_blurred = ImageMobject("assets/cat_blurred.jpg").set(width=2.0)
-        small_brace_image_up = Brace(image_cat_blurred, UP, buff=0.2)
-        small_text_pixel1 = Text("64 pixels", font_size=20).next_to(small_brace_image_up, UP)
-        small_brace_image_right = Brace(image_cat_blurred, RIGHT, buff=0.2)
-        small_text_pixel2 = Text("64 pixels", font_size=20).next_to(small_brace_image_right, RIGHT)
-        image_small = Group(image_cat_blurred, small_brace_image_up, small_text_pixel1,
-                            small_brace_image_right, small_text_pixel2)
+        small_brace_image_up = BraceLabel(image_cat_blurred, "64 pixels", UP, Text, 20)
+        small_brace_image_right = BraceLabel(image_cat_blurred, "64 pixels", RIGHT, Text, 20)
+        image_small = Group(image_cat_blurred, small_brace_image_up, small_brace_image_right)
         Group(image_big.target, image_small).arrange(RIGHT, buff=1.0)
 
         self.play(
-            FadeOut(brace_image_right, text_pixel2),
+            FadeOut(brace_image_right),
             MoveToTarget(image_big),
             FadeIn(image_small)
         )
@@ -71,10 +66,8 @@ class LATENT(Diffusion):
         brace_matrix1 = BraceBetweenPoints(matrix_image[3].get_corner(UL),
                                            matrix_image[0].get_corner(UL), buff=0.1, color=GREY)
         text_dim1 = Text("4").scale(0.4).next_to(brace_matrix1, LEFT)
-        brace_matrix2 = Brace(matrix_image[0], direction=RIGHT, buff=0.1, color=GREY)
-        text_dim2 = Text("64").scale(0.4).next_to(brace_matrix2, RIGHT, buff=0.1)
-        brace_matrix3 = Brace(matrix_image[0], direction=DOWN, buff=0.1, color=GREY)
-        text_dim3 = Text("64").scale(0.4).next_to(brace_matrix3, DOWN, buff=0.1)
+        brace_matrix2 = BraceLabel(matrix_image[0], "64", RIGHT, Text, 16, buff=0.1, brace_config={'color': GREY})
+        brace_matrix3 = BraceLabel(matrix_image[0], "64", DOWN, Text, 16, buff=0.1, brace_config={'color': GREY})
 
         self.play(FadeIn(self.model_vqvae, shift=DOWN))
         self.play(
@@ -93,18 +86,15 @@ class LATENT(Diffusion):
         )
         self.play(
             GrowFromCenter(brace_matrix1), Write(text_dim1),
-            GrowFromCenter(brace_matrix2), Write(text_dim2),
-            GrowFromCenter(brace_matrix3), Write(text_dim3)
+            GrowFromCenter(brace_matrix2),
+            GrowFromCenter(brace_matrix3)
         )
         self.play(
             Rotate(self.gears_vae_decoder[0], axis=IN,
                    about_point=self.gears_vae_decoder[0].get_center()),
             FadeIn(image_cat_copy, shift=DOWN)
         )
-        self.play(
-            FadeOut(model_and_image, brace_matrix1, brace_matrix2, brace_matrix3,
-                    text_dim1, text_dim2, text_dim3, self.model_vqvae)
-        )
+        self.play(FadeOut(model_and_image, brace_matrix1, brace_matrix2, brace_matrix3, text_dim1, self.model_vqvae))
 
         # --------------------------------------------------
         training_data.scale(0.7).to_edge(UP)
@@ -178,8 +168,8 @@ class LATENT(Diffusion):
               for i in range(50)
               ]
         )
-        text_dim1 = Text("4 * 64 * 64", color=GREY, font='Menlo').scale(0.3).next_to(noise, LEFT)
-        text_dim2 = Text("4 * 64 * 64", color=GREY, font='Menlo').scale(0.3).next_to(noise_out, UP)
+        text_dim1 = MathTex("4*64*64").scale(0.3).next_to(noise, LEFT)
+        text_dim2 = MathTex("4*64*64").scale(0.3).next_to(noise_out, UP)
         arrow_out_decode = Arrow(noise_out.get_center(),
                                  self.model_vae_decoder.get_left(),
                                  stroke_width=2.0, tip_length=0.15, color=GREY, buff=0.05)

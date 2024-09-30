@@ -210,7 +210,7 @@ class Scene3_1(VoiceoverScene, MovingCameraScene):
 
         self.play(Create(arrow1))
 
-        # Display the output images
+        # Display the output shows
 
         img_conv1 = ImageMobject("images/mnist_conv1.png").set_resampling_algorithm(
             RESAMPLING_ALGORITHMS["none"]
@@ -253,7 +253,7 @@ class Scene3_1(VoiceoverScene, MovingCameraScene):
         )
         self.wait(2)
 
-        # Stack the images
+        # Stack the shows
 
         stacked_imgs = Prism(dimensions=[3, 3, 1], fill_color=GRAY, stroke_width=1)
         stacked_imgs.rotate(-85 * DEGREES, axis=UP, about_point=ORIGIN).rotate(

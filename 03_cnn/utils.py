@@ -5,7 +5,7 @@ import numpy as np
 from PIL import Image
 from scipy.signal import convolve2d
 
-f = gzip.open('./MNIST/train-images-idx3-ubyte.gz', 'r')
+f = gzip.open('./MNIST/train-shows-idx3-ubyte.gz', 'r')
 
 image_size = 28
 num_images = 5
@@ -50,7 +50,7 @@ filtered_image = convolve2d(image_array, filter, boundary='wrap', mode='same')
 filtered_image = Image.fromarray(np.uint8(filtered_image * 255)).convert('L')
 
 # Save or display the filtered image
-filtered_image.save("./images/blur_0_mnist.png")
+filtered_image.save("./shows/blur_0_mnist.png")
 # filtered_image.show()  # Uncomment to directly display the image
 
 
@@ -65,7 +65,7 @@ image_array3 = np.array(image3) / 255.
 
 res = (image_array1 + image_array2 + image_array3) / 3.0
 res = Image.fromarray(np.uint8(res * 255)).convert('L')
-res.save("./images/mnist_sum.png")
+res.save("./shows/mnist_sum.png")
 
 ########################################################
 # Load the image and convert it to grayscale
@@ -92,7 +92,7 @@ print(np.mean(filtered_image), np.max(filtered_image), np.min(filtered_image))
 filtered_image = Image.fromarray(np.uint8(filtered_image * 255)).convert('L')
 
 # Save or display the filtered image
-filtered_image.save("./images/mnist_conv3_2.png")
+filtered_image.save("./shows/mnist_conv3_2.png")
 # filtered_image.show()  # Uncomment to directly display the image
 
 
@@ -145,7 +145,7 @@ filtered_image = elu(filtered_image)
 filtered_image = Image.fromarray(np.uint8(filtered_image * 255)).convert('L')
 
 # Save or display the filtered image
-filtered_image.save("./images/mnist_elu.png")
+filtered_image.save("./shows/mnist_elu.png")
 # filtered_image.show()  # Uncomment to directly display the image
 
 ########################################################
@@ -163,7 +163,7 @@ pooled_image_array = pooled_image.squeeze().numpy()
 # Display the pooled image
 pooled_image = Image.fromarray((pooled_image_array * 255).astype(np.uint8))
 # Save the pooled image
-pooled_image.save("./images/0_mnist_pooled.png")
+pooled_image.save("./shows/0_mnist_pooled.png")
 
 ########################################################
 # Load the image and convert it to grayscale
@@ -192,5 +192,5 @@ print(np.mean(filtered_image), np.max(filtered_image), np.min(filtered_image))
 filtered_image = Image.fromarray(np.uint8(filtered_image * 255)).convert('L')
 
 # Save or display the filtered image
-filtered_image.save("./images/face_output.png")
+filtered_image.save("./shows/face_output.png")
 # filtered_image.show()  # Uncomment to directly display the image
