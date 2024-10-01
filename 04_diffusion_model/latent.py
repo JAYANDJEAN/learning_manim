@@ -6,6 +6,8 @@ class LATENT(Diffusion):
         super().__init__()
 
     def latent1(self):
+        self.play(FadeTransform(self.title_clip, self.title_latent))
+
         training_data = Group(
             Group(
                 ImageMobject("assets/cat.jpg").set(width=3.0),

@@ -1,11 +1,12 @@
 from utils import *
 
 
-class SD(Diffusion):
+class SD3(Diffusion):
     def __init__(self):
         super().__init__()
 
     def sd3(self):
+        self.play(FadeTransform(self.title_latent, self.title_sd3))
         # -----------------模型--------------------
         noise = SVGMobject("assets/prism0.svg").scale(1.4)
         data_input = VGroup(
@@ -43,23 +44,22 @@ class SD(Diffusion):
         ).arrange(RIGHT, buff=0.5).scale(0.8)
         transformer[2][2][1].set_opacity(0.0)
         flow = VGroup(noise.copy(), transformer, noise.copy()).arrange(RIGHT, buff=0.3).move_to(0.6 * UP)
-        # flow[1][0][1], flow[1][0][3], flow[1][2][1]
         text_cross = Text("MMDiT Block with Cross Attention").scale(0.4).next_to(flow, UP, buff=0.5)
-        line_mmdit_text=VGroup(
+        line_mmdit_text = VGroup(
             CubicBezier(
-                text_cross.get_bottom()+0.1*DOWN,
-                text_cross.get_bottom()+0.5*DOWN,
-                flow[1][0][1].get_top()+0.5*UP,
+                text_cross.get_bottom() + 0.1 * DOWN,
+                text_cross.get_bottom() + 0.5 * DOWN,
+                flow[1][0][1].get_top() + 0.5 * UP,
                 flow[1][0][1].get_top()
             ).set_stroke(GREY, 2.0),
             CubicBezier(
-                text_cross.get_bottom()+0.1*DOWN,
+                text_cross.get_bottom() + 0.1 * DOWN,
                 text_cross.get_bottom() + 0.5 * DOWN,
                 flow[1][0][3].get_top() + 0.5 * UP,
                 flow[1][0][3].get_top()
             ).set_stroke(GREY, 2.0),
             CubicBezier(
-                text_cross.get_bottom()+0.1*DOWN,
+                text_cross.get_bottom() + 0.1 * DOWN,
                 text_cross.get_bottom() + 0.5 * DOWN,
                 flow[1][2][1].get_top() + 0.5 * UP,
                 flow[1][2][1].get_top()
@@ -117,8 +117,9 @@ class SD(Diffusion):
             Line(np.array([flow[1][2][1].get_bottom()[0] - 0.27, arrow_embedding.get_center()[1], 0]),
                  flow[1][2][1].get_bottom(), color=GREY, stroke_width=2.0)
         )
-        text_step=Text("Step t").scale(0.4).next_to(arrow_embedding,LEFT,buff=0.9)
-        line_step_arrow=Line(text_step.get_right()+0.1*RIGHT,  arrow_embedding.get_left(), color=GREY, stroke_width=2.0)
+        text_step = Text("Step t").scale(0.4).next_to(arrow_embedding, LEFT, buff=0.9)
+        line_step_arrow = Line(text_step.get_right() + 0.1 * RIGHT, arrow_embedding.get_left(), color=GREY,
+                               stroke_width=2.0)
 
         # --------------------embedding-----------------
         embed1 = VGroup(
@@ -147,7 +148,7 @@ class SD(Diffusion):
         VGroup(embed1[0], embed2[0], embed3[0]).set_submobject_colors_by_gradient(BLUE_D, GREEN)
         embedding = VGroup(embed0, embed1, embed2, embed3)
         (embedding.scale(0.7).rotate(PI / 2, about_point=embedding.get_center())
-         .next_to(flow, LEFT, buff=0.7).shift(0.3*UP))
+         .next_to(flow, LEFT, buff=0.7).shift(0.3 * UP))
         line_embedding_pooled = CubicBezier(
             embedding.get_bottom(),
             np.array([embedding.get_bottom()[0], arrow_embedding.get_center()[1] + 0.3, 0]),
@@ -156,8 +157,8 @@ class SD(Diffusion):
         ).set_stroke(GREY, 2.0)
         line_embedding_input = CubicBezier(
             embedding.get_right(),
-            embedding.get_right()+RIGHT,
-            flow[1][0][0][1].get_left()+LEFT,
+            embedding.get_right() + RIGHT,
+            flow[1][0][0][1].get_left() + LEFT,
             flow[1][0][0][1].get_left()
         ).set_stroke(GREY, 2.0)
 
@@ -209,7 +210,7 @@ class SD(Diffusion):
             flow, text_dim1, text_dim2, lines_in_flow, arrow_embedding, line_embedding, embedding, clips,
             self.model_vae_decoder, image_prompt, arrow_flow_decode, arrow_decode_image, text_transformer,
             self.prompt, line_embedding_pooled, lines_prompt_clip, line_embedding_input, text_cross, line_mmdit_text
-            ,text_step, line_step_arrow
+            , text_step, line_step_arrow
         )
         # self.play(LaggedStartMap(FadeIn, clips, lag_ratio=0.5, shift=DOWN))
         # self.wait() self.prompt, clips, lines_out_image, embedding,

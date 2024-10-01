@@ -675,16 +675,22 @@ class CLIP(Diffusion):
         box = SurroundingRectangle(text_cat_glasses[8:],
                                    color=YELLOW_E, buff=0.05, corner_radius=0.05, stroke_width=1.5)
 
-        self.add(bert, text_bert, image_cat_glasses, text_cat_glasses, text_answer, box)
+        # self.add(bert, text_bert, image_cat_glasses, text_cat_glasses, text_answer, box)
+        self.play(Write(text_bert), FadeIn(bert, shift=DOWN))
+        self.play(FadeIn(image_cat_glasses, text_cat_glasses, shift=DOWN))
+        self.play(Create(box))
+        self.play(Write(text_answer))
+        self.play(FadeOut(bert, text_bert, image_cat_glasses, text_cat_glasses, text_answer, box))
+
 
     def construct(self):
         self.camera.background_color = "#1C1C1C"
-        self.clip1()
-        self.clip2()
-        self.clip3()
-        self.clip4()
-        self.clip5()
-        # self.clip6()
+        # self.clip1()
+        # self.clip2()
+        # self.clip3()
+        # self.clip4()
+        # self.clip5()
+        self.clip6()
 
 
 if __name__ == "__main__":

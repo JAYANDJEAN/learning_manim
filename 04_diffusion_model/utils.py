@@ -568,6 +568,7 @@ class Diffusion(ThreeDScene):
         self.title_clip = Text("CLIP", font="Menlo").to_edge(UL, buff=0.5).scale(0.7)
         self.title_ddpm = Text("DDPM", font="Menlo").to_edge(UL, buff=0.5).scale(0.7)
         self.title_latent = Text("Latent", font="Menlo").to_edge(UL, buff=0.5).scale(0.7)
+        self.title_sd3 = Text("SD3", font="Menlo").to_edge(UL, buff=0.5).scale(0.7)
 
         text_prompt = Paragraph("a cyberpunk with ",
                                 "natural greys and ",
