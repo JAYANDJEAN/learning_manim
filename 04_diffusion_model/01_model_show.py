@@ -21,6 +21,7 @@ class Models(DDPM, CLIP, LATENT, SD3):
         self.clip6()
         self.latent1()
         self.latent2()
+        self.sd3()
 
 
 if __name__ == "__main__":

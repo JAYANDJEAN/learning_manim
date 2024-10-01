@@ -247,7 +247,6 @@ class SD3(Diffusion):
 
         self.wait()
 
-
     def construct(self):
         self.camera.background_color = "#1C1C1C"
         self.sd3()
