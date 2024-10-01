@@ -298,7 +298,7 @@ class DDPM(Diffusion):
         image_cats_decode_5_image = Group(*[i for i in image_cats_decode_5 if isinstance(i, ImageMobject)])
         image_cats_decode_5_text = Group(*[i for i in image_cats_decode_5 if isinstance(i, Text)])
         brace_images_and_lines.generate_target()
-        brace_images_and_lines.target = BraceLabel(images_and_lines.target, "Decode", UP, Text)
+        brace_images_and_lines.target = BraceLabel(image_cats_decode_5, "Decode", UP, Text)
         self.play(
             FadeOut(VGroup(*arrow_between_images)),
             Transform(image_cats_decode_15, image_cats_decode_5_image, replace_mobject_with_target_in_scene=True),
@@ -332,8 +332,8 @@ class DDPM(Diffusion):
         brace_encode = BraceLabel(image_cats_encode_decode_5[:5], "Encode", DOWN, Text)
         brace_encode_only = BraceLabel(image_cats_encode_5, "1000 Steps", DOWN, Text)
         formula_xt.next_to(brace_encode_only, DOWN)
-        frame_box_xt = SurroundingRectangle(formula_xt[1], corner_radius=0.01).set_stroke(width=2.0)
-        frame_box_noise = SurroundingRectangle(formula_xt[3], corner_radius=0.01).set_stroke(width=2.0)
+        frame_box_xt = SurroundingRectangle(formula_xt[1], corner_radius=0.01, buff=0.05).set_stroke(YELLOW_E, 2.0)
+        frame_box_noise = SurroundingRectangle(formula_xt[3], corner_radius=0.01, buff=0.05).set_stroke(YELLOW_E, 2.0)
         arrow_xt_image = Arrow(frame_box_xt.get_bottom(), image_cats_encode_5[0].get_bottom(),
                                path_arc=-90 * DEGREES, stroke_width=2.0, tip_length=0.2, buff=0.0)
 
@@ -441,15 +441,13 @@ class DDPM(Diffusion):
 
         image_encode_set.generate_target()
         image_encode_set.target.scale(0.5).to_edge(UP, buff=0.7)
-        brace_image_set = Brace(image_encode_set.target, direction=DOWN)
+        brace_image_set = Brace(image_encode_set.target, direction=DOWN, color=GREY)
         formula_encode = MathTex(
             r"\operatorname{loss}=|\boldsymbol{\epsilon}-",
             r"\boldsymbol{\epsilon}_\theta",
             r"(\mathbf{x}_t, t)\|^2"
         ).scale(0.7).next_to(brace_image_set, DOWN, buff=0.2)
-        box_encode = SurroundingRectangle(
-            formula_encode[1], corner_radius=0.01
-        ).set_stroke(YELLOW_E, 2.0)
+        box_encode = SurroundingRectangle(formula_encode[1], corner_radius=0.01, buff=0.05).set_stroke(YELLOW_E, 2.0)
         self.unet.next_to(formula_encode, DOWN, buff=0.5)
         self.unet.generate_target()
         self.unet.target.move_to(ORIGIN)
@@ -463,9 +461,7 @@ class DDPM(Diffusion):
             r"\boldsymbol{\epsilon}_\theta",
             r"\left(\mathbf{x}_t, t\right)\right)+\sigma_t \mathbf{z}"
         ).scale(0.6).next_to(self.unet.target, DOWN, buff=0.5)
-        box_decode = SurroundingRectangle(
-            formula_decode[5], corner_radius=0.01
-        ).set_stroke(YELLOW_E, 2.0)
+        box_decode = SurroundingRectangle(formula_decode[5], corner_radius=0.01, buff=0.05).set_stroke(YELLOW_E, 2.0)
         no_prompt = Text("No Prompt!").scale(0.5).next_to(formula_decode, DOWN)
 
         image_path_list = ([ImageMobject(f"cat_with_noise/cat_{i:03}.jpg").set(width=2)
@@ -574,7 +570,7 @@ class DDPM(Diffusion):
 
         image_output_dog.next_to(self.unet, RIGHT, buff=1.0)
         text_question = Text("?").scale(3).next_to(image_output_dog, RIGHT)
-        brace_image_set2 = Brace(image_encode_set, direction=UP)
+        brace_image_set2 = Brace(image_encode_set, direction=UP, color=GREY)
         Group(brace_image_set2, image_encode_set).next_to(self.unet, DOWN)
         self.play(
             FadeIn(image_output_dog, shift=DOWN),

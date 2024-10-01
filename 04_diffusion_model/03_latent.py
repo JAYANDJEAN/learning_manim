@@ -24,8 +24,8 @@ class LATENT(Diffusion):
         image_cat = training_data[0][0].copy()
         image_cat.generate_target()
         image_cat.target.set(width=4.5).move_to(ORIGIN)
-        brace_image_up = BraceLabel(image_cat.target, "1024 pixels", UP, Text)
-        brace_image_right = BraceLabel(image_cat.target, "1024 pixels", RIGHT, Text)
+        brace_image_up = BraceLabel(image_cat.target, "1024 pixels", UP, Text, 40)
+        brace_image_right = BraceLabel(image_cat.target, "1024 pixels", RIGHT, Text, 40)
 
         self.play(LaggedStartMap(FadeIn, training_data, lag_ratio=0.5, shift=DOWN))
         self.play(FadeOut(training_data), MoveToTarget(image_cat))
@@ -63,11 +63,19 @@ class LATENT(Diffusion):
             matrix_image, self.model_vae_decoder, image_cat_copy
         ).arrange(RIGHT, buff=0.6).shift(DOWN)
 
-        brace_matrix1 = BraceBetweenPoints(matrix_image[3].get_corner(UL),
-                                           matrix_image[0].get_corner(UL), buff=0.1, color=GREY)
-        text_dim1 = Text("4").scale(0.4).next_to(brace_matrix1, LEFT)
-        brace_matrix2 = BraceLabel(matrix_image[0], "64", RIGHT, Text, 16, buff=0.1, brace_config={'color': GREY})
-        brace_matrix3 = BraceLabel(matrix_image[0], "64", DOWN, Text, 16, buff=0.1, brace_config={'color': GREY})
+        brace_matrix1 = VGroup(
+            BraceBetweenPoints(
+                matrix_image[3].get_corner(UL),
+                matrix_image[0].get_corner(UL), buff=0.1, color=GREY),
+            Text("4").scale(0.4).next_to(matrix_image[0].get_corner(UL), LEFT + 1.6 * UP))
+        brace_matrix2 = VGroup(
+            Brace(matrix_image[0], RIGHT, buff=0.1, color=GREY),
+            Text("64").scale(0.4).next_to(matrix_image[0], RIGHT, 0.45)
+        )
+        brace_matrix3 = VGroup(
+            Brace(matrix_image[0], DOWN, buff=0.1, color=GREY),
+            Text("64").scale(0.4).next_to(matrix_image[0], DOWN, 0.45)
+        )
 
         self.play(FadeIn(self.model_vqvae, shift=DOWN))
         self.play(
@@ -85,7 +93,7 @@ class LATENT(Diffusion):
             Create(matrix_image)
         )
         self.play(
-            GrowFromCenter(brace_matrix1), Write(text_dim1),
+            GrowFromCenter(brace_matrix1),
             GrowFromCenter(brace_matrix2),
             GrowFromCenter(brace_matrix3)
         )
@@ -94,7 +102,7 @@ class LATENT(Diffusion):
                    about_point=self.gears_vae_decoder[0].get_center()),
             FadeIn(image_cat_copy, shift=DOWN)
         )
-        self.play(FadeOut(model_and_image, brace_matrix1, brace_matrix2, brace_matrix3, text_dim1, self.model_vqvae))
+        self.play(FadeOut(model_and_image, brace_matrix1, brace_matrix2, brace_matrix3, self.model_vqvae))
 
         # --------------------------------------------------
         training_data.scale(0.7).to_edge(UP)

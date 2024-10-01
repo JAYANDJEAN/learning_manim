@@ -129,12 +129,12 @@ class PrismGroup(Diffusion):
 
 class MathExpressionExample(Scene):
     def construct(self):
-        math_expression = Tex("12121212121")
-        label = BraceLabel(math_expression, "number", label_constructor=Text)
-        label.label.set_color(YELLOW_E)
-        self.add(math_expression)
-        self.play(GrowFromCenter(label))
-        self.wait()
+        formula_xt = MathTex(r"\mathbf{x}_t=\sqrt{\bar{\alpha}_t} ",
+                             r"\mathbf{x}_0",
+                             r"+\sqrt{1-\bar{\alpha}_t} ",
+                             r"\boldsymbol{\epsilon}")
+        frame_box_xt = SurroundingRectangle(formula_xt[1], corner_radius=0.01, buff=0.05).set_stroke(width=2.0)
+        self.add(formula_xt, frame_box_xt)
 
 
 if __name__ == "__main__":
