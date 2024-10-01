@@ -608,11 +608,11 @@ class Diffusion(ThreeDScene):
             lines_concat.add(Line(p11_start, p11_end, color=GREY, stroke_width=2.0))
         text_concat1 = Text("Concatenate", font="Menlo", color=GREY).scale(0.3).next_to(lines_concat[1], DOWN)
         text_concat2 = Text("···", font="Menlo", color=GREY).scale(0.3).next_to(lines_concat[4], UP)
-        text_unet = Text("UNet", font="Menlo", color=GREY).scale(0.6).next_to(prism4, UP)
+        text_unet = Text("UNet", color=GREY).next_to(prism4, DOWN, buff=0.5)
 
         self.unet = Group(
             Group(prism1, prism2, prism3, prism4, prism5, prism6, prism7),
             lines_concat,
             text_concat1, text_concat2,
-            # text_unet
+            text_unet
         ).scale(0.5)

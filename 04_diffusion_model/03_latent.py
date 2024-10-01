@@ -163,38 +163,18 @@ class LATENT(Diffusion):
         self.wait()
 
     def latent2(self):
+        # ---------------model------------------
         self.unet.move_to(ORIGIN)
-        noise = SVGMobject("assets/prism0.svg").move_to(3.8 * LEFT + 0.7 * UP)
-        noise_out = SVGMobject("assets/prism0.svg").move_to(3.8 * RIGHT + 0.7 * UP)
-        self.model_text_encoder.move_to(5.5 * LEFT + 1.5 * DOWN)
-        self.model_vae_decoder.move_to(5.3 * RIGHT + 0.7 * UP)
-        self.prompt.scale(0.6).next_to(self.model_text_encoder, DOWN, buff=0.5)
-        embedding_prompt = WeightMatrix(length=15).set(width=0.3).next_to(self.model_text_encoder, RIGHT, buff=0.5)
-        image_prompt = ImageMobject("assets/prompt.png").set(width=2.0).next_to(self.model_vae_decoder, DOWN, buff=0.5)
+        self.unet[4].set_opacity(0.0)
+        noise = SVGMobject("assets/prism0.svg").move_to(self.unet.get_left() + 0.45 * LEFT + 0.7 * UP)
+        noise_out = SVGMobject("assets/prism0.svg").move_to(self.unet.get_right() + 0.45 * RIGHT + 0.7 * UP)
+        text_dim1 = MathTex("4*64*64").scale(0.5).next_to(noise, LEFT)
+        text_dim2 = MathTex("4*64*64").scale(0.5).next_to(noise_out, UP)
         text_steps = VGroup(
             *[Text(f"Step {i + 1}", color=GREY).scale(0.6).next_to(self.unet, UP, buff=1.0)
               for i in range(50)
               ]
         )
-        text_dim1 = MathTex("4*64*64").scale(0.3).next_to(noise, LEFT)
-        text_dim2 = MathTex("4*64*64").scale(0.3).next_to(noise_out, UP)
-        arrow_out_decode = Arrow(noise_out.get_center(),
-                                 self.model_vae_decoder.get_left(),
-                                 stroke_width=2.0, tip_length=0.15, color=GREY, buff=0.05)
-        arrow_decode_image = Arrow(self.model_vae_decoder.get_bottom(),
-                                   image_prompt.get_top(),
-                                   stroke_width=2.0, tip_length=0.15, color=GREY, buff=0.05)
-        arrow_embedding = Arrow(embedding_prompt.get_right() + 0.2 * LEFT,
-                                embedding_prompt.get_right() + 7.5 * RIGHT,
-                                color=GREY, stroke_width=2.0, tip_length=0.2)
-        line_embedding = Line(embedding_prompt.get_right() + 0.2 * LEFT,
-                              embedding_prompt.get_right() + 7 * RIGHT).set_stroke(RED, 5.0)
-        arrow_prompt_encode = Arrow(self.prompt.get_top(),
-                                    self.model_text_encoder.get_bottom(),
-                                    color=GREY, stroke_width=2.0, tip_length=0.2, buff=0.05)
-        arrow_encode_embed = Arrow(self.model_text_encoder.get_right(),
-                                   embedding_prompt.get_left(),
-                                   color=GREY, stroke_width=2.0, tip_length=0.2, buff=0.05)
         line_circle = CubicBezier(
             noise_out.get_center(),
             noise_out.get_center() + 2.5 * UP,
@@ -202,21 +182,55 @@ class LATENT(Diffusion):
             noise.get_center()
         ).set_stroke(GREY, 2.0)
 
+        # ------------------decode------------------------
+        self.model_vae_decoder.next_to(noise_out, RIGHT, buff=0.8)
+        image_prompt = ImageMobject("assets/prompt.png").set(width=2.2).next_to(self.model_vae_decoder, DOWN, buff=0.8)
+        arrow_out_decode = Arrow(noise_out.get_center(),
+                                 self.model_vae_decoder.get_left(),
+                                 stroke_width=2.0, tip_length=0.15, color=GREY, buff=0.05)
+        arrow_decode_image = Arrow(self.model_vae_decoder.get_bottom(),
+                                   image_prompt.get_top(),
+                                   stroke_width=2.0, tip_length=0.15, color=GREY, buff=0.05)
+
+        # ----------------------time----------------------
+        arrow_embedding = Arrow(self.unet.get_left() + 1.2 * LEFT + 1.5 * DOWN,
+                                self.unet.get_right() + 0.5 * RIGHT + 1.5 * DOWN,
+                                color=GREY, stroke_width=2.0, tip_length=0.2)
+        line_embedding = Line(self.unet.get_left() + 1.2 * LEFT + 1.5 * DOWN,
+                              self.unet.get_right() + 1.5 * DOWN).set_stroke(RED, 5.0)
         rate_list = [0.75, 0.5, 0.3, 1 / 9, 0.3, 0.5, 0.75]
-        delta = 0.1
+        delta = 0.15
         line_embedding_unet = VGroup()
         for i, prisms in enumerate(self.unet[0]):
             for p in prisms:
                 p_end = (p.get_left() - p.get_center()) * rate_list[i] + p.get_bottom()
                 p_start = (p_end[0] - delta) * RIGHT + arrow_embedding.get_right()[1] * UP
                 line_embedding_unet.add(Line(p_start, p_end, color=GREY, stroke_width=2.0))
+        text_step = Text("Step t").scale(0.4).next_to(arrow_embedding, DOWN).align_to(arrow_embedding, LEFT)
+        line_step_arrow = CubicBezier(
+            text_step.get_top() + 0.1 * UP + 0.1 * LEFT,
+            np.array([text_step.get_top()[0] + 0.1, -1.5, 0]),
+            np.array([text_step.get_top()[0] + 0.1, -1.5, 0]),
+            np.array([text_step.get_top()[0] + 1.0, -1.5, 0])
+        ).set_stroke(GREY, 2.0)
+
+        # --------------------prompt----------------------
+        self.model_text_encoder.move_to(5.9 * LEFT + 1.5 * DOWN)
+        self.prompt.scale(0.6).next_to(self.model_text_encoder, DOWN, buff=0.5)
+        embedding_prompt = WeightMatrix(length=15).set(width=0.3).next_to(self.model_text_encoder, RIGHT, buff=0.5)
+        arrow_prompt_encode = Arrow(self.prompt.get_top(),
+                                    self.model_text_encoder.get_bottom(),
+                                    color=GREY, stroke_width=2.0, tip_length=0.2, buff=0.05)
+        arrow_encode_embed = Arrow(self.model_text_encoder.get_right(),
+                                   embedding_prompt.get_left(),
+                                   color=GREY, stroke_width=2.0, tip_length=0.2, buff=0.05)
 
         # self.add(
         #     self.unet, self.prompt, self.model_text_encoder, self.model_vae_decoder,
-        #     embedding_prompt, arrow_embedding, line_embedding_unet, text_scheduler, image_prompt,
-        #     noise, noise_out, arrow_out_decode, arrow_decode_image,
+        #     embedding_prompt, arrow_embedding, line_embedding_unet, image_prompt,
+        #     noise, noise_out, arrow_out_decode, arrow_decode_image, text_steps[0],
         #     arrow_prompt_encode, arrow_encode_embed, arrow_prompt_encode, arrow_encode_embed,
-        #     line_circle, text_dim1, text_dim2
+        #     line_circle, text_dim1, text_dim2, text_step, line_step_arrow
         # )
         self.add(self.unet)
         self.play(Create(self.prompt), GrowArrow(arrow_prompt_encode), GrowFromCenter(self.model_text_encoder))
@@ -229,7 +243,9 @@ class LATENT(Diffusion):
         self.play(FadeIn(noise, shift=DOWN), Write(text_dim1))
         self.play(
             GrowArrow(arrow_embedding),
-            LaggedStartMap(Create, line_embedding_unet, lag_ratio=0.01)
+            LaggedStartMap(Create, line_embedding_unet, lag_ratio=0.01),
+            Write(text_step),
+            Create(line_step_arrow)
         )
         self.play(
             FadeOut(noise, scale=0.1, target_position=self.unet.get_left()),
@@ -240,6 +256,7 @@ class LATENT(Diffusion):
                 lag_ratio=0.1, run_time=3
             ),
             ShowPassingFlash(line_embedding, time_width=0.2, run_time=3),
+            ShowPassingFlash(line_step_arrow.copy().set_stroke(RED, 3.0), time_width=0.2, run_time=0.5),
             LaggedStartMap(
                 ShowPassingFlash, line_embedding_unet.copy().set_stroke(RED, 5.0),
                 time_width=0.3,
@@ -247,8 +264,8 @@ class LATENT(Diffusion):
                 run_time=3
             )
         )
+        self.play(FadeIn(noise_out, scale=0.1, target_position=self.unet.get_right()))
         self.play(
-            FadeIn(noise_out, scale=0.1, target_position=self.unet.get_right()),
             Write(text_steps[0]),
             Write(text_dim2)
         )
@@ -265,6 +282,7 @@ class LATENT(Diffusion):
                 lag_ratio=0.1, run_time=2
             ),
             ShowPassingFlash(line_embedding, time_width=0.2, run_time=2),
+            ShowPassingFlash(line_step_arrow.copy().set_stroke(RED, 3.0), time_width=0.2, run_time=0.5),
             LaggedStartMap(
                 ShowPassingFlash, line_embedding_unet.copy().set_stroke(RED, 5.0),
                 time_width=0.3,
@@ -272,7 +290,7 @@ class LATENT(Diffusion):
                 run_time=2
             )
         )
-        noise_out.move_to(3.8 * RIGHT + 0.7 * UP)
+        noise_out.move_to(self.unet.get_right() + 0.45 * RIGHT + 0.7 * UP)
         self.play(
             FadeIn(noise_out, scale=0.1, target_position=self.unet.get_right()),
             FadeTransform(text_steps[0], text_steps[1])

@@ -21,6 +21,9 @@ class DDPM(Diffusion):
             ImageMobject(f"assets/product_sd3.png").set(height=2.2),
             ImageMobject(f"assets/product_flux.png").set(height=2.2)
         ).arrange(RIGHT, buff=0.3)
+
+        self.play(LaggedStartMap(SpinInFromNothing, products, lag_ratio=0.5))
+        self.play(FadeOut(products, shift=LEFT))
         self.play(
             FadeIn(image_text_pair1[0], shift=RIGHT),
             FadeIn(image_text_pair1[1], shift=DOWN),
@@ -29,8 +32,7 @@ class DDPM(Diffusion):
             run_time=2
         )
         self.play(FadeOut(image_text_pair, shift=LEFT))
-        self.play(LaggedStartMap(SpinInFromNothing, products, lag_ratio=0.5))
-        self.play(FadeOut(products, shift=LEFT))
+        self.wait()
 
         # 3. show generating shows
         image_prompt = ImageMobject("assets/prompt.png").set(width=4.2)
@@ -448,7 +450,7 @@ class DDPM(Diffusion):
             r"(\mathbf{x}_t, t)\|^2"
         ).scale(0.7).next_to(brace_image_set, DOWN, buff=0.2)
         box_encode = SurroundingRectangle(formula_encode[1], corner_radius=0.01, buff=0.05).set_stroke(YELLOW_E, 2.0)
-        self.unet.next_to(formula_encode, DOWN, buff=0.5)
+        self.unet.next_to(formula_encode, DOWN, buff=0.3)
         self.unet.generate_target()
         self.unet.target.move_to(ORIGIN)
 
@@ -462,7 +464,7 @@ class DDPM(Diffusion):
             r"\left(\mathbf{x}_t, t\right)\right)+\sigma_t \mathbf{z}"
         ).scale(0.6).next_to(self.unet.target, DOWN, buff=0.5)
         box_decode = SurroundingRectangle(formula_decode[5], corner_radius=0.01, buff=0.05).set_stroke(YELLOW_E, 2.0)
-        no_prompt = Text("No Prompt!").scale(0.5).next_to(formula_decode, DOWN)
+        no_prompt = Text("No Prompt!").scale(0.5).next_to(self.unet.target, UP).align_to(self.unet.target, LEFT)
 
         image_path_list = ([ImageMobject(f"cat_with_noise/cat_{i:03}.jpg").set(width=2)
                             for i in range(0, 255, 5)])
@@ -489,9 +491,9 @@ class DDPM(Diffusion):
 
         # self.add(self.title_ddpm, image_encode_set.target,
         #          brace_image_set, formula_encode, box_encode, self.unet)
-        # self.add(self.title_ddpm, self.unet.target, formula_decode, box_decode_model,
+        # self.add(self.title_ddpm, self.unet.target, formula_decode, box_decode,
         #          image_input_noise, image_output_dog, arrow_input_model, arrow_model_output,
-        #          text_steps[0], line_circle)
+        #          text_steps[0], line_circle, no_prompt)
 
         self.play(LaggedStartMap(FadeIn, Group(*[i[0] for i in image_encode_set]), lag_ratio=0.5, shift=RIGHT))
         self.play(
