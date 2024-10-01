@@ -568,7 +568,7 @@ class DDPM(Diffusion):
                 )
         self.wait()
         self.play(FadeOut(formula_decode, box_decode, arrow_input_model, text_steps[49], no_prompt))
-        self.play(Group(self.unet, arrow_model_output, image_output_cats[3:51]).animate.shift(2 * LEFT + 1 * UP))
+        self.play(Group(self.unet, arrow_model_output, image_output_cats[3:51]).animate.shift(2 * LEFT + 1.5 * UP))
 
         image_output_dog.next_to(self.unet, RIGHT, buff=1.0)
         text_question = Text("?").scale(3).next_to(image_output_dog, RIGHT)

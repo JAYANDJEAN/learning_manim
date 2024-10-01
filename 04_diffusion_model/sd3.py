@@ -6,7 +6,6 @@ class SD3(Diffusion):
         super().__init__()
 
     def sd3(self):
-        self.play(FadeTransform(self.title_latent, self.title_sd3))
         # -----------------模型--------------------
         noise = SVGMobject("assets/prism0.svg").scale(1.4)
         data_input = VGroup(
@@ -73,11 +72,11 @@ class SD3(Diffusion):
                 np.array([flow[0].get_center()[0] + 0.2, flow[1][0][0][0].get_center()[1], 0]),
                 flow[1][0][0][0].get_left()
             ).set_stroke(GREY, 2.0),
-            Line(flow[1][0][0][0].get_right(), flow[1][0][2][0].get_left()).set_stroke(GREY, 2.0),
-            DashedLine(flow[1][0][2][0].get_right(), flow[1][2][0][0].get_left()).set_stroke(GREY, 2.0),
-            Line(flow[1][2][0][0].get_right(), flow[1][2][2][0].get_left()).set_stroke(GREY, 2.0),
-            Line(flow[1][0][0][1].get_right(), flow[1][0][2][1].get_left()).set_stroke(GREY, 2.0),
-            DashedLine(flow[1][0][2][1].get_right(), flow[1][2][0][1].get_left()).set_stroke(GREY, 2.0),
+            Line(flow[1][0][0][0].get_right(), flow[1][0][2][0].get_left()).set_stroke(GREY, 2.0),  # 1
+            DashedLine(flow[1][0][2][0].get_right(), flow[1][2][0][0].get_left()).set_stroke(GREY, 2.0),  # 2
+            Line(flow[1][2][0][0].get_right(), flow[1][2][2][0].get_left()).set_stroke(GREY, 2.0),  # 3
+            Line(flow[1][0][0][1].get_right(), flow[1][0][2][1].get_left()).set_stroke(GREY, 2.0),  # 4 对1
+            DashedLine(flow[1][0][2][1].get_right(), flow[1][2][0][1].get_left()).set_stroke(GREY, 2.0),  # 5
             CubicBezier(
                 flow[1][2][2][0].get_bottom(),
                 np.array([flow[1][2][2][0].get_bottom()[0], flow[2].get_left()[1] - 0.2, 0]),
@@ -87,6 +86,7 @@ class SD3(Diffusion):
         )
         text_dim1 = MathTex("16*128*128").scale(0.5).next_to(flow[0], UP)
         text_dim2 = MathTex("16*128*128").scale(0.5).next_to(flow[2], UP)
+        text_50_steps = Text("After 50 Steps", color=GREY).scale(0.6).next_to(text_dim2, UP)
 
         # ------------------decode-------------------
         self.model_vae_decoder.next_to(flow, RIGHT, buff=0.5)
@@ -183,7 +183,7 @@ class SD3(Diffusion):
         )
         VGroup(clip1[0], clip2[0], clip3[0]).set_submobject_colors_by_gradient(BLUE_D, GREEN)
         clips = VGroup(clip1, clip2, clip3).arrange(DOWN, buff=0.3).next_to(embedding, DOWN, buff=1.0)
-        self.prompt.scale(0.7).next_to(clips, RIGHT, buff=1.0)
+        self.prompt.set(width=2.4).next_to(clips, RIGHT, buff=1.0)
         lines_prompt_clip = VGroup(
             CubicBezier(
                 self.prompt.get_left(),
@@ -206,14 +206,47 @@ class SD3(Diffusion):
 
         )
 
-        self.add(
-            flow, text_dim1, text_dim2, lines_in_flow, arrow_embedding, line_embedding, embedding, clips,
-            self.model_vae_decoder, image_prompt, arrow_flow_decode, arrow_decode_image, text_transformer,
-            self.prompt, line_embedding_pooled, lines_prompt_clip, line_embedding_input, text_cross, line_mmdit_text
-            , text_step, line_step_arrow
+        # self.add(
+        #     flow, text_dim1, text_dim2, lines_in_flow, arrow_embedding, line_embedding, embedding, clips,
+        #     self.model_vae_decoder, image_prompt, arrow_flow_decode, arrow_decode_image, text_transformer,
+        #     self.prompt, line_embedding_pooled, lines_prompt_clip, line_embedding_input, text_cross, line_mmdit_text
+        #     , text_step, line_step_arrow
+        # )
+        self.play(FadeTransform(self.title_latent, self.title_sd3))
+        self.play(Create(self.prompt))
+        self.play(
+            LaggedStartMap(FadeIn, clips, lag_ratio=0.5),
+            LaggedStartMap(Create, lines_prompt_clip, lag_ratio=0.5)
         )
-        # self.play(LaggedStartMap(FadeIn, clips, lag_ratio=0.5, shift=DOWN))
-        # self.wait() self.prompt, clips, lines_out_image, embedding,
+        self.play(LaggedStart(*[TransformFromCopy(clips[i], embedding[i + 1]) for i in range(3)], lag_ratio=0.3))
+        self.play(FadeIn(embedding[0]))
+        self.play(FadeIn(flow[0], shift=DOWN), Write(text_dim1))
+        self.play(Create(flow[1][0][0]), Create(lines_in_flow[0]), Create(line_embedding_input))
+        self.play(Write(text_step), Create(line_step_arrow), Create(line_embedding_pooled), Create(arrow_embedding))
+        self.play(Create(lines_in_flow[1]), Create(lines_in_flow[4]), Create(line_embedding[0]), Create(flow[1][0][1]))
+        self.play(Create(flow[1][0][2]), Create(flow[1][0][3]), Create(line_embedding[1]))
+        self.play(Create(lines_in_flow[2]), Create(lines_in_flow[5]), Create(flow[1][1]))
+        self.play(
+            Create(flow[1][2][0]),
+            Create(flow[1][2][1]),
+            Create(lines_in_flow[3]),
+            Create(flow[1][2][2]),
+            Create(line_embedding[2]),
+            Write(text_transformer)
+        )
+        self.play(Create(lines_in_flow[6]), FadeIn(flow[2], shift=DOWN), Write(text_dim2))
+        self.play(Write(text_cross), LaggedStartMap(Create, line_mmdit_text))
+        self.play(Write(text_50_steps))
+        self.play(GrowArrow(arrow_flow_decode), FadeIn(self.model_vae_decoder, shift=DOWN))
+        self.play(
+            GrowArrow(arrow_decode_image),
+            Rotate(self.gears_vae_decoder[0], axis=IN,
+                   about_point=self.gears_vae_decoder[0].get_center()),
+            FadeIn(image_prompt, shift=DOWN)
+        )
+
+        self.wait()
+
 
     def construct(self):
         self.camera.background_color = "#1C1C1C"
@@ -221,4 +254,4 @@ class SD3(Diffusion):
 
 
 if __name__ == "__main__":
-    SD().render()
+    SD3().render()

@@ -31,8 +31,7 @@ class LATENT(Diffusion):
 
         self.play(LaggedStartMap(FadeIn, training_data, lag_ratio=0.5, shift=DOWN))
         self.play(FadeOut(training_data), MoveToTarget(image_cat))
-        self.play(GrowFromCenter(brace_image_up))
-        self.play(GrowFromCenter(brace_image_right))
+        self.play(GrowFromCenter(brace_image_up), GrowFromCenter(brace_image_right))
 
         # --------------------------------------------------
         image_big = Group(image_cat, brace_image_up)
