@@ -6,7 +6,7 @@ class SD(Diffusion):
         super().__init__()
 
     def sd3(self):
-        # -------------------------------------
+        # -----------------模型--------------------
         noise = SVGMobject("assets/prism0.svg").scale(1.4)
         data_input = VGroup(
             VGroup(
@@ -48,9 +48,9 @@ class SD(Diffusion):
 
         lines_in_flow = VGroup(
             CubicBezier(
-                flow[0].get_center() + 0.2 * RIGHT,
-                np.array([flow[0].get_center()[0] + 0.2, flow[1][0][0][0].get_center()[1] - 0.1, 0]),
-                np.array([flow[0].get_center()[0] + 0.3, flow[1][0][0][0].get_center()[1], 0]),
+                flow[0].get_center() + 0.1 * RIGHT,
+                np.array([flow[0].get_center()[0] + 0.1, flow[1][0][0][0].get_center()[1] - 0.1, 0]),
+                np.array([flow[0].get_center()[0] + 0.2, flow[1][0][0][0].get_center()[1], 0]),
                 flow[1][0][0][0].get_left()
             ).set_stroke(GREY, 3.0),
             Line(flow[1][0][0][0].get_right(), flow[1][0][2][0].get_left()).set_stroke(GREY, 3.0),
@@ -65,6 +65,10 @@ class SD(Diffusion):
                 flow[2].get_left() + 0.3 * DOWN
             ).set_stroke(GREY, 3.0)
         )
+        text_dim1 = MathTex("16*128*128").scale(0.5).next_to(flow[0], UP)
+        text_dim2 = MathTex("16*128*128").scale(0.5).next_to(flow[2], UP)
+
+        # ------------------decode-------------------
         self.model_vae_decoder.next_to(flow, RIGHT, buff=0.5)
         image_prompt = ImageMobject("assets/prompt.png").set(width=2.0).next_to(self.model_vae_decoder, DOWN, buff=0.5)
         arrow_flow_decode = Arrow(
@@ -77,11 +81,11 @@ class SD(Diffusion):
             image_prompt.get_top(),
             color=GREY, stroke_width=4.0, buff=0.05, tip_length=0.2
         )
-        text_dim1 = MathTex("16*128*128").scale(0.5).next_to(flow[0], UP)
-        text_dim2 = MathTex("16*128*128").scale(0.5).next_to(flow[2], UP)
+
+        # ------------------time-------------------
         arrow_embedding = Arrow(
-            flow.get_left() + 1.6 * DOWN + 0.5 * LEFT,
-            flow.get_right() + 1.6 * DOWN + 0.5 * LEFT,
+            flow.get_left() + 1.8 * DOWN + 0.5 * LEFT,
+            flow.get_right() + 1.8 * DOWN + 0.5 * LEFT,
             color=GREY, stroke_width=2.0, tip_length=0.2
         )
         text_transformer = Text("Transformer", color=GREY).scale(0.5).next_to(arrow_embedding, DOWN)
@@ -94,6 +98,7 @@ class SD(Diffusion):
                  flow[1][2][1].get_bottom(), color=GREY, stroke_width=2.0)
         )
 
+        # --------------------embedding-----------------
         embed1 = VGroup(
             RoundedRectangle(
                 corner_radius=0.1, height=0.5, width=1.2, stroke_width=0.0
@@ -118,14 +123,22 @@ class SD(Diffusion):
             MathTex(r"77*4096").scale(0.5)
         ).next_to(embed1, DOWN, buff=0.05).align_to(embed1, LEFT)
         VGroup(embed1[0], embed2[0], embed3[0]).set_submobject_colors_by_gradient(BLUE_D, GREEN)
-        embedding = VGroup(embed0, embed1, embed2, embed3).scale(0.5).next_to(flow, LEFT).shift(0.7 * DOWN)
+        embedding = VGroup(embed0, embed1, embed2, embed3)
+        embedding.scale(0.7).rotate(PI / 2, about_point=embedding.get_center()).next_to(flow, LEFT, buff=0.7)
         line_embedding_pooled = CubicBezier(
             embedding.get_bottom(),
             np.array([embedding.get_bottom()[0], arrow_embedding.get_center()[1] + 0.3, 0]),
             np.array([embedding.get_bottom()[0] + 0.3, arrow_embedding.get_center()[1], 0]),
             arrow_embedding.get_left() + 0.05 * LEFT
         ).set_stroke(GREY, 2.0)
+        line_embedding_input = CubicBezier(
+            embedding.get_bottom(),
+            np.array([embedding.get_bottom()[0], arrow_embedding.get_center()[1] + 0.3, 0]),
+            np.array([embedding.get_bottom()[0] + 0.3, arrow_embedding.get_center()[1], 0]),
+            arrow_embedding.get_left() + 0.05 * LEFT
+        ).set_stroke(GREY, 2.0)
 
+        # -------------------clip------------------
         clip1 = VGroup(
             SurroundingRectangle(
                 Text("CLIP-L/14").scale(0.4), buff=0.1, corner_radius=0.1, stroke_width=0.0
@@ -147,11 +160,32 @@ class SD(Diffusion):
         VGroup(clip1[0], clip2[0], clip3[0]).set_submobject_colors_by_gradient(BLUE_D, GREEN)
         clips = VGroup(clip1, clip2, clip3).arrange(DOWN, buff=0.3).next_to(embedding, DOWN, buff=1.0)
         self.prompt.scale(0.7).next_to(clips, RIGHT, buff=1.0)
+        lines_prompt_clip = VGroup(
+            CubicBezier(
+                self.prompt.get_left(),
+                self.prompt.get_left() + 0.5 * LEFT,
+                clip1.get_right() + 0.5 * RIGHT,
+                clip1.get_right()
+            ).set_stroke(GREY, 2.0),
+            CubicBezier(
+                self.prompt.get_left(),
+                self.prompt.get_left() + 0.5 * LEFT,
+                clip2.get_right() + 0.5 * RIGHT,
+                clip2.get_right()
+            ).set_stroke(GREY, 2.0),
+            CubicBezier(
+                self.prompt.get_left(),
+                self.prompt.get_left() + 0.5 * LEFT,
+                clip3.get_right() + 0.5 * RIGHT,
+                clip3.get_right()
+            ).set_stroke(GREY, 2.0)
+
+        )
 
         self.add(
             flow, text_dim1, text_dim2, lines_in_flow, arrow_embedding, line_embedding, embedding, clips,
             self.model_vae_decoder, image_prompt, arrow_flow_decode, arrow_decode_image, text_transformer,
-            self.prompt, line_embedding_pooled, bt
+            self.prompt, line_embedding_pooled, bt, lines_prompt_clip
         )
         # self.play(LaggedStartMap(FadeIn, clips, lag_ratio=0.5, shift=DOWN))
         # self.wait() self.prompt, clips, lines_out_image, embedding,
