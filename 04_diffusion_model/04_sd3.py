@@ -12,19 +12,19 @@ class SD(Diffusion):
             VGroup(
                 RoundedRectangle(
                     corner_radius=0.1, height=0.8, width=1.2, stroke_width=0.0
-                ).set_fill("#FD8244", 0.4),
+                ).set_fill(ORANGE, 1.0),
                 MathTex(r"4096*1536").scale(0.4)
             ),
             VGroup(
                 RoundedRectangle(
                     corner_radius=0.1, height=0.45, width=1.2, stroke_width=0.0
-                ).set_fill("#FD8244", 0.4),
+                ).set_fill(ORANGE, 1.0),
                 MathTex(r"154*1536").scale(0.4)
             )
         ).arrange(DOWN, buff=0.5).next_to(noise, RIGHT)
         mmdit = RoundedRectangle(
             corner_radius=0.1, height=2.8, width=0.3, stroke_width=0.0
-        ).set_fill(BLUE, 1.0)
+        ).set_fill(BLUE_E, 1.0)
         mmdit.z_index = 1
 
         transformer = VGroup(
@@ -43,8 +43,28 @@ class SD(Diffusion):
         ).arrange(RIGHT, buff=0.5).scale(0.8)
         transformer[2][2][1].set_opacity(0.0)
         flow = VGroup(noise.copy(), transformer, noise.copy()).arrange(RIGHT, buff=0.3).move_to(0.6 * UP)
-        bt = BraceLabel(VGroup(flow[1][0][1], flow[1][0][3], flow[1][2][1]), "Cross Attention",
-                        brace_direction=UP, font_size=20, label_constructor=Text)
+        # flow[1][0][1], flow[1][0][3], flow[1][2][1]
+        text_cross = Text("MMDiT Block with Cross Attention").scale(0.4).next_to(flow, UP, buff=0.5)
+        line_mmdit_text=VGroup(
+            CubicBezier(
+                text_cross.get_bottom()+0.1*DOWN,
+                text_cross.get_bottom()+0.5*DOWN,
+                flow[1][0][1].get_top()+0.5*UP,
+                flow[1][0][1].get_top()
+            ).set_stroke(GREY, 2.0),
+            CubicBezier(
+                text_cross.get_bottom()+0.1*DOWN,
+                text_cross.get_bottom() + 0.5 * DOWN,
+                flow[1][0][3].get_top() + 0.5 * UP,
+                flow[1][0][3].get_top()
+            ).set_stroke(GREY, 2.0),
+            CubicBezier(
+                text_cross.get_bottom()+0.1*DOWN,
+                text_cross.get_bottom() + 0.5 * DOWN,
+                flow[1][2][1].get_top() + 0.5 * UP,
+                flow[1][2][1].get_top()
+            ).set_stroke(GREY, 2.0)
+        )
 
         lines_in_flow = VGroup(
             CubicBezier(
@@ -52,18 +72,18 @@ class SD(Diffusion):
                 np.array([flow[0].get_center()[0] + 0.1, flow[1][0][0][0].get_center()[1] - 0.1, 0]),
                 np.array([flow[0].get_center()[0] + 0.2, flow[1][0][0][0].get_center()[1], 0]),
                 flow[1][0][0][0].get_left()
-            ).set_stroke(GREY, 3.0),
-            Line(flow[1][0][0][0].get_right(), flow[1][0][2][0].get_left()).set_stroke(GREY, 3.0),
-            DashedLine(flow[1][0][2][0].get_right(), flow[1][2][0][0].get_left()).set_stroke(GREY, 3.0),
-            Line(flow[1][2][0][0].get_right(), flow[1][2][2][0].get_left()).set_stroke(GREY, 3.0),
-            Line(flow[1][0][0][1].get_right(), flow[1][0][2][1].get_left()).set_stroke(GREY, 3.0),
-            DashedLine(flow[1][0][2][1].get_right(), flow[1][2][0][1].get_left()).set_stroke(GREY, 3.0),
+            ).set_stroke(GREY, 2.0),
+            Line(flow[1][0][0][0].get_right(), flow[1][0][2][0].get_left()).set_stroke(GREY, 2.0),
+            DashedLine(flow[1][0][2][0].get_right(), flow[1][2][0][0].get_left()).set_stroke(GREY, 2.0),
+            Line(flow[1][2][0][0].get_right(), flow[1][2][2][0].get_left()).set_stroke(GREY, 2.0),
+            Line(flow[1][0][0][1].get_right(), flow[1][0][2][1].get_left()).set_stroke(GREY, 2.0),
+            DashedLine(flow[1][0][2][1].get_right(), flow[1][2][0][1].get_left()).set_stroke(GREY, 2.0),
             CubicBezier(
                 flow[1][2][2][0].get_bottom(),
                 np.array([flow[1][2][2][0].get_bottom()[0], flow[2].get_left()[1] - 0.2, 0]),
                 np.array([flow[1][2][2][0].get_bottom()[0] + 0.1, flow[2].get_left()[1] - 0.3, 0]),
                 flow[2].get_left() + 0.3 * DOWN
-            ).set_stroke(GREY, 3.0)
+            ).set_stroke(GREY, 2.0)
         )
         text_dim1 = MathTex("16*128*128").scale(0.5).next_to(flow[0], UP)
         text_dim2 = MathTex("16*128*128").scale(0.5).next_to(flow[2], UP)
@@ -97,6 +117,8 @@ class SD(Diffusion):
             Line(np.array([flow[1][2][1].get_bottom()[0] - 0.27, arrow_embedding.get_center()[1], 0]),
                  flow[1][2][1].get_bottom(), color=GREY, stroke_width=2.0)
         )
+        text_step=Text("Step t").scale(0.4).next_to(arrow_embedding,LEFT,buff=0.9)
+        line_step_arrow=Line(text_step.get_right()+0.1*RIGHT,  arrow_embedding.get_left(), color=GREY, stroke_width=2.0)
 
         # --------------------embedding-----------------
         embed1 = VGroup(
@@ -124,18 +146,19 @@ class SD(Diffusion):
         ).next_to(embed1, DOWN, buff=0.05).align_to(embed1, LEFT)
         VGroup(embed1[0], embed2[0], embed3[0]).set_submobject_colors_by_gradient(BLUE_D, GREEN)
         embedding = VGroup(embed0, embed1, embed2, embed3)
-        embedding.scale(0.7).rotate(PI / 2, about_point=embedding.get_center()).next_to(flow, LEFT, buff=0.7)
+        (embedding.scale(0.7).rotate(PI / 2, about_point=embedding.get_center())
+         .next_to(flow, LEFT, buff=0.7).shift(0.3*UP))
         line_embedding_pooled = CubicBezier(
             embedding.get_bottom(),
             np.array([embedding.get_bottom()[0], arrow_embedding.get_center()[1] + 0.3, 0]),
             np.array([embedding.get_bottom()[0] + 0.3, arrow_embedding.get_center()[1], 0]),
-            arrow_embedding.get_left() + 0.05 * LEFT
+            arrow_embedding.get_left()
         ).set_stroke(GREY, 2.0)
         line_embedding_input = CubicBezier(
-            embedding.get_bottom(),
-            np.array([embedding.get_bottom()[0], arrow_embedding.get_center()[1] + 0.3, 0]),
-            np.array([embedding.get_bottom()[0] + 0.3, arrow_embedding.get_center()[1], 0]),
-            arrow_embedding.get_left() + 0.05 * LEFT
+            embedding.get_right(),
+            embedding.get_right()+RIGHT,
+            flow[1][0][0][1].get_left()+LEFT,
+            flow[1][0][0][1].get_left()
         ).set_stroke(GREY, 2.0)
 
         # -------------------clip------------------
@@ -185,7 +208,8 @@ class SD(Diffusion):
         self.add(
             flow, text_dim1, text_dim2, lines_in_flow, arrow_embedding, line_embedding, embedding, clips,
             self.model_vae_decoder, image_prompt, arrow_flow_decode, arrow_decode_image, text_transformer,
-            self.prompt, line_embedding_pooled, bt, lines_prompt_clip
+            self.prompt, line_embedding_pooled, lines_prompt_clip, line_embedding_input, text_cross, line_mmdit_text
+            ,text_step, line_step_arrow
         )
         # self.play(LaggedStartMap(FadeIn, clips, lag_ratio=0.5, shift=DOWN))
         # self.wait() self.prompt, clips, lines_out_image, embedding,
