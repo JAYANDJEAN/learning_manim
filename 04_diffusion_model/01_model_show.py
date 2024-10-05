@@ -1,3 +1,5 @@
+from manim import *
+
 from clip import CLIP
 from ddpm import DDPM
 from latent import LATENT
@@ -10,6 +12,8 @@ class Models(DDPM, CLIP, LATENT, SD3):
 
     def construct(self):
         self.camera.background_color = "#1C1C1C"
+        title = Text("How does Diffusion model work?").scale(3)
+        self.play(Write(title), run_time=2)
         self.ddpm1()
         self.ddpm2()
         self.ddpm3()

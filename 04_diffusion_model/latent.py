@@ -321,7 +321,16 @@ class LATENT(Diffusion):
             GrowArrow(arrow_decode_image),
             Rotate(self.gears_vae_decoder[0], axis=IN,
                    about_point=self.gears_vae_decoder[0].get_center()),
-            FadeIn(image_prompt, shift=DOWN))
+            FadeIn(image_prompt, shift=DOWN)
+        )
+        self.play(
+            FadeOut(
+                text_steps[49], self.unet, self.prompt, self.model_text_encoder, self.model_vae_decoder,
+                embedding_prompt, arrow_embedding, line_embedding_unet, image_prompt,
+                noise_out, arrow_out_decode, arrow_decode_image,
+                arrow_prompt_encode, arrow_encode_embed, text_step, line_step_arrow
+            )
+        )
 
         self.wait()
 

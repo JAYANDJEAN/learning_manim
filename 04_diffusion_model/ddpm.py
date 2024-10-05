@@ -22,8 +22,6 @@ class DDPM(Diffusion):
             ImageMobject(f"assets/product_flux.png").set(height=2.2)
         ).arrange(RIGHT, buff=0.3)
 
-        self.play(LaggedStartMap(SpinInFromNothing, products, lag_ratio=0.5))
-        self.play(FadeOut(products, shift=LEFT))
         self.play(
             FadeIn(image_text_pair1[0], shift=RIGHT),
             FadeIn(image_text_pair1[1], shift=DOWN),
@@ -568,7 +566,7 @@ class DDPM(Diffusion):
                 )
         self.wait()
         self.play(FadeOut(formula_decode, box_decode, arrow_input_model, text_steps[49], no_prompt))
-        self.play(Group(self.unet, arrow_model_output, image_output_cats[3:51]).animate.shift(2 * LEFT + 1.5 * UP))
+        self.play(Group(self.unet, arrow_model_output, image_output_cats[3:51]).animate.shift(2 * LEFT + 1.2 * UP))
 
         image_output_dog.next_to(self.unet, RIGHT, buff=1.0)
         text_question = Text("?").scale(3).next_to(image_output_dog, RIGHT)

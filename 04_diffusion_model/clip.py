@@ -582,89 +582,92 @@ class CLIP(Diffusion):
             max_stroke_width_to_length_ratio=20
         )
 
-        self.play(
-            Indicate(self.model_clip[0][0]),
-            TransformFromCopy(self.model_clip[0][0], self.model_text_encoder, path_arc=30 * DEGREES)
-        )
-        self.play(
-            Indicate(self.model_clip[0][1]),
-            TransformFromCopy(self.model_clip[0][1], self.model_image_encoder, path_arc=-30 * DEGREES)
-        )
-        self.play(FadeOut(self.model_clip, shift=LEFT))
-        self.play(LaggedStartMap(FadeIn, text_set, shift=DOWN, path_arc=30 * DEGREES, lag_ratio=0.1))
-        self.play(LaggedStartMap(FadeIn, image_set, shift=DOWN, path_arc=30 * DEGREES, lag_ratio=0.1))
-        self.play(FadeIn(table_text), Create(lines_out_text))
-        self.play(
-            LaggedStart(*[FadeOut(tx, target_position=sym.get_center(), path_arc=30 * DEGREES)
-                          for tx, sym in zip(text_set.copy(), syms_text)],
-                        lag_ratio=0.05,
-                        run_time=2,
-                        remover=True
-                        ),
-            LaggedStartMap(ShowPassingFlash, lines_out_text.copy().set_color(RED),
-                           lag_ratio=5e-3,
-                           time_width=0.5,
-                           run_time=2
-                           ),
-            LaggedStartMap(Write, syms_text,
-                           lag_ratio=0.1,
-                           run_time=3
-                           ),
-        )
-        self.play(FadeIn(table_image), Create(lines_out_image))
-        self.play(
-            LaggedStart(*[FadeOut(tx, target_position=sym.get_center(), path_arc=30 * DEGREES)
-                          for tx, sym in zip(image_set.copy(), syms_image)],
-                        lag_ratio=0.05,
-                        run_time=2,
-                        remover=True
-                        ),
-            LaggedStartMap(ShowPassingFlash, lines_out_image.copy().set_color(RED),
-                           lag_ratio=5e-3,
-                           time_width=0.5,
-                           run_time=2
-                           ),
-            LaggedStartMap(Write, syms_image,
-                           lag_ratio=0.1,
-                           run_time=3
-                           ),
-        )
-        self.play(FadeIn(table))
-        self.add(syms_image_text)
-        self.play(
-            LaggedStart(
-                *[LaggedStart(
-                    *[TransformFromCopy(syms_text[i], syms_image_text[grid_num * i + j][2], path_arc=30 * DEGREES)
-                      for j in range(grid_num)],
-                    lag_ratio=0.1
-                ) for i in range(grid_num)],
-                lag_ratio=0.1,
-                run_time=4
-            ),
-            LaggedStart(
-                *[LaggedStart(
-                    *[TransformFromCopy(syms_image[i], syms_image_text[grid_num * i + j][0], path_arc=-30 * DEGREES)
-                      for j in range(grid_num)],
-                    lag_ratio=0.1
-                ) for i in range(grid_num)],
-                lag_ratio=0.1,
-                run_time=4
-            ),
-        )
-        self.play(
-            syms_image_text.animate.set_opacity(0.3),
-            FadeIn(circle_image_text)
-        )
-        self.play(Write(loss_func))
-        self.play(Create(loss_func_box1), Create(table_box1))
-        self.play(GrowArrow(arrow_1))
-        self.play(Create(loss_func_box2), Create(table_box2))
-        self.play(GrowArrow(arrow_2))
-        self.play(FadeOut(loss_func_box1, table_box1, arrow_1, loss_func_box2, table_box2, arrow_2,
-                          syms_image_text, table, table_text, syms_text, table_image, syms_image,
-                          lines_out_text, lines_out_image, circle_image_text, loss_func, text_set, image_set,
-                          self.model_image_encoder, self.model_text_encoder))
-        self.wait()
+        self.add()
+
+
+        # self.play(
+        #     Indicate(self.model_clip[0][0]),
+        #     TransformFromCopy(self.model_clip[0][0], self.model_text_encoder, path_arc=30 * DEGREES)
+        # )
+        # self.play(
+        #     Indicate(self.model_clip[0][1]),
+        #     TransformFromCopy(self.model_clip[0][1], self.model_image_encoder, path_arc=-30 * DEGREES)
+        # )
+        # self.play(FadeOut(self.model_clip, shift=LEFT))
+        # self.play(LaggedStartMap(FadeIn, text_set, shift=DOWN, path_arc=30 * DEGREES, lag_ratio=0.1))
+        # self.play(LaggedStartMap(FadeIn, image_set, shift=DOWN, path_arc=30 * DEGREES, lag_ratio=0.1))
+        # self.play(FadeIn(table_text), Create(lines_out_text))
+        # self.play(
+        #     LaggedStart(*[FadeOut(tx, target_position=sym.get_center(), path_arc=30 * DEGREES)
+        #                   for tx, sym in zip(text_set.copy(), syms_text)],
+        #                 lag_ratio=0.05,
+        #                 run_time=2,
+        #                 remover=True
+        #                 ),
+        #     LaggedStartMap(ShowPassingFlash, lines_out_text.copy().set_color(RED),
+        #                    lag_ratio=5e-3,
+        #                    time_width=0.5,
+        #                    run_time=2
+        #                    ),
+        #     LaggedStartMap(Write, syms_text,
+        #                    lag_ratio=0.1,
+        #                    run_time=3
+        #                    ),
+        # )
+        # self.play(FadeIn(table_image), Create(lines_out_image))
+        # self.play(
+        #     LaggedStart(*[FadeOut(tx, target_position=sym.get_center(), path_arc=30 * DEGREES)
+        #                   for tx, sym in zip(image_set.copy(), syms_image)],
+        #                 lag_ratio=0.05,
+        #                 run_time=2,
+        #                 remover=True
+        #                 ),
+        #     LaggedStartMap(ShowPassingFlash, lines_out_image.copy().set_color(RED),
+        #                    lag_ratio=5e-3,
+        #                    time_width=0.5,
+        #                    run_time=2
+        #                    ),
+        #     LaggedStartMap(Write, syms_image,
+        #                    lag_ratio=0.1,
+        #                    run_time=3
+        #                    ),
+        # )
+        # self.play(FadeIn(table))
+        # self.add(syms_image_text)
+        # self.play(
+        #     LaggedStart(
+        #         *[LaggedStart(
+        #             *[TransformFromCopy(syms_text[i], syms_image_text[grid_num * i + j][2], path_arc=30 * DEGREES)
+        #               for j in range(grid_num)],
+        #             lag_ratio=0.1
+        #         ) for i in range(grid_num)],
+        #         lag_ratio=0.1,
+        #         run_time=4
+        #     ),
+        #     LaggedStart(
+        #         *[LaggedStart(
+        #             *[TransformFromCopy(syms_image[i], syms_image_text[grid_num * i + j][0], path_arc=-30 * DEGREES)
+        #               for j in range(grid_num)],
+        #             lag_ratio=0.1
+        #         ) for i in range(grid_num)],
+        #         lag_ratio=0.1,
+        #         run_time=4
+        #     ),
+        # )
+        # self.play(
+        #     syms_image_text.animate.set_opacity(0.3),
+        #     FadeIn(circle_image_text)
+        # )
+        # self.play(Write(loss_func))
+        # self.play(Create(loss_func_box1), Create(table_box1))
+        # self.play(GrowArrow(arrow_1))
+        # self.play(Create(loss_func_box2), Create(table_box2))
+        # self.play(GrowArrow(arrow_2))
+        # self.play(FadeOut(loss_func_box1, table_box1, arrow_1, loss_func_box2, table_box2, arrow_2,
+        #                   syms_image_text, table, table_text, syms_text, table_image, syms_image,
+        #                   lines_out_text, lines_out_image, circle_image_text, loss_func, text_set, image_set,
+        #                   self.model_image_encoder, self.model_text_encoder))
+        # self.wait()
 
     def clip6(self):
         bert = ImageMobject("assets/bert.png").set(width=2.5).move_to(5 * LEFT)
@@ -682,15 +685,14 @@ class CLIP(Diffusion):
         self.play(Write(text_answer))
         self.play(FadeOut(bert, text_bert, image_cat_glasses, text_cat_glasses, text_answer, box))
 
-
     def construct(self):
         self.camera.background_color = "#1C1C1C"
         # self.clip1()
         # self.clip2()
         # self.clip3()
         # self.clip4()
-        # self.clip5()
-        self.clip6()
+        self.clip5()
+        # self.clip6()
 
 
 if __name__ == "__main__":
