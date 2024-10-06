@@ -12,8 +12,10 @@ class Models(DDPM, CLIP, LATENT, SD3):
 
     def construct(self):
         self.camera.background_color = "#1C1C1C"
-        title = Text("How does Diffusion model work?").scale(3)
+        title = Text("How does Diffusion model work?")
         self.play(Write(title), run_time=2)
+        self.play(FadeOut(title))
+        self.wait()
         self.ddpm1()
         self.ddpm2()
         self.ddpm3()

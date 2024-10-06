@@ -329,7 +329,7 @@ class CLIP(Diffusion):
 
     def clip4(self):
         # 11. show image encoder
-        # 只剩model_clip
+        # 清除干净
         image_prompt = Image.open("assets/prompt.png")
         img_width, img_height = image_prompt.size
         num_width, num_height = 3, 3
@@ -445,31 +445,39 @@ class CLIP(Diffusion):
             Transform(emb_sym_out, embedding_out),
             MoveToTarget(arrow_embed_out)
         )
-        self.play(FadeOut(emb_sym_out, arrow_embed_out, image_grid))
+        self.play(FadeOut(emb_sym_out, arrow_embed_out, image_grid, self.model_clip))
         self.wait()
 
     def clip5(self):
         # 12. explain how CLIP works
+        self.model_clip.move_to(RIGHT)
         self.model_text_encoder.move_to(2.5 * LEFT + 2.5 * UP)
         self.model_image_encoder.move_to(2.5 * LEFT + 1.5 * DOWN)
 
-        text_set = Group(
+        text_set = VGroup(
             Text("A CAT").set(width=2).set_opacity(1.0),
-            Text("A CAT").set(width=2).set_opacity(0.4).shift(0.1 * UP + 0.1 * RIGHT),
-            Text("A CAT").set(width=2).set_opacity(0.3).shift(0.2 * UP + 0.2 * RIGHT),
-            Text("A CAT").set(width=2).set_opacity(0.2).shift(0.3 * UP + 0.3 * RIGHT),
-            Text("A CAT").set(width=2).set_opacity(0.1).shift(0.4 * UP + 0.4 * RIGHT),
-            Text("A CAT").set(width=2).set_opacity(0.05).shift(0.5 * UP + 0.5 * RIGHT),
+            Text("A DOG").set(width=2).set_opacity(0.4).shift(0.1 * UP + 0.1 * RIGHT),
+            Text("A LION").set(width=2).set_opacity(0.3).shift(0.2 * UP + 0.2 * RIGHT),
+            Text("A COW").set(width=2).set_opacity(0.2).shift(0.3 * UP + 0.3 * RIGHT),
+            Text("A FOX").set(width=2).set_opacity(0.1).shift(0.4 * UP + 0.4 * RIGHT),
+            Text("A BEAR").set(width=2).set_opacity(0.05).shift(0.5 * UP + 0.5 * RIGHT),
         ).move_to(5.5 * LEFT + 2.5 * UP)
 
         image_set = Group(
             ImageMobject("assets/cat.jpg").set(width=2).set_opacity(1.0),
-            ImageMobject("assets/cat.jpg").set(width=2).set_opacity(0.4).shift(0.1 * UP + 0.1 * RIGHT),
-            ImageMobject("assets/cat.jpg").set(width=2).set_opacity(0.3).shift(0.2 * UP + 0.2 * RIGHT),
-            ImageMobject("assets/cat.jpg").set(width=2).set_opacity(0.2).shift(0.3 * UP + 0.3 * RIGHT),
-            ImageMobject("assets/cat.jpg").set(width=2).set_opacity(0.1).shift(0.4 * UP + 0.4 * RIGHT),
-            ImageMobject("assets/cat.jpg").set(width=2).set_opacity(0.05).shift(0.5 * UP + 0.5 * RIGHT),
+            ImageMobject("assets/dog.jpg").set(width=2).set_opacity(0.4).shift(0.1 * UP + 0.1 * RIGHT),
+            ImageMobject("assets/lion.jpg").set(width=2).set_opacity(0.3).shift(0.2 * UP + 0.2 * RIGHT),
+            ImageMobject("assets/cow.jpg").set(width=2).set_opacity(0.2).shift(0.3 * UP + 0.3 * RIGHT),
+            ImageMobject("assets/fox.jpg").set(width=2).set_opacity(0.1).shift(0.4 * UP + 0.4 * RIGHT),
+            ImageMobject("assets/bear.jpg").set(width=2).set_opacity(0.05).shift(0.5 * UP + 0.5 * RIGHT),
         ).move_to(5.5 * LEFT + 1.5 * DOWN)
+
+        image_text_set = Group(
+            *[Group(image_set[i].copy().set(width=2).set_opacity(1.0),
+                    text_set[i].copy().scale(0.4).set_opacity(1.0)).arrange(DOWN, buff=0.1) for i in range(6)]
+        ).arrange(RIGHT, buff=0.2)
+        image_set_old = Group(*[it[0] for it in image_text_set])
+        text_set_old = VGroup(*[it[1] for it in image_text_set])
 
         # lines
         table_mid = 3.5 * RIGHT + 1.5 * DOWN
@@ -581,93 +589,94 @@ class CLIP(Diffusion):
             max_tip_length_to_length_ratio=1.0,
             max_stroke_width_to_length_ratio=20
         )
-
-        self.add()
-
-
-        # self.play(
-        #     Indicate(self.model_clip[0][0]),
-        #     TransformFromCopy(self.model_clip[0][0], self.model_text_encoder, path_arc=30 * DEGREES)
-        # )
-        # self.play(
-        #     Indicate(self.model_clip[0][1]),
-        #     TransformFromCopy(self.model_clip[0][1], self.model_image_encoder, path_arc=-30 * DEGREES)
-        # )
-        # self.play(FadeOut(self.model_clip, shift=LEFT))
-        # self.play(LaggedStartMap(FadeIn, text_set, shift=DOWN, path_arc=30 * DEGREES, lag_ratio=0.1))
-        # self.play(LaggedStartMap(FadeIn, image_set, shift=DOWN, path_arc=30 * DEGREES, lag_ratio=0.1))
-        # self.play(FadeIn(table_text), Create(lines_out_text))
-        # self.play(
-        #     LaggedStart(*[FadeOut(tx, target_position=sym.get_center(), path_arc=30 * DEGREES)
-        #                   for tx, sym in zip(text_set.copy(), syms_text)],
-        #                 lag_ratio=0.05,
-        #                 run_time=2,
-        #                 remover=True
-        #                 ),
-        #     LaggedStartMap(ShowPassingFlash, lines_out_text.copy().set_color(RED),
-        #                    lag_ratio=5e-3,
-        #                    time_width=0.5,
-        #                    run_time=2
-        #                    ),
-        #     LaggedStartMap(Write, syms_text,
-        #                    lag_ratio=0.1,
-        #                    run_time=3
-        #                    ),
-        # )
-        # self.play(FadeIn(table_image), Create(lines_out_image))
-        # self.play(
-        #     LaggedStart(*[FadeOut(tx, target_position=sym.get_center(), path_arc=30 * DEGREES)
-        #                   for tx, sym in zip(image_set.copy(), syms_image)],
-        #                 lag_ratio=0.05,
-        #                 run_time=2,
-        #                 remover=True
-        #                 ),
-        #     LaggedStartMap(ShowPassingFlash, lines_out_image.copy().set_color(RED),
-        #                    lag_ratio=5e-3,
-        #                    time_width=0.5,
-        #                    run_time=2
-        #                    ),
-        #     LaggedStartMap(Write, syms_image,
-        #                    lag_ratio=0.1,
-        #                    run_time=3
-        #                    ),
-        # )
-        # self.play(FadeIn(table))
-        # self.add(syms_image_text)
-        # self.play(
-        #     LaggedStart(
-        #         *[LaggedStart(
-        #             *[TransformFromCopy(syms_text[i], syms_image_text[grid_num * i + j][2], path_arc=30 * DEGREES)
-        #               for j in range(grid_num)],
-        #             lag_ratio=0.1
-        #         ) for i in range(grid_num)],
-        #         lag_ratio=0.1,
-        #         run_time=4
-        #     ),
-        #     LaggedStart(
-        #         *[LaggedStart(
-        #             *[TransformFromCopy(syms_image[i], syms_image_text[grid_num * i + j][0], path_arc=-30 * DEGREES)
-        #               for j in range(grid_num)],
-        #             lag_ratio=0.1
-        #         ) for i in range(grid_num)],
-        #         lag_ratio=0.1,
-        #         run_time=4
-        #     ),
-        # )
-        # self.play(
-        #     syms_image_text.animate.set_opacity(0.3),
-        #     FadeIn(circle_image_text)
-        # )
-        # self.play(Write(loss_func))
-        # self.play(Create(loss_func_box1), Create(table_box1))
-        # self.play(GrowArrow(arrow_1))
-        # self.play(Create(loss_func_box2), Create(table_box2))
-        # self.play(GrowArrow(arrow_2))
-        # self.play(FadeOut(loss_func_box1, table_box1, arrow_1, loss_func_box2, table_box2, arrow_2,
-        #                   syms_image_text, table, table_text, syms_text, table_image, syms_image,
-        #                   lines_out_text, lines_out_image, circle_image_text, loss_func, text_set, image_set,
-        #                   self.model_image_encoder, self.model_text_encoder))
-        # self.wait()
+        # self.add(image_text_set, self.model_text_encoder, self.model_image_encoder)
+        self.play(LaggedStartMap(FadeIn, image_text_set, shift=DOWN, lag_ratio=0.5))
+        self.play(
+            FadeTransform(text_set_old, text_set),
+            Transform(image_set_old, image_set, replace_mobject_with_target_in_scene=True)
+        )
+        self.play(GrowFromCenter(self.model_clip))
+        self.play(
+            Indicate(self.model_clip[0][0]),
+            TransformFromCopy(self.model_clip[0][0], self.model_text_encoder, path_arc=30 * DEGREES)
+        )
+        self.play(
+            Indicate(self.model_clip[0][1]),
+            TransformFromCopy(self.model_clip[0][1], self.model_image_encoder, path_arc=-30 * DEGREES)
+        )
+        self.play(FadeOut(self.model_clip, shift=RIGHT))
+        self.play(FadeIn(table_text), Create(lines_out_text))
+        self.play(
+            LaggedStart(*[FadeOut(tx, target_position=sym.get_center(), path_arc=30 * DEGREES)
+                          for tx, sym in zip(text_set.copy(), syms_text)],
+                        lag_ratio=0.05,
+                        run_time=2,
+                        remover=True
+                        ),
+            LaggedStartMap(ShowPassingFlash, lines_out_text.copy().set_color(RED),
+                           lag_ratio=5e-3,
+                           time_width=0.5,
+                           run_time=2
+                           ),
+            LaggedStartMap(Write, syms_text,
+                           lag_ratio=0.1,
+                           run_time=3
+                           ),
+        )
+        self.play(FadeIn(table_image), Create(lines_out_image))
+        self.play(
+            LaggedStart(*[FadeOut(tx, target_position=sym.get_center(), path_arc=30 * DEGREES)
+                          for tx, sym in zip(image_set.copy(), syms_image)],
+                        lag_ratio=0.05,
+                        run_time=2,
+                        remover=True
+                        ),
+            LaggedStartMap(ShowPassingFlash, lines_out_image.copy().set_color(RED),
+                           lag_ratio=5e-3,
+                           time_width=0.5,
+                           run_time=2
+                           ),
+            LaggedStartMap(Write, syms_image,
+                           lag_ratio=0.1,
+                           run_time=3
+                           ),
+        )
+        self.play(FadeIn(table))
+        self.add(syms_image_text)
+        self.play(
+            LaggedStart(
+                *[LaggedStart(
+                    *[TransformFromCopy(syms_text[i], syms_image_text[grid_num * i + j][2], path_arc=30 * DEGREES)
+                      for j in range(grid_num)],
+                    lag_ratio=0.1
+                ) for i in range(grid_num)],
+                lag_ratio=0.1,
+                run_time=4
+            ),
+            LaggedStart(
+                *[LaggedStart(
+                    *[TransformFromCopy(syms_image[i], syms_image_text[grid_num * i + j][0], path_arc=-30 * DEGREES)
+                      for j in range(grid_num)],
+                    lag_ratio=0.1
+                ) for i in range(grid_num)],
+                lag_ratio=0.1,
+                run_time=4
+            ),
+        )
+        self.play(
+            syms_image_text.animate.set_opacity(0.3),
+            FadeIn(circle_image_text)
+        )
+        self.play(Write(loss_func))
+        self.play(Create(loss_func_box1), Create(table_box1))
+        self.play(GrowArrow(arrow_1))
+        self.play(Create(loss_func_box2), Create(table_box2))
+        self.play(GrowArrow(arrow_2))
+        self.play(FadeOut(loss_func_box1, table_box1, arrow_1, loss_func_box2, table_box2, arrow_2,
+                          syms_image_text, table, table_text, syms_text, table_image, syms_image,
+                          lines_out_text, lines_out_image, circle_image_text, loss_func, text_set, image_set,
+                          self.model_image_encoder, self.model_text_encoder))
+        self.wait()
 
     def clip6(self):
         bert = ImageMobject("assets/bert.png").set(width=2.5).move_to(5 * LEFT)
@@ -687,12 +696,12 @@ class CLIP(Diffusion):
 
     def construct(self):
         self.camera.background_color = "#1C1C1C"
-        # self.clip1()
-        # self.clip2()
-        # self.clip3()
-        # self.clip4()
+        self.clip1()
+        self.clip2()
+        self.clip3()
+        self.clip4()
         self.clip5()
-        # self.clip6()
+        self.clip6()
 
 
 if __name__ == "__main__":
