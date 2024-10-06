@@ -63,6 +63,7 @@ class DDPM(Diffusion):
             ), run_time=3
         )
         self.play(GrowArrow(arrow_model_matrix), Create(matrix_image))
+        self.wait()
         self.play(FadeIn(image_prompt, shift=DOWN), FadeOut(matrix_image))
         self.play(FadeOut(image_prompt, arrow_prompt_embedding, arrow_embedding_model, arrow_model_matrix, self.prompt))
         self.wait()
@@ -218,9 +219,11 @@ class DDPM(Diffusion):
             ), run_time=2
         )
         self.play(GrowArrow(arrow_model_cat), FadeIn(image_cat, shift=DOWN))
+        self.wait()
         self.play(Indicate(hard))
         self.play(FadeOut(image_noise, shift=DOWN))
         self.play(FadeIn(image_cat_35, shift=DOWN), FadeOut(hard))
+        self.wait()
         self.play(Indicate(easy))
         self.play(FadeOut(easy, arrow_model_cat, self.model_diffusion, arrow_noise_model,
                           arrow_prompt_model, prompt_cat))
@@ -293,6 +296,7 @@ class DDPM(Diffusion):
 
         self.play(MoveToTarget(images_and_lines))
         self.play(GrowFromCenter(brace_images_and_lines))
+        self.wait()
         # 特殊处理，方便做transform
         image_cats_decode_15 = Group(*[i for group in image_cats_decode_15 for i in group])
         image_cats_decode_5_image = Group(*[i for i in image_cats_decode_5 if isinstance(i, ImageMobject)])
@@ -411,6 +415,7 @@ class DDPM(Diffusion):
         self.play(Create(line_50), Create(dot_alpha_50), Create(dot_one_minus_alpha_50))
         self.play(Create(line_800), Create(dot_alpha_800), Create(dot_one_minus_alpha_800))
         self.play(FadeIn(image_cat_50), FadeIn(image_cat_800))
+        self.wait()
         self.play(FadeOut(image_cat_50, image_cat_800))
         self.play(FadeOut(line_800, dot_alpha_800, dot_one_minus_alpha_800,
                           line_50, dot_alpha_50, dot_one_minus_alpha_50,

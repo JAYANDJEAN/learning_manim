@@ -91,6 +91,7 @@ class LATENT(Diffusion):
         self.play(
             Rotate(self.gears_vae_encoder[0], axis=IN,
                    about_point=self.gears_vae_encoder[0].get_center()),
+            FadeOut(image_cat.copy(), scale=0.1, target_position=matrix_image.get_left()),
             Create(matrix_image)
         )
         self.play(
@@ -101,6 +102,7 @@ class LATENT(Diffusion):
         self.play(
             Rotate(self.gears_vae_decoder[0], axis=IN,
                    about_point=self.gears_vae_decoder[0].get_center()),
+            FadeOut(matrix_image.copy(), scale=0.1, target_position=image_cat_copy.get_left()),
             FadeIn(image_cat_copy, shift=DOWN)
         )
         self.play(FadeOut(model_and_image, brace_matrix1, brace_matrix2, brace_matrix3, self.model_vqvae))
