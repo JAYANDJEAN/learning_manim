@@ -1,8 +1,0 @@
-<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
-  <!-- Front face -->
-  <rect x="50" y="50" width="10" height="100" fill="#DE8344" stroke-width="0" />
-  <!-- Top face (perspective view) -->
-  <polygon points="50,50 60,50 90,0 80,0" fill="#E49A64" stroke-width="0" />
-  <!-- Side face -->
-  <polygon points="60,50 90,0 90,100 60,150" fill="#B36936" stroke-width="0" />
-</svg>
