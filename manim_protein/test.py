@@ -4,7 +4,7 @@ from Bio.PDB import PDBParser
 parser = PDBParser()
 
 # 解析结构
-structure = parser.get_structure('A0A4W3JAN5', '1abc.pdb')
+structure = parser.get_structure('A0A4W3JAN5', 'data/A0A4W3JAN5.pdb')
 
 # 遍历所有链和残基
 for model in structure:
