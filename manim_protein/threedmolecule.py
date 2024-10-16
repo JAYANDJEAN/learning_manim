@@ -4,6 +4,7 @@ from utils import OpenGLSphere, mol_parser, Element
 
 from manim.mobject.opengl.opengl_surface import OpenGLSurface
 from manim.mobject.opengl.opengl_mobject import OpenGLGroup, OpenGLMobject
+from manim.mobject.opengl.opengl_vectorized_mobject import OpenGLVGroup
 from manim import (
     TAU,
     PI,
@@ -20,6 +21,7 @@ from manim import (
     Mobject,
     Line3D,
     perpendicular_bisector,
+    Sphere
 )
 
 
@@ -334,7 +336,7 @@ class ThreeDLine(ThreeDCylinder):
         )
 
 
-class ThreeDBond(OpenGLGroup):
+class ThreeDBond(OpenGLVGroup):
     """
     Used to create a tridimensional bond.
     Uses an origin atom and a target atom to be drawn.
@@ -438,12 +440,12 @@ class ThreeDBond(OpenGLGroup):
         return perp_vector / np.linalg.norm(perp_vector)
 
 
-class ThreeDMolecule(OpenGLGroup):
+class ThreeDMolecule(OpenGLVGroup):
     def __init__(self, filename: str = None, add_bonds: bool = True, add_atoms: bool = True, **kwargs):
         super().__init__(**kwargs)
         atoms, bonds = mol_parser(file=filename)
-        atoms_group = OpenGLGroup()
-        bonds_group = OpenGLGroup()
+        atoms_group = OpenGLVGroup()
+        bonds_group = OpenGLVGroup()
         for _, atom in atoms.items():
             atoms_group.add(ThreeDAtom(Element(atom.get("element")), atom.get("coords")))
 
