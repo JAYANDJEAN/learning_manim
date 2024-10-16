@@ -1,3 +1,10 @@
+# 文件格式说明
+
+**Author:** ChatGPT
+**Date:** October 16, 2024
+
+## PDB文件说明
+
 ### HEADER 行的解释
 ```yaml
 HEADER                                            01-JUN-22
@@ -142,3 +149,5 @@ TER    2632      VAL A 330
 3. VAL：残基的名称，这里是缬氨酸（Valine）。
 4. A：链标识符，表示这个残基属于链 A。
 5. 330：残基序号，表示这是链 A 中的第 330 个残基。
+
+## MOL文件
