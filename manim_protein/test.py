@@ -1,6 +1,7 @@
 from manim import *
 from threedmolecule import ThreeDMolecule
 
+
 class Draw3DMorphine(ThreeDScene):
     # Three D Manim Chemistry objects require Opengl renderer
     config.renderer = "opengl"

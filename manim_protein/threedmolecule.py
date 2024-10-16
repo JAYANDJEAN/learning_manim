@@ -439,14 +439,7 @@ class ThreeDBond(OpenGLGroup):
 
 
 class ThreeDMolecule(OpenGLGroup):
-    def __init__(
-            self,
-            filename: str = None,
-            add_bonds: bool = True,
-            add_atoms: bool = True,
-            *mobjects,
-            **kwargs,
-    ):
+    def __init__(self, filename: str = None, add_bonds: bool = True, add_atoms: bool = True, **kwargs):
         super().__init__(**kwargs)
         atoms, bonds = mol_parser(file=filename)
         atoms_group = OpenGLGroup()
@@ -464,8 +457,6 @@ class ThreeDMolecule(OpenGLGroup):
                         from_atom=from_atom, to_atom=to_atom, bond_type=int(bond_type)
                     )
                 )
-
-        self.add(*mobjects)
         if add_bonds:
             self.add(bonds_group)
         if add_atoms:
