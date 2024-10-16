@@ -194,7 +194,7 @@ def mol_parser(file):
         z_position = float(line_data[2])
         element = line_data[3]
         atoms[index + 1] = {
-            "coords": np.array([x_position, y_position, z_position]),
+            "cords": np.array([x_position, y_position, z_position]),
             "element": element,
         }
 

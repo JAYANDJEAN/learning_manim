@@ -1,61 +1,25 @@
 import numpy as np
+from manim import (TAU, PI, ORIGIN, Z_AXIS, Y_AXIS, LEFT, RIGHT,
+                   normalize, Mobject, Line3D, perpendicular_bisector)
+from manim.mobject.opengl.opengl_mobject import OpenGLGroup, OpenGLMobject
+from manim.mobject.opengl.opengl_surface import OpenGLSurface
 
 from utils import OpenGLSphere, mol_parser, Element
 
-from manim.mobject.opengl.opengl_surface import OpenGLSurface
-from manim.mobject.opengl.opengl_mobject import OpenGLGroup, OpenGLMobject
-from manim.mobject.opengl.opengl_vectorized_mobject import OpenGLVGroup
-from manim import (
-    TAU,
-    PI,
-    ORIGIN,
-    Z_AXIS,
-    config,
-    RendererType,
-    Circle,
-    IN,
-    Y_AXIS,
-    LEFT,
-    RIGHT,
-    normalize,
-    Mobject,
-    Line3D,
-    perpendicular_bisector,
-    Sphere
-)
-
 
 class ThreeDAtom(OpenGLSphere):
-    """
-    Used to draw a sphere which represents an atom.
-    Uses an Element to get data.
-    """
-
-    def __init__(self, element: Element, coords=np.array([0, 0, 0]), **kwargs):
-        self.center = coords
-        self.coords = coords
+    def __init__(self, element: Element, cords=np.array([0, 0, 0]), **kwargs):
+        self.center = cords
+        self.cords = cords
         self.element = element
-
         super().__init__(center=self.center, color=element.color, **kwargs)
-        self.scale(0.25)
+        self.scale(0.2)
 
 
 class ThreeDCylinder(OpenGLSurface):
-    """
-    Absolutely yoinked from Cylinder class and
-    adapted to OpenGL rendering.
-    """
-
-    def __init__(
-            self,
-            radius: float = 1,
-            height: float = 2,
-            direction: np.ndarray = Z_AXIS,
-            v_range=[0, TAU],
-            show_ends: bool = True,
-            resolution=(24, 24),
-            **kwargs,
-    ) -> None:
+    def __init__(self, radius: float = 1, height: float = 2, direction: np.ndarray = Z_AXIS,
+                 v_range=(0.0, TAU), resolution=(24, 24), **kwargs) -> None:
+        self.direction = direction
         self._height = height
         self.radius = radius
         super().__init__(
@@ -65,11 +29,9 @@ class ThreeDCylinder(OpenGLSurface):
             v_range=v_range,
             **kwargs,
         )
-        # if show_ends:
-        #    self.add_bases()
         self._current_phi = 0
         self._current_theta = 0
-        self.set_direction(direction)
+        self._rotate_to_direction()
 
     def uv_func(self, u: float, v: float) -> np.ndarray:
         height = u
@@ -77,41 +39,13 @@ class ThreeDCylinder(OpenGLSurface):
         r = self.radius
         return np.array([r * np.cos(phi), r * np.sin(phi), height])
 
-    def add_bases(self) -> None:
-        """Adds the end caps of the cylinder."""
-        if config.renderer == RendererType.OPENGL:
-            color = self.color
-            opacity = self.opacity
-        elif config.renderer == RendererType.CAIRO:
-            color = self.fill_color
-            opacity = self.fill_opacity
-
-        self.base_top = Circle(
-            radius=self.radius,
-            color=color,
-            fill_opacity=opacity,
-            shade_in_3d=True,
-            stroke_width=0,
-        )
-        self.base_top.shift(self.u_range[1] * IN)
-        self.base_bottom = Circle(
-            radius=self.radius,
-            color=color,
-            fill_opacity=opacity,
-            shade_in_3d=True,
-            stroke_width=0,
-        )
-        self.base_bottom.shift(self.u_range[0] * IN)
-
     def _rotate_to_direction(self):
         x, y, z = self.direction
-
         r = np.sqrt(x ** 2 + y ** 2 + z ** 2)
         if r > 0:
             theta = np.arccos(z / r)
         else:
             theta = 0
-
         if x == 0:
             if y == 0:  # along the z axis
                 phi = 0
@@ -123,54 +57,35 @@ class ThreeDCylinder(OpenGLSurface):
             phi = np.arctan(y / x)
         if x < 0:
             phi += PI
-
         # undo old rotation (in reverse direction)
         self.rotate(-self._current_phi, Z_AXIS, about_point=ORIGIN)
         self.rotate(-self._current_theta, Y_AXIS, about_point=ORIGIN)
-
         # do new rotation
         self.rotate(theta, Y_AXIS, about_point=ORIGIN)
         self.rotate(phi, Z_AXIS, about_point=ORIGIN)
-
         # store new values
         self._current_theta = theta
         self._current_phi = phi
 
-    def set_direction(self, direction: np.ndarray) -> None:
-        self.direction = direction
-        self._rotate_to_direction()
-
-    def get_direction(self) -> np.ndarray:
-        return self.direction
-
 
 class ThreeDLine(ThreeDCylinder):
-    """
-    Absolutely yoinked from ThreeDLine class and
-    adapted to OpenGL rendering.
-    """
-
-    def __init__(
-            self,
-            start: np.ndarray = LEFT,
-            end: np.ndarray = RIGHT,
-            thickness: float = 0.05,
-            color=None,
-            **kwargs,
-    ):
+    def __init__(self, start: np.ndarray = LEFT, end: np.ndarray = RIGHT,
+                 thickness: float = 0.05, color=None, **kwargs):
+        super().__init__(**kwargs)
+        self.end = None
+        self.start = None
+        self.direction = None
+        self.length = None
+        self.vect = None
         self.thickness = thickness
         self.set_start_and_end_attrs(start, end, **kwargs)
         if color is not None:
             self.set_color(color)
 
-    def set_start_and_end_attrs(
-            self, start: np.ndarray, end: np.ndarray, **kwargs
-    ) -> None:
+    def set_start_and_end_attrs(self, start: np.ndarray, end: np.ndarray, **kwargs) -> None:
         """Sets the start and end points of the line.
-
         If either ``start`` or ``end`` are :class:`Mobjects <.Mobject>`,
         this gives their centers.
-
         Parameters
         ----------
         start
@@ -196,18 +111,14 @@ class ThreeDLine(ThreeDCylinder):
         )
         self.shift((self.start + self.end) / 2)
 
-    def pointify(
-            self, mob_or_point: Mobject or float, direction: np.ndarray = None
-    ) -> np.ndarray:
+    def pointify(self, mob_or_point: Mobject or float, direction: np.ndarray = None) -> np.ndarray:
         """Gets a point representing the center of the :class:`Mobjects <.Mobject>`.
-
         Parameters
         ----------
         mob_or_point
             :class:`Mobjects <.Mobject>` or point whose center should be returned.
         direction
             If an edge of a :class:`Mobjects <.Mobject>` should be returned, the direction of the edge.
-
         Returns
         -------
         :class:`numpy.array`
@@ -221,33 +132,10 @@ class ThreeDLine(ThreeDCylinder):
                 return mob.get_boundary_point(direction)
         return np.array(mob_or_point)
 
-    def get_start(self) -> np.ndarray:
-        """Returns the starting point of the :class:`Line3D`.
-
-        Returns
-        -------
-        start : :class:`numpy.array`
-            Starting point of the :class:`Line3D`.
-        """
-        return self.start
-
-    def get_end(self) -> np.ndarray:
-        """Returns the ending point of the :class:`Line3D`.
-
-        Returns
-        -------
-        end : :class:`numpy.array`
-            Ending point of the :class:`Line3D`.
-        """
-        return self.end
-
     @classmethod
-    def parallel_to(
-            cls, line: Line3D, point=ORIGIN, length: float = 5, **kwargs
-    ) -> Line3D:
+    def parallel_to(cls, line: Line3D, point=ORIGIN, length: float = 5, **kwargs) -> Line3D:
         """Returns a line parallel to another line going through
         a given point.
-
         Parameters
         ----------
         line
@@ -258,7 +146,6 @@ class ThreeDLine(ThreeDCylinder):
             Length of the parallel line.
         kwargs
             Additional parameters to be passed to the class.
-
         Returns
         -------
         :class:`Line3D`
@@ -279,19 +166,12 @@ class ThreeDLine(ThreeDCylinder):
         """
         point = np.array(point)
         vect = normalize(line.vect)
-        return cls(
-            point + vect * length / 2,
-            point - vect * length / 2,
-            **kwargs,
-        )
+        return cls(point + vect * length / 2, point - vect * length / 2, **kwargs)
 
     @classmethod
-    def perpendicular_to(
-            cls, line: Line3D, point=ORIGIN, length: float = 5, **kwargs
-    ) -> Line3D:
+    def perpendicular_to(cls, line: Line3D, point=ORIGIN, length: float = 5, **kwargs) -> Line3D:
         """Returns a line perpendicular to another line going through
         a given point.
-
         Parameters
         ----------
         line
@@ -302,7 +182,6 @@ class ThreeDLine(ThreeDCylinder):
             Length of the perpendicular line.
         kwargs
             Additional parameters to be passed to the class.
-
         Returns
         -------
         :class:`Line3D`
@@ -322,132 +201,90 @@ class ThreeDLine(ThreeDCylinder):
                     self.add(ax, line1, line2)
         """
         point = np.array(point)
-
         norm = np.cross(line.vect, point - line.start)
         if all(np.linalg.norm(norm) == np.zeros(3)):
             raise ValueError("Could not find the perpendicular.")
 
         start, end = perpendicular_bisector([line.start, line.end], norm)
         vect = normalize(end - start)
-        return cls(
-            point + vect * length / 2,
-            point - vect * length / 2,
-            **kwargs,
-        )
+        return cls(point + vect * length / 2, point - vect * length / 2, **kwargs)
 
 
-class ThreeDBond(OpenGLVGroup):
+class ThreeDBond(OpenGLGroup):
     """
     Used to create a tridimensional bond.
     Uses an origin atom and a target atom to be drawn.
     """
-
-    def __str__(self):
-        return f"MBondObject bonding {self.from_atom} with {self.to_atom}"
-
-    def __repr__(self):
-        return f"MBondObject bonding {self.from_atom} with {self.to_atom}"
-
     def __init__(self, from_atom, to_atom, bond_type, *mobjects, **kwargs):
         self.from_atom = from_atom
         self.to_atom = to_atom
         super().__init__(**kwargs)
         self.add(*mobjects)
-        if bond_type in [
-            1,
-        ]:
+        if bond_type in [1, ]:
             self.bonds = self.add_single_bond()
-
         elif bond_type in [2, 5, 7]:
             self.bonds = self.add_double_bond()
-
-        elif bond_type in [
-            3,
-        ]:
+        elif bond_type in [3, ]:
             self.bonds = self.add_triple_bond()
-
         else:
             raise Exception(
-                f"Unknown or unsupported bond type at bond with from atom {self.from_atom} with index {self.from_atom.index}and to atom {self.to_atom} with index {self.from_atom.index}"
+                f"Unknown or unsupported bond type at bond with from atom {self.from_atom} "
+                f"with index {self.from_atom.index}and to atom {self.to_atom} "
+                f"with index {self.from_atom.index}"
             )
 
         self.add(self.bonds)
 
     def add_single_bond(self):
         bond = OpenGLGroup()
-        midpoint = (self.to_atom.coords + self.from_atom.coords) / 2
-
+        midpoint = (self.to_atom.cords + self.from_atom.cords) / 2
         half_bond_1 = ThreeDLine(
-            self.from_atom.coords, midpoint, color=self.from_atom.element.color
+            self.from_atom.cords, midpoint, color=self.from_atom.element.color
         )
         half_bond_2 = ThreeDLine(
-            self.to_atom.coords, midpoint, color=self.to_atom.element.color
+            self.to_atom.cords, midpoint, color=self.to_atom.element.color
         )
-
         bond.add(half_bond_1, half_bond_2)
-
         return bond
 
     def add_double_bond(self):
         bond = OpenGLGroup()
         base_bond = self.add_single_bond()
-
-        perp_unit = self.get_perpendicular_unit_vector(
-            self.from_atom.coords, self.to_atom.coords
-        )
-
+        unit = self.get_perpendicular_unit_vector(self.from_atom.cords, self.to_atom.cords)
         second_bond = base_bond.copy()
-        second_bond.shift(
-            -0.12 * perp_unit
-        )  # TODO: Hardcoded values are bad, add this to the options
-        base_bond.shift(
-            0.12 * perp_unit
-        )  # TODO: Hardcoded values are bad, add this to the options
-
+        second_bond.shift(-0.12 * unit)
+        base_bond.shift(0.12 * unit)
         bond.add(base_bond, second_bond)
-
         return bond
 
     def add_triple_bond(self):
         bond = OpenGLGroup()
         base_bond = self.add_single_bond()
-        perp_unit = self.get_perpendicular_unit_vector(
-            self.from_atom.coords, self.to_atom.coords
-        )
-
-        second_bond = (
-            base_bond.copy()
-        )  # TODO: Hardcoded values are bad, add this to the options
-        third_bond = (
-            base_bond.copy()
-        )  # TODO: Hardcoded values are bad, add this to the options
-
-        second_bond.shift(-0.15 * perp_unit)
-        third_bond.shift(0.15 * perp_unit)
-
+        unit = self.get_perpendicular_unit_vector(self.from_atom.cords, self.to_atom.cords)
+        second_bond = (base_bond.copy())
+        third_bond = (base_bond.copy())
+        second_bond.shift(-0.15 * unit)
+        third_bond.shift(0.15 * unit)
         bond.add(base_bond, second_bond, third_bond)
-
         return bond
 
     def get_perpendicular_unit_vector(self, point_a, point_b):
         direction = point_b - point_a
         if direction[0] == 0 and direction[1] == 0:
-            perp_vector = np.cross(direction, np.array([0, 1, 0]))
-
+            perpendicular_vector = np.cross(direction, np.array([0, 1, 0]))
         else:
-            perp_vector = np.cross(direction, np.array([0, 0, 1]))
+            perpendicular_vector = np.cross(direction, np.array([0, 0, 1]))
+        return perpendicular_vector / np.linalg.norm(perpendicular_vector)
 
-        return perp_vector / np.linalg.norm(perp_vector)
 
-
-class ThreeDMolecule(OpenGLVGroup):
+class ThreeDMolecule(OpenGLGroup):
     def __init__(self, filename: str = None, add_bonds: bool = True, add_atoms: bool = True, **kwargs):
         super().__init__(**kwargs)
         atoms, bonds = mol_parser(file=filename)
-        atoms_group = OpenGLVGroup()
-        bonds_group = OpenGLVGroup()
+        atoms_group = OpenGLGroup()
+        bonds_group = OpenGLGroup()
         for _, atom in atoms.items():
-            atoms_group.add(ThreeDAtom(Element(atom.get("element")), atom.get("coords")))
+            atoms_group.add(ThreeDAtom(Element(atom.get("element")), atom.get("cords")))
 
         for index, bonds_list in bonds.items():
             from_atom = atoms_group[index - 1]
@@ -459,8 +296,8 @@ class ThreeDMolecule(OpenGLVGroup):
                         from_atom=from_atom, to_atom=to_atom, bond_type=int(bond_type)
                     )
                 )
-        if add_bonds:
-            self.add(bonds_group)
         if add_atoms:
             self.add(atoms_group)
+        if add_bonds:
+            self.add(bonds_group)
         self.move_to(ORIGIN)
