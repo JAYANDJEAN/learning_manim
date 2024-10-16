@@ -296,8 +296,8 @@ class ThreeDMolecule(OpenGLGroup):
                         from_atom=from_atom, to_atom=to_atom, bond_type=int(bond_type)
                     )
                 )
-        if add_atoms:
-            self.add(atoms_group)
         if add_bonds:
             self.add(bonds_group)
+        if add_atoms:
+            self.add(atoms_group)
         self.move_to(ORIGIN)
