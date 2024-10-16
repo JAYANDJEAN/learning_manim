@@ -1,15 +1,29 @@
-from Bio.PDB import PDBParser
+from manim import *
+from manim_chemistry import (
+    MMoleculeObject,
+    GraphMolecule,
+    ThreeDMolecule,
+    MElementObject,
+    PeriodicTable,
+    Orbital,
+    BohrAtom,
+)
 
-# 创建解析器
-parser = PDBParser()
 
-# 解析结构
-structure = parser.get_structure('A0A4W3JAN5', 'data/A0A4W3JAN5.pdb')
+class Draw3DMorphine(ThreeDScene):
+    # Three D Manim Chemistry objects require Opengl renderer
+    config.renderer = "opengl"
 
-# 遍历所有链和残基
-for model in structure:
-    for chain in model:
-        for residue in chain:
-            print(residue.get_resname())
-            for atom in residue:
-                print(atom.get_name(), atom.get_coord(), atom.get_bfactor(), atom.get_occupancy())
+    def construct(self):
+        morphine = ThreeDMolecule.from_mol_file(
+            filename="data/morphine3d.mol",
+            source_csv="data/Elementos.csv",
+        )
+        self.play(Create(morphine))
+        self.move_camera(phi=75 * DEGREES, theta=45 * DEGREES)
+        self.begin_ambient_camera_rotation()
+        self.wait(5)
+        self.stop_ambient_camera_rotation()
+
+
+Draw3DMorphine().render()

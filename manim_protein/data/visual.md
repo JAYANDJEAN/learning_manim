@@ -17,3 +17,10 @@
    1. ：丝带图可以简洁而直观地展示蛋白质的整体结构和折叠方式，使得复杂的结构信息变得易于理解。
    2. ：通过使用不同的颜色和形状，丝带图能够清晰地区分不同的二级结构元素，帮助研究人员识别关键的结构特征。
    3. 空间感：丝带图保留了三维结构的信息，能够展示蛋白质的空间构型，有助于理解其功能。
+
+
+---
+
+1. 3Dmol.js is an object-oriented, WebGL accelerated JavaScript library for online molecular visualization.
+   1. https://github.com/3dmol/3Dmol.js
+2. The goal of Mol* (/'mol-star/) is to provide a technology stack that serves as a basis for the next-generation data delivery and analysis tools for (not only) macromolecular structure data. Mol* development was jointly initiated by PDBe and RCSB PDB to combine and build on the strengths of LiteMol (developed by PDBe) and NGL (developed by RCSB PDB) viewers.
