@@ -1,7 +1,6 @@
 # 文件格式说明
 
 **Author:** ChatGPT
-**Date:** October 16, 2024
 
 ## PDB文件说明
 

@@ -1,7 +1,9 @@
 # learning_manim
 
-1. Manim Community v0.17.3
-
-
-1. `pip install git+https://github.com/3b1b/manim.git`
-2. 
+1. todo
+   1. 了解mol文件的内容
+   2. 解析pdb文件，可视化球棍模型
+   3. 计算氢元素的位置
+   4. 计算氢键
+   5. 实现空间填充模型
+   6. 实现丝带图
