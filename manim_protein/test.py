@@ -1,14 +1,5 @@
 from manim import *
-from manim_chemistry import (
-    MMoleculeObject,
-    GraphMolecule,
-    ThreeDMolecule,
-    MElementObject,
-    PeriodicTable,
-    Orbital,
-    BohrAtom,
-)
-
+from threedmolecule import ThreeDMolecule
 
 class Draw3DMorphine(ThreeDScene):
     # Three D Manim Chemistry objects require Opengl renderer
