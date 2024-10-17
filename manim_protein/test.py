@@ -7,7 +7,7 @@ class Draw3DMorphine(ThreeDScene):
     config.background_color = "#1C1C1C"
 
     def construct(self):
-        morphine = ThreeDMolecule(filename="data/A0A4W3JAN5.pdb", add_bonds=False)
+        morphine = ThreeDMolecule(filename="data/molecule_with_hydrogen.pdb", add_bonds=False)
         self.play(Create(morphine, run_time=3))
         self.move_camera(phi=75 * DEGREES, theta=45 * DEGREES)
         self.begin_ambient_camera_rotation(rate=0.2)

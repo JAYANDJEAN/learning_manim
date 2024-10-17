@@ -285,7 +285,7 @@ def pdb_parser(file):
     for model in structure:
         for chain in model:
             for residue in chain:
-                if residue.id[1] < 10:
+                if residue.id[1] == 1:
                     for atom in residue:
                         cords = atom.coord
                         atoms[index + 1] = {
