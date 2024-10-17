@@ -1,18 +1,25 @@
 # 导入 pymol 模块
 from pymol import cmd
+from rdkit import Chem
+import pymol
 
+# 启动 PyMOL
+# pymol.finish_launching()
 # 加载一个 PDB 文件
-cmd.load("data/A0A4W3JAN5.pdb", "molecule_name")
+cmd.load("data/A0A4W3JAN5.pdb")
 
-# 为分子添加氢原子
-cmd.h_add("molecule_name")
 
-# 保存带有氢原子的分子到新的 PDB 文件
-cmd.save("data/molecule_with_hydrogen.pdb", "molecule_name")
+# 选择你想显示的模型（space-filling）
+cmd.show('spheres')
 
-# 可选：可视化显示氢原子
-cmd.show("spheres", "hydro")  # 显示氢原子为球
-cmd.show("sticks", "molecule_name")  # 显示其他原子为棒状结构
+# 保存空间填充模型的坐标数据
+cmd.save('space_filling_model.pdb')
 
-# 如果需要，退出 PyMOL
-cmd.quit()
+
+# mol = Chem.MolFromMolFile('data/output_with_bonds.mol')
+# mol = Chem.MolFromMolFile('data/morphine3d.mol')
+# mol_with_h = Chem.AddHs(mol)
+#
+# print(len(list(mol_with_h.GetAtoms())))
+# print(len(list(mol_with_h.GetBonds())))
+
