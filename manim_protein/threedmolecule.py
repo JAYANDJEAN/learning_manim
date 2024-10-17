@@ -1,5 +1,5 @@
 import numpy as np
-from manim import (TAU, PI, ORIGIN, Z_AXIS, Y_AXIS, LEFT, RIGHT,
+from manim import (TAU, PI, ORIGIN, Z_AXIS, Y_AXIS, LEFT, RIGHT, Circle,
                    normalize, Mobject, Line3D, perpendicular_bisector)
 from manim.mobject.opengl.opengl_mobject import OpenGLGroup, OpenGLMobject
 from manim.mobject.opengl.opengl_surface import OpenGLSurface

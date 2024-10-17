@@ -10,8 +10,8 @@ class Draw3DMorphine(ThreeDScene):
         morphine = ThreeDMolecule(filename="data/morphine3d.mol")
         self.play(Create(morphine, run_time=3))
         self.move_camera(phi=75 * DEGREES, theta=45 * DEGREES)
-        self.begin_ambient_camera_rotation(rate=0.1)
-        self.wait(3)
+        self.begin_ambient_camera_rotation(rate=0.2)
+        self.wait(5)
         self.stop_ambient_camera_rotation()
 
 
