@@ -4,7 +4,28 @@ from manim import (TAU, PI, ORIGIN, Z_AXIS, Y_AXIS, LEFT, RIGHT, Circle,
 from manim.mobject.opengl.opengl_mobject import OpenGLGroup, OpenGLMobject
 from manim.mobject.opengl.opengl_surface import OpenGLSurface
 
-from utils import OpenGLSphere, mol_parser, Element
+from utils import mol_parser, Element, pdb_parser
+import os
+
+class OpenGLSphere(OpenGLSurface):
+    def __init__(
+            self,
+            center=ORIGIN,
+            **kwargs,
+    ):
+        super().__init__(
+            self.uv_func,
+            u_range=(0, TAU),
+            v_range=(0, PI),
+            **kwargs,
+        )
+
+        self.shift(center)
+
+    def uv_func(self, u, v):
+        return np.array(
+            [np.cos(u) * np.sin(v), np.sin(u) * np.sin(v), -np.cos(v)],
+        )
 
 
 class ThreeDAtom(OpenGLSphere):
@@ -215,6 +236,7 @@ class ThreeDBond(OpenGLGroup):
     Used to create a tridimensional bond.
     Uses an origin atom and a target atom to be drawn.
     """
+
     def __init__(self, from_atom, to_atom, bond_type, *mobjects, **kwargs):
         self.from_atom = from_atom
         self.to_atom = to_atom
@@ -280,7 +302,13 @@ class ThreeDBond(OpenGLGroup):
 class ThreeDMolecule(OpenGLGroup):
     def __init__(self, filename: str = None, add_bonds: bool = True, add_atoms: bool = True, **kwargs):
         super().__init__(**kwargs)
-        atoms, bonds = mol_parser(file=filename)
+        file_extension = os.path.splitext(filename)[1]
+        if file_extension == '.mol':
+            atoms, bonds = mol_parser(file=filename)
+        elif file_extension == '.pdb':
+            atoms, bonds = pdb_parser(file=filename)
+        else:
+            atoms, bonds = None, None
         atoms_group = OpenGLGroup()
         bonds_group = OpenGLGroup()
         for _, atom in atoms.items():

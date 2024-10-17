@@ -1,9 +1,7 @@
-
 from typing import Union
 import numpy as np
+from Bio import PDB
 
-from manim import ORIGIN, TAU, PI
-from manim.mobject.opengl.opengl_surface import OpenGLSurface
 
 
 class Element:
@@ -146,27 +144,6 @@ class Element:
         self.color = element[4]
 
 
-class OpenGLSphere(OpenGLSurface):
-    def __init__(
-            self,
-            center=ORIGIN,
-            **kwargs,
-    ):
-        super().__init__(
-            self.uv_func,
-            u_range=(0, TAU),
-            v_range=(0, PI),
-            **kwargs,
-        )
-
-        self.shift(center)
-
-    def uv_func(self, u, v):
-        return np.array(
-            [np.cos(u) * np.sin(v), np.sin(u) * np.sin(v), -np.cos(v)],
-        )
-
-
 def mol_parser(file):
     with open(file) as file:
         mol_file = file.readlines()
@@ -299,3 +276,29 @@ def mol_to_graph(file):
     return atoms, bonds  # Should return atoms and bonds
 
 
+def pdb_parser(file):
+    parser = PDB.PDBParser(QUIET=True)
+    structure = parser.get_structure('pdb', file)
+    atoms = {}
+    bonds = {}
+    index = 0
+    for model in structure:
+        for chain in model:
+            for residue in chain:
+                if residue.id[1] < 10:
+                    for atom in residue:
+                        cords = atom.coord
+                        atoms[index + 1] = {
+                            "cords": np.array([cords[0], cords[1], cords[2]]),
+                            "element": atom.element,
+                        }
+                        index += 1
+
+    return atoms, bonds
+
+
+if __name__ == "__main__":
+    data1 = mol_parser('data/morphine3d.mol')
+    print(data1[0])
+    data2 = pdb_parser('data/A0A4W3JAN5.pdb')
+    print(data2[0])
