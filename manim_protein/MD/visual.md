@@ -24,3 +24,9 @@
 1. 3Dmol.js is an object-oriented, WebGL accelerated JavaScript library for online molecular visualization.
    1. https://github.com/3dmol/3Dmol.js
 2. The goal of Mol* (/'mol-star/) is to provide a technology stack that serves as a basis for the next-generation data delivery and analysis tools for (not only) macromolecular structure data. Mol* development was jointly initiated by PDBe and RCSB PDB to combine and build on the strengths of LiteMol (developed by PDBe) and NGL (developed by RCSB PDB) viewers.
+
+
+https://www.rdkit.org/docs/index.html
+1. RDKit 主要处理的是小分子，因此在解析大型蛋白质结构时，RDKit 可能不适用。针对大分子的处理可以结合其他工具，如 Biopython 或 MDAnalysis。
+
+
