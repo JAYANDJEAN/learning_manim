@@ -1,0 +1,75 @@
+HEADER                                            01-JUN-22                     
+TITLE     ALPHAFOLD MONOMER V2.0 PREDICTION FOR PROTEIN KINASE DOMAIN-          
+TITLE    2 CONTAINING PROTEIN (A0A4W3JAN5)                                      
+COMPND    MOL_ID: 1;                                                            
+COMPND   2 MOLECULE: PROTEIN KINASE DOMAIN-CONTAINING PROTEIN;                  
+COMPND   3 CHAIN: A                                                             
+SOURCE    MOL_ID: 1;                                                            
+SOURCE   2 ORGANISM_SCIENTIFIC: CALLORHINCHUS MILII;                            
+SOURCE   3 ORGANISM_TAXID: 7868                                                 
+REMARK   1                                                                      
+REMARK   1 REFERENCE 1                                                          
+REMARK   1  AUTH   JOHN JUMPER, RICHARD EVANS, ALEXANDER PRITZEL, TIM GREEN,    
+REMARK   1  AUTH 2 MICHAEL FIGURNOV, OLAF RONNEBERGER, KATHRYN TUNYASUVUNAKOOL, 
+REMARK   1  AUTH 3 RUSS BATES, AUGUSTIN ZIDEK, ANNA POTAPENKO, ALEX BRIDGLAND,  
+REMARK   1  AUTH 4 CLEMENS MEYER, SIMON A A KOHL, ANDREW J BALLARD,             
+REMARK   1  AUTH 5 ANDREW COWIE, BERNARDINO ROMERA-PAREDES, STANISLAV NIKOLOV,  
+REMARK   1  AUTH 6 RISHUB JAIN, JONAS ADLER, TREVOR BACK, STIG PETERSEN,        
+REMARK   1  AUTH 7 DAVID REIMAN, ELLEN CLANCY, MICHAL ZIELINSKI,                
+REMARK   1  AUTH 8 MARTIN STEINEGGER, MICHALINA PACHOLSKA, TAMAS BERGHAMMER,    
+REMARK   1  AUTH 9 DAVID SILVER, ORIOL VINYALS, ANDREW W SENIOR,                
+REMARK   1  AUTH10 KORAY KAVUKCUOGLU, PUSHMEET KOHLI, DEMIS HASSABIS            
+REMARK   1  TITL   HIGHLY ACCURATE PROTEIN STRUCTURE PREDICTION WITH ALPHAFOLD  
+REMARK   1  REF    NATURE                        V. 596   583 2021              
+REMARK   1  REFN                   ISSN 0028-0836                               
+REMARK   1  PMID   34265844                                                     
+REMARK   1  DOI    10.1038/s41586-021-03819-2                                   
+REMARK   1                                                                      
+REMARK   1 DISCLAIMERS                                                          
+REMARK   1 ALPHAFOLD DATA, COPYRIGHT (2021) DEEPMIND TECHNOLOGIES LIMITED. THE  
+REMARK   1 INFORMATION PROVIDED IS THEORETICAL MODELLING ONLY AND CAUTION SHOULD
+REMARK   1 BE EXERCISED IN ITS USE. IT IS PROVIDED "AS-IS" WITHOUT ANY WARRANTY 
+REMARK   1 OF ANY KIND, WHETHER EXPRESSED OR IMPLIED. NO WARRANTY IS GIVEN THAT 
+REMARK   1 USE OF THE INFORMATION SHALL NOT INFRINGE THE RIGHTS OF ANY THIRD    
+REMARK   1 PARTY. THE INFORMATION IS NOT INTENDED TO BE A SUBSTITUTE FOR        
+REMARK   1 PROFESSIONAL MEDICAL ADVICE, DIAGNOSIS, OR TREATMENT, AND DOES NOT   
+REMARK   1 CONSTITUTE MEDICAL OR OTHER PROFESSIONAL ADVICE. IT IS AVAILABLE FOR 
+REMARK   1 ACADEMIC AND COMMERCIAL PURPOSES, UNDER CC-BY 4.0 LICENCE.           
+DBREF  XXXX A    1   3  UNP    A0A4W3JAN5 A0A4W3JAN5_CALMI     1    3       
+SEQRES   1 A  3  MET GLU ASN   
+CRYST1    1.000    1.000    1.000  90.00  90.00  90.00 P 1           1          
+ORIGX1      1.000000  0.000000  0.000000        0.00000                         
+ORIGX2      0.000000  1.000000  0.000000        0.00000                         
+ORIGX3      0.000000  0.000000  1.000000        0.00000                         
+SCALE1      1.000000  0.000000  0.000000        0.00000                         
+SCALE2      0.000000  1.000000  0.000000        0.00000                         
+SCALE3      0.000000  0.000000  1.000000        0.00000                         
+MODEL        1                                                                  
+ATOM      1  N   MET A   1     -19.514   9.408  21.651  1.00 83.00           N  
+ATOM      2  CA  MET A   1     -18.255   9.343  22.440  1.00 83.00           C  
+ATOM      3  C   MET A   1     -18.464   8.854  23.873  1.00 83.00           C  
+ATOM      4  CB  MET A   1     -17.485  10.675  22.434  1.00 83.00           C  
+ATOM      5  O   MET A   1     -17.529   8.294  24.427  1.00 83.00           O  
+ATOM      6  CG  MET A   1     -16.670  10.847  21.144  1.00 83.00           C  
+ATOM      7  SD  MET A   1     -15.438   9.546  20.833  1.00 83.00           S  
+ATOM      8  CE  MET A   1     -14.201   9.917  22.102  1.00 83.00           C  
+ATOM      9  N   GLU A   2     -19.648   9.013  24.470  1.00 82.62           N  
+ATOM     10  CA  GLU A   2     -19.931   8.610  25.863  1.00 82.62           C  
+ATOM     11  C   GLU A   2     -19.697   7.115  26.142  1.00 82.62           C  
+ATOM     12  CB  GLU A   2     -21.385   8.976  26.179  1.00 82.62           C  
+ATOM     13  O   GLU A   2     -19.177   6.756  27.203  1.00 82.62           O  
+ATOM     14  CG  GLU A   2     -21.597  10.496  26.086  1.00 82.62           C  
+ATOM     15  CD  GLU A   2     -23.037  10.921  26.378  1.00 82.62           C  
+ATOM     16  OE1 GLU A   2     -23.217  12.145  26.532  1.00 82.62           O  
+ATOM     17  OE2 GLU A   2     -23.911  10.030  26.380  1.00 82.62           O  
+ATOM     18  N   ASN A   3     -19.968   6.270  25.142  1.00 89.56           N  
+ATOM     19  CA  ASN A   3     -19.796   4.815  25.196  1.00 89.56           C  
+ATOM     20  C   ASN A   3     -18.339   4.340  25.098  1.00 89.56           C  
+ATOM     21  CB  ASN A   3     -20.655   4.170  24.088  1.00 89.56           C  
+ATOM     22  O   ASN A   3     -18.097   3.143  25.206  1.00 89.56           O  
+ATOM     23  CG  ASN A   3     -22.140   4.412  24.284  1.00 89.56           C  
+ATOM     24  ND2 ASN A   3     -22.931   4.312  23.243  1.00 89.56           N  
+ATOM     25  OD1 ASN A   3     -22.596   4.727  25.363  1.00 89.56           O  
+TER    2632      VAL A 3                                                      
+ENDMDL                                                                          
+END                                                                             

@@ -1,12 +1,10 @@
 # # 导入 pymol 模块
-# from pymol import cmd
-from rdkit import Chem
-# import pymol
-#
-# # 启动 PyMOL
-# # pymol.finish_launching()
-# # 加载一个 PDB 文件
-# cmd.load("data/A0A4W3JAN5.pdb")
+from pymol import cmd
+import pymol
+
+cmd.load("data/A0A4W3JAN5_min.pdb")
+cmd.h_add()
+cmd.save("data/A0A4W3JAN5_min.mol", format="mol")
 #
 #
 # # 选择你想显示的模型（space-filling）
@@ -23,8 +21,5 @@ from rdkit import Chem
 # print(len(list(mol_with_h.GetAtoms())))
 # print(len(list(mol_with_h.GetBonds())))
 
-mol = Chem.MolFromPDBFile('data/A0A4W3JAN5.pdb')
-mol_with_h = Chem.AddHs(mol)
-print(len(list(mol_with_h.GetAtoms())))
-print(len(list(mol_with_h.GetBonds())))
+
 

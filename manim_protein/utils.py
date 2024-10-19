@@ -3,7 +3,6 @@ import numpy as np
 from Bio import PDB
 
 
-
 class Element:
     def __repr__(self) -> str:
         return f"Element {self.atomic_number}: {self.name} ({self.symbol})"
@@ -285,14 +284,13 @@ def pdb_parser(file):
     for model in structure:
         for chain in model:
             for residue in chain:
-                if residue.id[1] == 1:
-                    for atom in residue:
-                        cords = atom.coord
-                        atoms[index + 1] = {
-                            "cords": np.array([cords[0], cords[1], cords[2]]),
-                            "element": atom.element,
-                        }
-                        index += 1
+                for atom in residue:
+                    cords = atom.coord
+                    atoms[index + 1] = {
+                        "cords": np.array([cords[0], cords[1], cords[2]]),
+                        "element": atom.element,
+                    }
+                    index += 1
 
     return atoms, bonds
 
