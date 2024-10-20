@@ -1,11 +1,12 @@
+import os
+
 import numpy as np
-from manim import (TAU, PI, ORIGIN, Z_AXIS, Y_AXIS, LEFT, RIGHT, Circle,
-                   normalize, Mobject, Line3D, perpendicular_bisector)
+from manim import (TAU, PI, ORIGIN, Z_AXIS, Y_AXIS, LEFT, RIGHT, normalize, Mobject, Line3D, perpendicular_bisector)
 from manim.mobject.opengl.opengl_mobject import OpenGLGroup, OpenGLMobject
 from manim.mobject.opengl.opengl_surface import OpenGLSurface
 
 from utils import mol_parser, Element, pdb_parser
-import os
+
 
 class OpenGLSphere(OpenGLSurface):
     def __init__(
