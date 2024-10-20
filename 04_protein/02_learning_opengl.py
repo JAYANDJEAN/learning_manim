@@ -1,26 +1,16 @@
-import os
-
 from manim import *
 from manim.mobject.opengl.opengl_mobject import OpenGLGroup
 from manim.mobject.opengl.opengl_surface import OpenGLSurface
 
-from utils import mol_parser, Element, pdb_parser
-
 
 class OpenGLSphere(OpenGLSurface):
     def __init__(self, center=ORIGIN, **kwargs):
-        super().__init__(
-            self.uv_func,
-            u_range=(0, TAU),
-            v_range=(0, PI),
-            **kwargs,
-        )
+        super().__init__(self.uv_func, u_range=(0, TAU), v_range=(0, PI), **kwargs)
         self.shift(center)
-        self.scale(0.2)
+        self.scale(0.4)
 
     def uv_func(self, u, v):
-        return np.array([np.cos(u) * np.sin(v), np.sin(u) * np.sin(v), -np.cos(v)])
-
+        return np.array([np.cos(u) * np.sin(v), np.sin(u) * np.sin(v), np.cos(v)])
 
 
 class ThreeDMolecule(OpenGLGroup):
