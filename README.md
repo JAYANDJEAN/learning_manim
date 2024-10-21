@@ -1,8 +1,10 @@
 # learning_manim
 
-1. todo
-   1. 实现空间填充模型
-   2. 实现丝带图
-   3. 计算二级结构，拿到数据，还要想想怎么在opengl里实现渲染。
-   4. https://github.com/molstar/molstar/blob/b4772e0cb9c3b3b17290813f97df6766fb0d9876/src/mol-model-props/computed/secondary-structure/dssp.ts
-   5. manim 怎么实现 surface
+### 04_protein
+
+1. manim 的 OpenGLSurface 是靠 uv_func 来定义曲面，所以无法实现无规则曲面的渲染。
+   1. https://www.reddit.com/r/manim/comments/1fb9wme/how_to_plot_3d_surface_from_xyz_points/
+   2. 我理解丝带图也是无规则曲面吧，所以现在不好实现。
+   3. 要实现的话，要基于更底层的接口吧，比如 OpenGLMobject。不知道理解是否正确。
+2. 如果想要学习丝带图的数据是如何计算的，可以参考：
+   1. https://github.com/molstar/molstar/blob/b4772e0cb9c3b3b17290813f97df6766fb0d9876/src/mol-model-props/computed/secondary-structure/dssp.ts
