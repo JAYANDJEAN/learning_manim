@@ -2,10 +2,7 @@
 
 ## 01_reflection
 
-<video controls>
-  <source src="assets/Reflection.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+1. 圆和椭圆里的光反射。
 
 ## 02_transformer
 
@@ -18,11 +15,9 @@
 
 ## 04_protein
 
-1. manim 的 OpenGLSurface 是靠 uv_func 来定义曲面，所以无法实现无规则曲面的渲染。
-   1. https://www.reddit.com/r/manim/comments/1fb9wme/how_to_plot_3d_surface_from_xyz_points/
-   2. 我理解丝带图也是无规则曲面吧，所以现在不好实现。
-   3. 要实现的话，要基于更底层的接口吧，比如 OpenGLMobject。不知道理解是否正确。
-2. 如果想要学习丝带图的数据是如何计算的，可以参考：
+1. manim 的 OpenGLSurface 是靠 uv_func 来实现 init_points，所以无法实现无规则曲面的渲染，要实现的话，要基于更底层的接口 OpenGLMobject。
+2. 我理解只要新建一个 OpenGLSurfacePoint，继承于 OpenGLMobject，读取输入的 point 来实现 init_points 就可以。
+3. 如果想要学习丝带图的数据是如何计算的，可以参考：
    1. https://github.com/molstar/molstar/blob/b4772e0cb9c3b3b17290813f97df6766fb0d9876/src/mol-model-props/computed/secondary-structure/dssp.ts
 
 ### Videos
