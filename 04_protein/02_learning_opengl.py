@@ -53,9 +53,6 @@ class OpenGLSurface(OpenGLMobject):
         return (u, v, 0.0)
 
     def compute_triangle_indices(self):
-        # TODO, if there is an event which changes
-        # the resolution of the surface, make sure
-        # this is called.
         nu, nv = self.resolution
         if nu == 0 or nv == 0:
             self.triangle_indices = np.zeros(0, dtype=int)
@@ -117,18 +114,6 @@ class OpenGLSurface(OpenGLMobject):
 
     # get_shader_data
     def _get_color_by_value(self, s_points):
-        """Matches each vertex to a color associated to it's z-value.
-
-        Parameters
-        ----------
-        s_points
-           The vertices of the surface.
-
-        Returns
-        -------
-        List
-            A list of colors matching the vertex inputs.
-        """
         if type(self.colorscale[0]) in (list, tuple):
             new_colors, pivots = [
                 [i for i, j in self.colorscale],
