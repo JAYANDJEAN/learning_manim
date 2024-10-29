@@ -17,6 +17,7 @@
 
 1. manim 的 OpenGLSurface 是靠 uv_func 来实现 init_points，所以无法实现无规则曲面的渲染，要实现的话，要基于更底层的接口 OpenGLMobject。
 2. 我理解只要新建一个 OpenGLSurfacePoint，继承于 OpenGLMobject，读取输入的 point 来实现 init_points 就可以。
+3. 其他python包直接计算α-螺旋、β-折叠等二级结构信息。
 3. 如果想要学习丝带图的数据是如何计算的，可以参考：
    1. https://github.com/molstar/molstar/blob/b4772e0cb9c3b3b17290813f97df6766fb0d9876/src/mol-model-props/computed/secondary-structure/dssp.ts
 
